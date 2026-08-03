@@ -1,0 +1,147 @@
+/* SmartHelmet/Software/src/styles/SessionSummaryCard.css */
+.session-summary-card {
+  background: rgba(15, 23, 60, 0.55);
+  border: 1px solid rgba(56, 189, 248, 0.15);
+  border-radius: 16px;
+  padding: 24px;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  margin-top: 24px;
+}
+
+.ssc-header {
+  margin-bottom: 24px;
+}
+
+.ssc-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #e2e8f0;
+  margin: 0;
+  letter-spacing: 0.02em;
+}
+
+.ssc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.ssc-stat-box {
+  background: rgba(15, 23, 60, 0.4);
+  border: 1px solid var(--stat-border, rgba(255, 255, 255, 0.05));
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: inset 0 0 16px var(--stat-glow, transparent);
+  transition: all 0.3s ease;
+}
+
+.ssc-stat-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #94a3b8;
+  font-size: 0.85rem;
+  margin-bottom: 12px;
+  font-weight: 500;
+}
+
+.ssc-stat-values {
+  display: flex;
+  justify-content: space-between;
+}
+
+.ssc-val-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.ssc-val-label {
+  font-size: 0.7rem;
+  color: #64748b;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+
+.ssc-val-number {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #f0f4ff;
+}
+
+.ssc-counts-row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.ssc-count-chip {
+  flex: 1;
+  min-width: 140px;
+  display: flex;
+  align-items: center;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid var(--chip-border, rgba(255, 255, 255, 0.05));
+  background: var(--chip-bg, rgba(255, 255, 255, 0.02));
+  box-shadow: 0 0 24px var(--chip-glow, transparent);
+  gap: 16px;
+  transition: all 0.3s ease;
+}
+
+.ssc-count-icon-wrap {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+}
+
+.ssc-count-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.ssc-count-label {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.ssc-count-number {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.1;
+}
+
+/* Base styles for the different count tiles */
+.ssc-count-chip.emergency {
+  --chip-border: rgba(239, 68, 68, 0.5);
+  --chip-bg: rgba(239, 68, 68, 0.15);
+  --chip-glow: rgba(239, 68, 68, 0.3);
+}
+
+.ssc-count-chip.warning {
+  --chip-border: rgba(245, 158, 11, 0.5);
+  --chip-bg: rgba(245, 158, 11, 0.15);
+  --chip-glow: rgba(245, 158, 11, 0.3);
+}
+
+.ssc-count-chip.fall {
+  --chip-border: rgba(168, 85, 247, 0.5);
+  --chip-bg: rgba(168, 85, 247, 0.15);
+  --chip-glow: rgba(168, 85, 247, 0.3);
+}
+
+.ssc-count-chip.safe {
+  --chip-border: rgba(16, 185, 129, 0.3);
+  --chip-bg: rgba(16, 185, 129, 0.1);
+  --chip-glow: rgba(16, 185, 129, 0.15);
+}

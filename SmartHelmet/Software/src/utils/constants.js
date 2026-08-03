@@ -40,6 +40,7 @@ export const THRESHOLDS = {
   gas_level:   { warning: 1000, emergency: 2000 },
   force:       { warning: 17000, emergency: 20000 },
   heart_rate:  { warningLow: 50, warningHigh: 120, emergencyLow: 40, emergencyHigh: 150 },
+  spo2:        { warning: 94, emergency: 90 },
 };
 
 export const STATUS = {
@@ -47,6 +48,10 @@ export const STATUS = {
   WARNING: 'warning',
   EMERGENCY: 'emergency',
 };
+
+// RSSI range for continuous worker positioning along the tunnel path
+export const RSSI_STRONGEST = -50;   // maps to 0% along path (at Entrance)
+export const RSSI_WEAKEST   = -120;  // maps to 100% along path (farthest point)
 
 /**
  * Derive per-sensor status from the current reading using known thresholds.

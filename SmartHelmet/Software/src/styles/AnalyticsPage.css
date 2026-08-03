@@ -1,0 +1,49 @@
+/* SmartHelmet/Software/src/styles/AnalyticsPage.css */
+.analytics-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-height: calc(100vh - var(--header-height) - 48px);
+  padding-bottom: 40px;
+}
+
+.ap-header-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ap-page-title {
+  font-size: 1.65rem;
+  font-weight: 700;
+  color: #e2e8f0;
+  letter-spacing: -0.02em;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.ap-page-subtitle {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin: 0;
+  letter-spacing: 0.01em;
+}
+
+.ap-top-row {
+  display: grid;
+  grid-template-columns: 500px 1fr;
+  gap: 24px;
+  align-items: stretch;
+}
+
+@media (max-width: 1200px) {
+  .ap-top-row {
+    grid-template-columns: 400px 1fr;
+  }
+}
+
+@media (max-width: 960px) {
+  .ap-top-row {
+    grid-template-columns: 1fr;
+  }
+}

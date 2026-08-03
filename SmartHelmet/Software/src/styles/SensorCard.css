@@ -21,26 +21,6 @@
   border-color: rgba(0, 212, 255, 0.25);
 }
 
-/* Status-colored left accent bar */
-.sensor-card::after {
-  content: '';
-  position: absolute;
-  top: 16px;
-  bottom: 16px;
-  left: 0;
-  width: 3px;
-  border-radius: 0 3px 3px 0;
-  background: #01B574;
-  transition: background 300ms ease;
-}
-
-.sensor-card.warning::after {
-  background: #f97316;
-}
-
-.sensor-card.emergency::after {
-  background: #ef4444;
-}
 
 /* ── Card header row ──────────────────────────────────── */
 .sc-header {

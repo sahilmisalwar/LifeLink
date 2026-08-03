@@ -12,15 +12,15 @@
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: linear-gradient(135deg, rgba(6, 11, 40, 0.9), rgba(168, 85, 247, 0.4));
+  background: linear-gradient(135deg, rgba(6, 11, 40, 0.9), rgba(0, 212, 255, 0.4));
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(168, 85, 247, 0.5);
+  border: 1px solid rgba(0, 212, 255, 0.5);
   color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 16px rgba(168, 85, 247, 0.2);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 16px rgba(0, 212, 255, 0.2);
   cursor: pointer;
   z-index: 10001; /* Above popup and backdrop */
   transition: all 250ms cubic-bezier(0.16, 1, 0.3, 1);
@@ -29,8 +29,8 @@
 
 .dcp-fab:hover {
   transform: scale(1.05);
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.6), 0 0 24px rgba(168, 85, 247, 0.4);
-  background: linear-gradient(135deg, rgba(6, 11, 40, 0.9), rgba(168, 85, 247, 0.6));
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.6), 0 0 24px rgba(0, 212, 255, 0.4);
+  background: linear-gradient(135deg, rgba(6, 11, 40, 0.9), rgba(0, 212, 255, 0.6));
 }
 
 .dcp-fab:active {
@@ -90,8 +90,8 @@
 }
 
 .demo-controls-panel.demo-active {
-  border-left-color: rgba(168, 85, 247, 0.4);
-  box-shadow: -8px 0 32px rgba(0, 0, 0, 0.5), -4px 0 24px -6px rgba(168, 85, 247, 0.15);
+  border-left-color: rgba(0, 212, 255, 0.4);
+  box-shadow: -8px 0 32px rgba(0, 0, 0, 0.5), -4px 0 24px -6px rgba(0, 212, 255, 0.15);
 }
 
 /* ── Header ──────────────────────────────────── */
@@ -118,8 +118,8 @@
   align-items: center;
   justify-content: center;
   border-radius: 10px;
-  background: rgba(168, 85, 247, 0.1);
-  border: 1px solid rgba(168, 85, 247, 0.2);
+  background: rgba(0, 212, 255, 0.1);
+  border: 1px solid rgba(0, 212, 255, 0.2);
 }
 
 .dcp-header-text {
@@ -177,16 +177,16 @@
   gap: 8px;
   padding: 10px 20px;
   border-radius: 12px;
-  background: rgba(168, 85, 247, 0.2);
+  background: rgba(0, 212, 255, 0.2);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(168, 85, 247, 0.4);
-  color: #c084fc;
+  border: 1px solid rgba(0, 212, 255, 0.4);
+  color: #00d4ff;
   font-size: 0.72rem;
   font-weight: 800;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  box-shadow: 0 6px 24px rgba(168, 85, 247, 0.2);
+  box-shadow: 0 6px 24px rgba(0, 212, 255, 0.2);
   animation: dcp-badge-pulse 2.5s ease-in-out infinite;
   pointer-events: none;
 }
@@ -195,8 +195,8 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #a855f7;
-  box-shadow: 0 0 8px rgba(168, 85, 247, 0.6);
+  background: #00d4ff;
+  box-shadow: 0 0 8px rgba(0, 212, 255, 0.6);
 }
 
 @keyframes dcp-badge-pulse {
@@ -258,7 +258,7 @@
 }
 
 .dcp-switch.on {
-  background: rgba(168, 85, 247, 0.5);
+  background: rgba(0, 212, 255, 0.5);
 }
 
 .dcp-switch-knob {
@@ -311,9 +311,9 @@
 }
 
 .dcp-scenario-btn.active {
-  border-color: rgba(168, 85, 247, 0.4);
-  background: rgba(168, 85, 247, 0.08);
-  color: #c084fc;
+  border-color: rgba(0, 212, 255, 0.4);
+  background: rgba(0, 212, 255, 0.08);
+  color: #00d4ff;
 }
 
 .dcp-scenario-icon {
@@ -382,9 +382,9 @@
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background: #a855f7;
+  background: #00d4ff;
   border: 2px solid rgba(6, 11, 40, 0.8);
-  box-shadow: 0 2px 6px rgba(168, 85, 247, 0.3);
+  box-shadow: 0 2px 6px rgba(0, 212, 255, 0.3);
   cursor: pointer;
   transition: transform 150ms ease;
 }
@@ -397,9 +397,9 @@
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background: #a855f7;
+  background: #00d4ff;
   border: 2px solid rgba(6, 11, 40, 0.8);
-  box-shadow: 0 2px 6px rgba(168, 85, 247, 0.3);
+  box-shadow: 0 2px 6px rgba(0, 212, 255, 0.3);
   cursor: pointer;
 }
 

@@ -1,13 +1,12 @@
 // SmartHelmet/Software/src/components/SurveillanceTunnelMap.jsx
 
-import { THRESHOLDS, ZONE_COORDINATES } from '../utils/constants';
+import { useRef, useEffect, useCallback, useState } from 'react';
+import { THRESHOLDS, RSSI_STRONGEST, RSSI_WEAKEST } from '../utils/constants';
 import '../styles/SurveillanceTunnelMap.css';
 
 const VIEWBOX = '0 -120 1400 1000';
 
-// This is an art-directed mine layout, intentionally independent of the data graph.
-// The live feed describes the operator and alert state, while the scene preserves a
-// stable spatial frame for responders.
+// Art-directed mine tunnel paths — DO NOT CHANGE
 const TUNNEL_PATHS = [
   'M 150 258 C 190 255 222 270 261 257 C 298 244 313 275 349 267 C 399 255 427 289 478 274 C 540 258 575 288 631 275 C 691 261 752 282 818 274 C 895 267 952 248 1011 207 C 1068 167 1139 161 1211 174 C 1266 184 1308 170 1344 146',
   'M 356 266 C 361 225 349 188 327 148 C 311 125 286 115 260 103 M 353 242 C 383 212 404 178 394 139 C 387 111 363 87 326 69',
@@ -28,7 +27,31 @@ const JUNCTIONS = [
   [804, 554], [962, 371], [1042, 447], [1001, 568], [405, 510],
 ];
 
+// The main route from Entrance to worker area — used for rescue display AND worker positioning
 const RESCUE_PATH = 'M 151 391 C 208 385 256 414 310 449 C 365 487 424 512 491 506 C 553 500 610 507 662 513 C 718 520 755 551 804 554 C 853 559 902 543 951 558 C 989 571 1019 589 1050 587 C 1083 585 1098 557 1125 548';
+
+/* ═══════════════════════════════════════════════════════════════
+   RSSI → CONTINUOUS PATH POSITION HELPERS
+   ═══════════════════════════════════════════════════════════════ */
+
+const RSSI_HISTORY_SIZE = 4;
+const LERP_SPEED = 0.04;             // per-frame easing toward target (0–1)
+const PREDICTION_INTERVAL_MS = 2000; // how often to nudge the predicted position
+const PREDICTION_STEP_DBM = 3;       // dBm step per prediction tick
+
+/**
+ * Convert an RSSI value to a 0–1 percent along the path.
+ * 0 = Entrance (strongest signal, closest to 0 dBm)
+ * 1 = farthest point (weakest signal, most negative dBm)
+ */
+function getPercentFromRSSI(rssi) {
+  const clamped = Math.max(RSSI_WEAKEST, Math.min(RSSI_STRONGEST, rssi));
+  // clamped is in [RSSI_WEAKEST .. RSSI_STRONGEST] i.e. [-120 .. -50]
+  // (clamped - WEAKEST) / (STRONGEST - WEAKEST) gives 0 when at WEAKEST, 1 when at STRONGEST
+  const ratio = (clamped - RSSI_WEAKEST) / (RSSI_STRONGEST - RSSI_WEAKEST);
+  // ratio=1 means strongest → Entrance (percent=0), ratio=0 means weakest → far (percent=1)
+  return 1 - ratio;
+}
 
 function getHazardLabel(reading) {
   if (reading?.gas_level >= THRESHOLDS.gas_level.warning) return 'GAS HAZARD';
@@ -51,16 +74,134 @@ function Marker({ x, y, active }) {
   );
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   MAIN COMPONENT
+   ═══════════════════════════════════════════════════════════════ */
+
 export default function SurveillanceTunnelMap({ worker, reading, zone, status = 'normal', isEmergencyMode, emergencyLevel }) {
   const isDanger = status === 'warning' || status === 'emergency';
   const isEmergency = status === 'emergency';
   const activeZone = zone || 'Unknown';
-  // Reverting to the original fixed visual position requested by the user
-  const workerPosition = { x: 1125, y: 548 };
   const rssi = reading?.rssi;
   const workerName = worker?.name || worker?.worker_id || 'Live worker';
   const hazardLabel = getHazardLabel(reading);
   const hazardState = isEmergency ? 'emergency' : isDanger ? 'warning' : 'normal';
+
+  // ── Refs for smooth positioning ────────────────────────────────
+  const refPathEl = useRef(null);          // invisible reference <path>
+  const workerGroupRef = useRef(null);     // <g> element of worker marker
+  const rescueMaskPathRef = useRef(null);  // <mask> for dynamic rescue path length
+  const rssiHistoryRef = useRef([]);       // rolling window of recent RSSI values
+  const currentPercentRef = useRef(0);     // where the dot IS right now (0–1)
+  const targetPercentRef = useRef(0);      // where the dot SHOULD be heading
+  const trendDeltaRef = useRef(0);         // avg dBm change per reading
+  const lastRealRssiRef = useRef(null);    // last actual RSSI from reading
+  const predictionTimerRef = useRef(null); // interval for trend extrapolation
+  const rafIdRef = useRef(null);           // requestAnimationFrame handle
+
+  // ── On new RSSI reading: update history + target + trend ───────
+  useEffect(() => {
+    if (rssi == null || rssi === undefined) return;
+
+    const history = rssiHistoryRef.current;
+    lastRealRssiRef.current = rssi;
+
+    // Push to rolling history (keep last N)
+    history.push(rssi);
+    if (history.length > RSSI_HISTORY_SIZE) {
+      history.splice(0, history.length - RSSI_HISTORY_SIZE);
+    }
+
+    // Compute average delta across consecutive readings
+    let deltaSum = 0;
+    let deltaCount = 0;
+    for (let i = 1; i < history.length; i++) {
+      deltaSum += history[i] - history[i - 1];
+      deltaCount++;
+    }
+    const avgDelta = deltaCount > 0 ? deltaSum / deltaCount : 0;
+    trendDeltaRef.current = avgDelta;
+
+    // Set target from real data (overrides any prediction)
+    targetPercentRef.current = getPercentFromRSSI(rssi);
+  }, [rssi]);
+
+  // ── Prediction timer: extrapolate between packets ──────────────
+  useEffect(() => {
+    // Clear any existing timer
+    if (predictionTimerRef.current) {
+      clearInterval(predictionTimerRef.current);
+    }
+
+    predictionTimerRef.current = setInterval(() => {
+      const delta = trendDeltaRef.current;
+      const lastReal = lastRealRssiRef.current;
+      if (lastReal == null || Math.abs(delta) < 0.5) return;
+
+      // Extrapolate a small step in the current trend direction
+      const direction = delta < 0 ? -1 : 1; // negative delta = moving away
+      const predictedRssi = lastReal + direction * PREDICTION_STEP_DBM;
+
+      // Clamp and update target
+      const clampedPredicted = Math.max(RSSI_WEAKEST, Math.min(RSSI_STRONGEST, predictedRssi));
+      targetPercentRef.current = getPercentFromRSSI(clampedPredicted);
+    }, PREDICTION_INTERVAL_MS);
+
+    return () => {
+      if (predictionTimerRef.current) {
+        clearInterval(predictionTimerRef.current);
+      }
+    };
+  }, []); // runs once on mount
+
+  // ── Position-update callback using getPointAtLength ────────────
+  const updateWorkerPosition = useCallback(() => {
+    const pathEl = refPathEl.current;
+    const workerEl = workerGroupRef.current;
+    const maskPathEl = rescueMaskPathRef.current;
+    if (!pathEl || !workerEl) return;
+
+    const totalLen = pathEl.getTotalLength();
+    const target = targetPercentRef.current;
+    const current = currentPercentRef.current;
+
+    // Ease toward target
+    const diff = target - current;
+    if (Math.abs(diff) > 0.0005) {
+      currentPercentRef.current = current + diff * LERP_SPEED;
+    } else {
+      currentPercentRef.current = target;
+    }
+
+    const clampedPercent = Math.max(0, Math.min(1, currentPercentRef.current));
+    const point = pathEl.getPointAtLength(clampedPercent * totalLen);
+    workerEl.setAttribute('transform', `translate(${point.x} ${point.y})`);
+
+    // Dynamically clip the rescue path to end exactly at the worker's current dot
+    if (maskPathEl) {
+      const drawnLen = clampedPercent * totalLen;
+      maskPathEl.setAttribute('stroke-dasharray', `${totalLen} ${totalLen}`);
+      maskPathEl.setAttribute('stroke-dashoffset', `${totalLen - drawnLen}`);
+    }
+  }, []);
+
+  // ── rAF animation loop ─────────────────────────────────────────
+  useEffect(() => {
+    function tick() {
+      updateWorkerPosition();
+      rafIdRef.current = requestAnimationFrame(tick);
+    }
+    rafIdRef.current = requestAnimationFrame(tick);
+
+    return () => {
+      if (rafIdRef.current) {
+        cancelAnimationFrame(rafIdRef.current);
+      }
+    };
+  }, [updateWorkerPosition]);
+
+  // ── Fallback: initialise position if no RSSI yet ───────────────
+  const [workerFallback] = useState({ x: 1125, y: 548 });
 
   return (
     <section className={`surveillance-map-card stm-state-${hazardState}`} data-emergency-level={emergencyLevel || 'none'} aria-label="Tunnel surveillance map">
@@ -88,6 +229,16 @@ export default function SurveillanceTunnelMap({ worker, reading, zone, status = 
           <title id="stm-svg-title">Underground tunnel surveillance scene</title>
           <desc id="stm-svg-description">A glowing mine tunnel network with entrance, worker location, hazard area and a conditional rescue path.</desc>
           <defs>
+            <mask id="rescue-mask">
+              <path
+                ref={rescueMaskPathRef}
+                d={RESCUE_PATH}
+                stroke="white"
+                strokeWidth="100"
+                fill="none"
+                strokeLinecap="butt"
+              />
+            </mask>
             <filter id="stm-cyan-haze" x="-30%" y="-35%" width="160%" height="170%">
               <feGaussianBlur stdDeviation="13" />
             </filter>
@@ -157,7 +308,7 @@ export default function SurveillanceTunnelMap({ worker, reading, zone, status = 
           </g>
 
           {isDanger && (
-            <g className="stm-rescue-route" strokeLinecap="round" aria-label="Active rescue path">
+            <g className="stm-rescue-route" strokeLinecap="round" aria-label="Active rescue path" mask="url(#rescue-mask)">
               <path d={RESCUE_PATH} className="stm-rescue-aura" />
               <path d={RESCUE_PATH} className="stm-rescue-body" />
               <path d={RESCUE_PATH} className="stm-rescue-core" />
@@ -181,7 +332,23 @@ export default function SurveillanceTunnelMap({ worker, reading, zone, status = 
             <circle r="17" /><circle r="9" /><circle r="3.8" />
           </g>
 
-          <g className="stm-worker" transform={`translate(${workerPosition.x} ${workerPosition.y})`} aria-label={`Worker position, ${workerName}`}>
+          {/* ── Invisible reference path for getPointAtLength positioning ── */}
+          <path
+            ref={refPathEl}
+            d={RESCUE_PATH}
+            fill="none"
+            stroke="none"
+            strokeWidth="0"
+            style={{ pointerEvents: 'none' }}
+          />
+
+          {/* ── Live Worker Marker (positioned by rAF loop) ── */}
+          <g
+            ref={workerGroupRef}
+            className="stm-worker"
+            transform={`translate(${workerFallback.x} ${workerFallback.y})`}
+            aria-label={`Worker position, ${workerName}`}
+          >
             <circle className="stm-worker-pulse stm-worker-pulse-one" r="50" />
             <circle className="stm-worker-pulse stm-worker-pulse-two" r="50" />
             <circle className="stm-worker-halo" r="66" />

@@ -25,10 +25,10 @@ export default function Header() {
   return (
     <header className="header-container">
       {/* ── Page title ────────────────────────────── */}
-      <h2 className="header-title">Dashboard</h2>
+
 
       {/* ── Right side ────────────────────────────── */}
-      <div className="flex items-center gap-4">
+      <div className="header-right">
         <span className="header-clock">{time}</span>
         <div className="status-pill">
           <span className="status-pill-dot" />

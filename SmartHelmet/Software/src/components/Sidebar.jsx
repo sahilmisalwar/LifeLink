@@ -1,7 +1,15 @@
 // SmartHelmet/Software/src/components/Sidebar.jsx
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
+import { Activity } from 'lucide-react';
 import '../styles/Sidebar.css';
+
+const VIEW_KEY_MAP = {
+  'Dashboard': 'overview',
+  'Alerts': 'alerts',
+  'Tunnel Map': 'tunnel-map',
+  'Analytics': 'analytics',
+};
 
 const NAV_ITEMS = [
   {
@@ -34,40 +42,63 @@ const NAV_ITEMS = [
     ),
   },
   {
-    label: 'Settings',
+    label: 'Analytics',
     icon: (
       <svg className="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="8" cy="8" r="2.5" />
-        <path d="M13.5 10a1.4 1.4 0 0 0 .28 1.55l.05.05a1.7 1.7 0 1 1-2.41 2.41l-.05-.05A1.4 1.4 0 0 0 10 13.5a1.4 1.4 0 0 0-.85 1.28V15a1.7 1.7 0 0 1-3.4 0v-.08a1.4 1.4 0 0 0-.92-1.28 1.4 1.4 0 0 0-1.55.28l-.05.05a1.7 1.7 0 1 1-2.41-2.41l.05-.05A1.4 1.4 0 0 0 1.15 10 1.4 1.4 0 0 0 0 9.15V8.5a1.7 1.7 0 0 1 1.7-1.7h.07A1.4 1.4 0 0 0 3.05 5.88a1.4 1.4 0 0 0-.28-1.55l-.05-.05A1.7 1.7 0 1 1 5.13.87l.05.05A1.4 1.4 0 0 0 6.73 1.2H7a1.4 1.4 0 0 0 .85-1.28V0a1.7 1.7 0 0 1 3.4 0v.08a1.4 1.4 0 0 0 .85 1.28 1.4 1.4 0 0 0 1.55-.28l.05-.05a1.7 1.7 0 1 1 2.41 2.41l-.05.05A1.4 1.4 0 0 0 15.78 5a1.4 1.4 0 0 0 1.28.85H15.5a1.7 1.7 0 0 1 0 3.4h-.08a1.4 1.4 0 0 0-1.28.85Z" />
+        <line x1="12" y1="14" x2="12" y2="4" />
+        <line x1="8" y1="14" x2="8" y2="8" />
+        <line x1="4" y1="14" x2="4" y2="10" />
       </svg>
     ),
   },
 ];
 
-export default function Sidebar() {
-  const [activeItem, setActiveItem] = useState('Dashboard');
+export default function Sidebar({ activeView, setActiveView }) {
+  const [clickedItem, setClickedItem] = useState(null);
+
+  const handleNavClick = useCallback((viewKey) => {
+    setActiveView(viewKey);
+    setClickedItem(viewKey);
+    setTimeout(() => {
+      setClickedItem(null);
+    }, 300); // match animation duration
+  }, [setActiveView]);
+
+  const handleMouseMove = useCallback((e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    e.currentTarget.style.setProperty('--mouse-x', `${x}px`);
+    e.currentTarget.style.setProperty('--mouse-y', `${y}px`);
+  }, []);
 
   return (
     <aside className="sidebar-container">
       {/* ── Logo ──────────────────────────────────── */}
       <div className="sidebar-logo">
-        <span>LifeLink</span>
+        <div className="sidebar-logo-content">
+          <Activity className="sidebar-logo-icon" strokeWidth={2.5} />
+          <span className="sidebar-logo-text">LifeLink</span>
+        </div>
       </div>
 
       {/* ── Navigation ────────────────────────────── */}
       <ul className="sidebar-nav">
         {NAV_ITEMS.map(({ label, icon }) => {
-          const isActive = activeItem === label;
+          const viewKey = VIEW_KEY_MAP[label];
+          const isActive = activeView === viewKey;
+          const isClicked = clickedItem === viewKey;
           return (
             <li
               key={label}
-              className={`nav-item${isActive ? ' active' : ''}`}
-              onClick={() => setActiveItem(label)}
+              className={`nav-item${isActive ? ' active' : ''}${isClicked ? ' clicked' : ''}`}
+              onClick={() => handleNavClick(viewKey)}
+              onMouseMove={handleMouseMove}
             >
               <span className={`nav-icon-chip${isActive ? ' active' : ''}`}>
                 {icon}
               </span>
-              <span>{label}</span>
+              <span className="nav-item-text">{label}</span>
             </li>
           );
         })}

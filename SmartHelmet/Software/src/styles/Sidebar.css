@@ -20,15 +20,41 @@
 
 /* ── Logo ─────────────────────────────────────────────── */
 .sidebar-logo {
-  color: #00d4ff;
-  font-weight: 700;
-  font-size: 1.5rem;
   padding: 24px;
   border-bottom: 1px solid rgba(86, 87, 122, 0.4);
   display: flex;
   align-items: center;
   justify-content: center;
   user-select: none;
+}
+
+.sidebar-logo-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  animation: logo-breathe 4s ease-in-out infinite;
+  filter: drop-shadow(0 0 8px rgba(0, 212, 255, 0.4));
+}
+
+.sidebar-logo-icon {
+  width: 24px;
+  height: 24px;
+  color: #00d4ff;
+}
+
+.sidebar-logo-text {
+  font-weight: 800;
+  font-size: 1.6rem;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, #00d4ff 0%, #ffffff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+@keyframes logo-breathe {
+  0%, 100% { filter: drop-shadow(0 0 6px rgba(0, 212, 255, 0.3)); }
+  50% { filter: drop-shadow(0 0 12px rgba(0, 212, 255, 0.6)); }
 }
 
 /* ── Navigation list ──────────────────────────────────── */
@@ -49,19 +75,69 @@
   border-radius: 14px;
   cursor: pointer;
   color: #A0AEC0;
-  background: transparent;
-  border: none;
-  transition: background 250ms ease, color 250ms ease;
+  background: rgba(255, 255, 255, 0.015);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   font-size: 0.9rem;
   font-weight: 500;
+  
+  /* Hover and click transitions */
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), background 250ms ease, color 250ms ease, border-color 250ms ease;
+  --mouse-x: 50%;
+  --mouse-y: 50%;
 }
 
+/* Cursor-follow hover glow */
+.nav-item::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: radial-gradient(circle 70px at var(--mouse-x) var(--mouse-y), rgba(0, 212, 255, 0.15), transparent 80%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.nav-item:hover::before {
+  opacity: 1;
+}
+
+/* Hover effects */
+.nav-item:hover {
+  transform: scale(1.02);
+  color: #e2e8f0;
+  border-color: rgba(0, 212, 255, 0.3);
+}
+
+.nav-item:hover .nav-icon {
+  filter: drop-shadow(0 0 6px rgba(0, 212, 255, 0.6));
+}
+
+/* Active item layer */
 .nav-item.active {
-  background: linear-gradient(135deg, rgba(0, 212, 255, 0.18) 0%, rgba(10, 25, 47, 0.85) 100%);
-  border: 1px solid rgba(0, 212, 255, 0.3);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35), 0 0 15px rgba(0, 212, 255, 0.1);
+  background: linear-gradient(135deg, rgba(0, 230, 255, 0.35) 0%, rgba(10, 35, 75, 0.95) 100%);
+  border: 1px solid rgba(0, 230, 255, 0.5);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), 0 0 15px rgba(0, 212, 255, 0.2);
   color: #FFFFFF;
   font-weight: 600;
+}
+
+/* Click animation */
+.nav-item.clicked {
+  animation: press-and-settle 0.3s forwards;
+}
+
+.nav-item.clicked.active {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35), 0 0 25px rgba(0, 212, 255, 0.4);
+}
+
+@keyframes press-and-settle {
+  0% { transform: scale(1.02); }
+  30% { transform: scale(0.96); }
+  70% { transform: scale(1.03); }
+  100% { transform: scale(1); }
 }
 
 /* ── Nav icon chip ────────────────────────────────────── */
@@ -88,6 +164,14 @@
   height: 16px;
   flex-shrink: 0;
   color: #FFFFFF;
+  transition: filter 0.2s ease;
+  position: relative;
+  z-index: 1;
+}
+
+.nav-item-text {
+  position: relative;
+  z-index: 1;
 }
 
 /* ── Worker chip ──────────────────────────────────────── */

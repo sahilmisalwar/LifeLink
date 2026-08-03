@@ -5,13 +5,29 @@ import SplashScreen from './components/SplashScreen';
 import Dashboard from './pages/Dashboard';
 import './styles/global.css';
 
-function App() {
-  const [showDashboard, setShowDashboard] = useState(false);
+const TRANSITION_MS = 900; // must match CSS exit animation duration
 
-  return showDashboard ? (
-    <Dashboard />
-  ) : (
-    <SplashScreen onLaunch={() => setShowDashboard(true)} />
+function App() {
+  const [phase, setPhase] = useState('splash'); // splash | exiting | dashboard
+
+  const handleLaunch = () => {
+    setPhase('exiting');
+    setTimeout(() => setPhase('dashboard'), TRANSITION_MS);
+  };
+
+  if (phase === 'dashboard') {
+    return (
+      <div className="dashboard-enter">
+        <Dashboard />
+      </div>
+    );
+  }
+
+  return (
+    <SplashScreen
+      onLaunch={handleLaunch}
+      exiting={phase === 'exiting'}
+    />
   );
 }
 

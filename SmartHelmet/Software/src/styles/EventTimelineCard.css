@@ -1,0 +1,128 @@
+/* SmartHelmet/Software/src/styles/EventTimelineCard.css */
+.event-timeline-card {
+  background: rgba(15, 23, 60, 0.55);
+  border: 1px solid rgba(56, 189, 248, 0.15);
+  border-radius: 16px;
+  padding: 24px;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  margin-top: 24px;
+}
+
+.etc-header {
+  margin-bottom: 30px;
+}
+
+.etc-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #e2e8f0;
+  margin: 0;
+  letter-spacing: 0.02em;
+}
+
+.etc-timeline-wrapper {
+  position: relative;
+  padding: 20px 0;
+  min-height: 120px;
+}
+
+.etc-track {
+  position: absolute;
+  top: 40px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: repeating-linear-gradient(
+    to right,
+    rgba(148, 163, 184, 0.2),
+    rgba(148, 163, 184, 0.2) 6px,
+    transparent 6px,
+    transparent 12px
+  );
+  z-index: 1;
+}
+
+.etc-events-container {
+  position: relative;
+  height: 80px;
+  z-index: 2;
+  display: flex;
+}
+
+.etc-event-marker {
+  position: absolute;
+  top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform: translateX(-50%);
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.etc-event-marker:hover {
+  transform: translateX(-50%) scale(1.1);
+  z-index: 10;
+}
+
+.etc-marker-icon-wrap {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 16px var(--marker-glow);
+  background: var(--marker-bg);
+  color: var(--marker-color);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.etc-pulse {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--marker-color);
+  opacity: 0.4;
+  animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+  z-index: -1;
+}
+
+@keyframes pulse-ring {
+  0% { transform: translate(-50%, -50%) scale(0.9); opacity: 0.8; }
+  100% { transform: translate(-50%, -50%) scale(2.5); opacity: 0; }
+}
+
+.etc-event-tooltip {
+  position: absolute;
+  top: -45px;
+  background: rgba(15, 23, 60, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  color: #fff;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+}
+
+.etc-event-marker:hover .etc-event-tooltip {
+  opacity: 1;
+}
+
+.etc-time-axis {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  font-size: 0.75rem;
+  color: #64748b;
+  text-transform: uppercase;
+}

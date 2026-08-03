@@ -1,0 +1,105 @@
+/* SmartHelmet/Software/src/styles/VitalsRadialCard.css */
+.vitals-radial-card {
+  background: rgba(15, 23, 60, 0.55);
+  border: 1px solid rgba(56, 189, 248, 0.15);
+  border-radius: 16px;
+  padding: 24px;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.vrc-header {
+  margin-bottom: 24px;
+}
+
+.vrc-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #e2e8f0;
+  margin: 0;
+  letter-spacing: 0.02em;
+}
+
+.vrc-content {
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-start;
+  flex: 1;
+  gap: 20px;
+}
+
+.vrc-gauge-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  position: relative;
+}
+
+.vrc-gauge-wrapper {
+  position: relative;
+  width: 220px;
+  height: 220px;
+  filter: drop-shadow(0 0 16px var(--gauge-glow));
+}
+
+.vrc-gauge-value {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 2;
+}
+
+.vrc-gauge-number {
+  font-size: 3.5rem;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1;
+  text-shadow: 0 0 12px var(--gauge-glow);
+}
+
+.vrc-gauge-unit {
+  font-size: 0.9rem;
+  color: #94a3b8;
+  margin-top: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.vrc-gauge-label {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #cbd5e1;
+  margin-top: -10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  z-index: 2;
+}
+
+.vrc-sparkline-wrapper {
+  position: absolute;
+  bottom: 0px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 140px;
+  height: 45px;
+  opacity: 0.6;
+  z-index: 1;
+}
+
+.vrc-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #64748b;
+  font-size: 1rem;
+}

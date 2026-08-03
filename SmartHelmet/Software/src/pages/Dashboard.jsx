@@ -11,6 +11,9 @@ import LiveDebugPanel from '../components/LiveDebugPanel';
 import ActiveAlarmBanner from '../components/ActiveAlarmBanner';
 import EnvironmentalTrendsPanel from '../components/EnvironmentalTrendsPanel';
 import DemoControlsPanel from '../components/DemoControlsPanel';
+import AlertsPage from './AlertsPage';
+import TunnelMapPage from './TunnelMapPage';
+import AnalyticsPage from './AnalyticsPage';
 import useLiveData from '../hooks/useLiveData';
 import { getRSSIZone, getWorkerStatus } from '../services/api';
 import { THRESHOLDS, getSensorStatus } from '../utils/constants';
@@ -23,6 +26,9 @@ import { GradientWave } from '../components/ui/GradientWave';
 
 export default function Dashboard() {
   const { reading, alerts, worker, status, loading } = useLiveData();
+
+  // ── View switching state ──────────────────────────────
+  const [activeView, setActiveView] = useState('overview');
 
   // ── Demo Mode state ───────────────────────────────────
   const [demoMode, setDemoMode] = useState(false);
@@ -58,8 +64,6 @@ export default function Dashboard() {
     if (!sirenAudioRef.current) return;
     
     if (effectiveStatus === 'emergency') {
-      // Browsers may block autoplay if no interaction has occurred, 
-      // but clicking "Launch Dashboard" usually satisfies this.
       sirenAudioRef.current.play().catch((err) => {
         console.warn('Siren autoplay blocked by browser policy:', err);
       });
@@ -70,16 +74,16 @@ export default function Dashboard() {
   }, [effectiveStatus]);
 
   useEffect(() => {
-    if (!reading) return;
+    if (!effectiveReading) return;
 
     // Deduplicate using id or created_at
-    const key = reading.id || reading.created_at;
+    const key = effectiveReading.id || effectiveReading.created_at;
     if (key && seenIdsRef.current.has(key)) return;
 
     if (key) seenIdsRef.current.add(key);
 
     setHistory((prev) => {
-      const updated = [...prev, reading];
+      const updated = [...prev, effectiveReading];
       // Keep only the latest HISTORY_LIMIT entries
       if (updated.length > HISTORY_LIMIT) {
         const trimmed = updated.slice(updated.length - HISTORY_LIMIT);
@@ -92,7 +96,7 @@ export default function Dashboard() {
       }
       return updated;
     });
-  }, [reading]);
+  }, [effectiveReading]);
 
   // ── Derive current zone from RSSI ─────────────────────
   const currentZone = getRSSIZone(effectiveReading?.rssi);
@@ -100,6 +104,153 @@ export default function Dashboard() {
   // ── Global Emergency Mode state (single source of truth) ──
   const isEmergencyMode = effectiveStatus === 'warning' || effectiveStatus === 'emergency';
   const emergencyLevel = effectiveStatus === 'emergency' ? 'critical' : effectiveStatus === 'warning' ? 'elevated' : 'none';
+
+  // ── Render the active view content ────────────────────
+  function renderActiveView() {
+    switch (activeView) {
+      case 'alerts':
+        return <AlertsPage alerts={alerts} />;
+
+      case 'tunnel-map':
+        return (
+          <TunnelMapPage
+            worker={worker}
+            reading={effectiveReading}
+            zone={currentZone}
+            status={effectiveStatus}
+            isEmergencyMode={isEmergencyMode}
+            emergencyLevel={emergencyLevel}
+          />
+        );
+
+      case 'analytics':
+        return <AnalyticsPage history={history} alerts={alerts} worker={worker} />;
+
+      // Future views: just add more cases here
+
+      case 'overview':
+      default:
+        return (
+          <>
+            {/* ── Active Alarm Banner (emergency mode only) ── */}
+            <ActiveAlarmBanner
+              alerts={alerts}
+              status={effectiveStatus}
+              isEmergencyMode={isEmergencyMode}
+              emergencyLevel={emergencyLevel}
+            />
+
+            {/* ── Row 0: Tunnel Map + Worker Status side-by-side ── */}
+            <div className="map-worker-row">
+              <section className="map-hero-wrap">
+                <SurveillanceTunnelMap
+                  worker={worker}
+                  reading={effectiveReading}
+                  zone={currentZone}
+                  status={effectiveStatus}
+                  isEmergencyMode={isEmergencyMode}
+                  emergencyLevel={emergencyLevel}
+                />
+              </section>
+              <aside className="worker-status-sidebar">
+                <WorkerStatusCard worker={worker} status={effectiveStatus} reading={effectiveReading} compact zone={currentZone} />
+              </aside>
+            </div>
+
+            {/* ── Row 2: Sensor Cards Grid ─────────────── */}
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                gap: 20,
+                marginBottom: 24,
+              }}
+            >
+              <SensorCard
+                label="Temperature"
+                value={effectiveReading?.temperature}
+                unit="°C"
+                status={getSensorStatus(effectiveReading, 'temperature')}
+                icon={<Thermometer size={20} strokeWidth={2.5} />}
+                subtitle="Ambient mine temperature"
+              />
+              <SensorCard
+                label="Gas Level"
+                value={effectiveReading?.gas_level}
+                unit="ppm"
+                status={getSensorStatus(effectiveReading, 'gas_level')}
+                icon={<Wind size={20} strokeWidth={2.5} />}
+                subtitle="MQ-series gas concentration"
+              />
+              <SensorCard
+                label="Force"
+                value={effectiveReading?.force}
+                unit="N"
+                status={getSensorStatus(effectiveReading, 'force')}
+                icon={<Zap size={20} strokeWidth={2.5} />}
+                subtitle="Helmet impact force"
+              />
+              <SensorCard
+                label="Heart Rate"
+                value={effectiveReading?.heart_rate}
+                unit="bpm"
+                status={getSensorStatus(effectiveReading, 'heart_rate')}
+                icon={<HeartPulse size={20} strokeWidth={2.5} />}
+                subtitle="Worker pulse rate"
+              />
+              <SensorCard
+                label="SpO2"
+                value={effectiveReading?.spo2}
+                unit="%"
+                status="normal"
+                icon={<Activity size={20} strokeWidth={2.5} />}
+                subtitle="Blood oxygen saturation"
+              />
+              <SensorCard
+                label="RSSI"
+                value={effectiveReading?.rssi}
+                unit="dBm"
+                status="normal"
+                icon={<Wifi size={20} strokeWidth={2.5} />}
+                subtitle="Signal strength"
+              />
+            </div>
+
+            {/* ── Row 3: Environmental Trends ───────────── */}
+            <EnvironmentalTrendsPanel
+              history={history}
+              worker={worker}
+              status={effectiveStatus}
+              zone={currentZone}
+            />
+
+            {/* ── Row 4: Alerts ─────────── */}
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: '1fr',
+                gap: 20,
+                marginBottom: 24,
+              }}
+              className="alerts-trends-row"
+            >
+              <AlertsCard alerts={alerts} />
+            </div>
+
+            {/* ── Debug Panel (de-emphasized) ──────────── */}
+            <div style={{ opacity: 0.6, marginTop: 32 }}>
+              <LiveDebugPanel
+                reading={effectiveReading}
+                alerts={alerts}
+                worker={worker}
+                status={effectiveStatus}
+                loading={loading}
+              />
+            </div>
+          </>
+        );
+    }
+  }
 
   return (
     <div className="min-h-screen dashboard-root" data-emergency-level={emergencyLevel} style={{ position: 'relative', background: '#060B26' }}>
@@ -125,7 +276,7 @@ export default function Dashboard() {
         />
       </div>
 
-      <Sidebar />
+      <Sidebar activeView={activeView} setActiveView={setActiveView} />
       <Header />
 
       {/* ── Main content area ─────────────────────── */}
@@ -135,117 +286,14 @@ export default function Dashboard() {
           marginLeft: 'var(--sidebar-width)',
           marginTop: 'var(--header-height)',
           minHeight: 'calc(100vh - var(--header-height))',
-          padding: '24px 24px 24px 40px',
+          padding: '0px 24px 24px 40px',
           position: 'relative',
           zIndex: 1,
         }}
       >
-        {/* ── Active Alarm Banner (emergency mode only) ── */}
-        <ActiveAlarmBanner
-          alerts={alerts}
-          status={effectiveStatus}
-          isEmergencyMode={isEmergencyMode}
-          emergencyLevel={emergencyLevel}
-        />
+        {renderActiveView()}
 
-        {/* ── Row 0: Tunnel Map + Worker Status side-by-side ── */}
-        <div className="map-worker-row">
-          <section className="map-hero-wrap">
-            <SurveillanceTunnelMap
-              worker={worker}
-              reading={effectiveReading}
-              zone={currentZone}
-              status={effectiveStatus}
-              isEmergencyMode={isEmergencyMode}
-              emergencyLevel={emergencyLevel}
-            />
-          </section>
-          <aside className="worker-status-sidebar">
-            <WorkerStatusCard worker={worker} status={effectiveStatus} reading={effectiveReading} compact zone={currentZone} />
-          </aside>
-        </div>
-
-        {/* ── Row 2: Sensor Cards Grid ─────────────── */}
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-            gap: 20,
-            marginBottom: 24,
-          }}
-        >
-          <SensorCard
-            label="Temperature"
-            value={effectiveReading?.temperature}
-            unit="°C"
-            status={getSensorStatus(effectiveReading, 'temperature')}
-            icon={<Thermometer size={20} strokeWidth={2.5} />}
-            subtitle="Ambient mine temperature"
-          />
-          <SensorCard
-            label="Gas Level"
-            value={effectiveReading?.gas_level}
-            unit="ppm"
-            status={getSensorStatus(effectiveReading, 'gas_level')}
-            icon={<Wind size={20} strokeWidth={2.5} />}
-            subtitle="MQ-series gas concentration"
-          />
-          <SensorCard
-            label="Force"
-            value={effectiveReading?.force}
-            unit="N"
-            status={getSensorStatus(effectiveReading, 'force')}
-            icon={<Zap size={20} strokeWidth={2.5} />}
-            subtitle="Helmet impact force"
-          />
-          <SensorCard
-            label="Heart Rate"
-            value={effectiveReading?.heart_rate}
-            unit="bpm"
-            status={getSensorStatus(effectiveReading, 'heart_rate')}
-            icon={<HeartPulse size={20} strokeWidth={2.5} />}
-            subtitle="Worker pulse rate"
-          />
-          <SensorCard
-            label="SpO2"
-            value={effectiveReading?.spo2}
-            unit="%"
-            status="normal"
-            icon={<Activity size={20} strokeWidth={2.5} />}
-            subtitle="Blood oxygen saturation"
-          />
-          <SensorCard
-            label="RSSI"
-            value={effectiveReading?.rssi}
-            unit="dBm"
-            status="normal"
-            icon={<Wifi size={20} strokeWidth={2.5} />}
-            subtitle="Signal strength"
-          />
-        </div>
-
-        {/* ── Row 3: Environmental Trends ───────────── */}
-        <EnvironmentalTrendsPanel
-          history={history}
-          worker={worker}
-          status={effectiveStatus}
-          zone={currentZone}
-        />
-
-        {/* ── Row 4: Alerts ─────────── */}
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr',
-            gap: 20,
-            marginBottom: 24,
-          }}
-          className="alerts-trends-row"
-        >
-          <AlertsCard alerts={alerts} />
-        </div>
-
-        {/* ── Demo Controls Panel ──────────────────── */}
+        {/* ── Demo Controls Panel (always accessible) ── */}
         <DemoControlsPanel
           demoMode={demoMode}
           setDemoMode={setDemoMode}
@@ -254,17 +302,6 @@ export default function Dashboard() {
           liveReading={reading}
           worker={worker}
         />
-
-        {/* ── Debug Panel (de-emphasized) ──────────── */}
-        <div style={{ opacity: 0.6, marginTop: 32 }}>
-          <LiveDebugPanel
-            reading={effectiveReading}
-            alerts={alerts}
-            worker={worker}
-            status={effectiveStatus}
-            loading={loading}
-          />
-        </div>
       </main>
 
       {/* Inline responsive override */}

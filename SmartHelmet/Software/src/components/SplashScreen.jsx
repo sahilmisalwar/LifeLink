@@ -18,7 +18,7 @@ const LOGO_TEXT = 'LifeLink';
 const ECG_PATH =
   'M 10,20 L 60,20 L 80,20 L 95,20 L 105,5 L 115,35 L 125,10 L 135,25 L 145,20 L 165,20 L 185,20 L 195,20 L 205,5 L 215,35 L 225,10 L 235,25 L 245,20 L 310,20';
 
-export default function SplashScreen({ onLaunch }) {
+export default function SplashScreen({ onLaunch, exiting }) {
   const [completedCount, setCompletedCount] = useState(0);
   const [showButton, setShowButton] = useState(false);
   const [ecgPhase, setEcgPhase] = useState('idle'); // idle → draw → pulse
@@ -51,7 +51,7 @@ export default function SplashScreen({ onLaunch }) {
   }, [completedCount]);
 
   return (
-    <div className="splash-container">
+    <div className={`splash-container${exiting ? ' splash-exiting' : ''}`}>
       {/* ── Logo branding ─────────────────────────── */}
       <div className="splash-logo-wrapper">
         <h1 className="splash-logo">

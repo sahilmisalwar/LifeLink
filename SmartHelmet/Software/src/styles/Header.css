@@ -26,6 +26,14 @@
   transform: translateX(-50%);
 }
 
+/* ── Right side container ─────────────────────────────── */
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+
 /* ── Clock ────────────────────────────────────────────── */
 .header-clock {
   color: #A0AEC0;
