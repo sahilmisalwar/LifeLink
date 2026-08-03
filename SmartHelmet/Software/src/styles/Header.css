@@ -1,0 +1,70 @@
+/* SmartHelmet/Software/src/styles/Header.css */
+
+/* ── Header container ─────────────────────────────────── */
+.header-container {
+  position: fixed;
+  top: 0;
+  left: 260px;
+  right: 0;
+  height: 64px;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end; /* Push right side elements to the end */
+  padding: 0 24px;
+  z-index: 40;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+/* ── Title ────────────────────────────────────────────── */
+.header-title {
+  color: #FFFFFF;
+  font-weight: 600;
+  font-size: 1.25rem;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* ── Clock ────────────────────────────────────────────── */
+.header-clock {
+  color: #A0AEC0;
+  font-size: 0.875rem;
+  font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', 'Consolas', monospace;
+  letter-spacing: 0.04em;
+}
+
+/* ── Status pill ──────────────────────────────────────── */
+.status-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(1, 181, 116, 0.15);
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #FFFFFF;
+}
+
+/* ── Glowing dot ──────────────────────────────────────── */
+.status-pill-dot {
+  width: 8px;
+  height: 8px;
+  min-width: 8px;
+  border-radius: 50%;
+  background-color: #01B574;
+  box-shadow: 0 0 12px rgba(1, 181, 116, 0.5);
+  animation: pill-dot-glow 2s ease-in-out infinite;
+}
+
+@keyframes pill-dot-glow {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(1, 181, 116, 0.4);
+    opacity: 1;
+  }
+  50% {
+    box-shadow: 0 0 16px rgba(1, 181, 116, 0.8);
+    opacity: 0.8;
+  }
+}

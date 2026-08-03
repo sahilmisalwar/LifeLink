@@ -1,0 +1,195 @@
+/* SmartHelmet/Software/src/styles/SensorTrendsCard.css */
+
+.sensor-trends-card {
+  background: linear-gradient(126.97deg, rgba(6, 11, 40, 0.74) 28%, rgba(10, 14, 35, 0.71) 91%);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  border: 1px solid rgba(86, 87, 122, 0.25);
+  border-radius: 20px;
+  padding: 24px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  color: #FFFFFF;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  transition: box-shadow 300ms ease, transform 300ms ease;
+  display: flex;
+  flex-direction: column;
+  min-height: 380px;
+}
+
+.sensor-trends-card:hover {
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.4);
+  transform: translateY(-1px);
+}
+
+/* ── Header ───────────────────────────────────────────── */
+.stc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(86, 87, 122, 0.3);
+}
+
+.stc-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #A0AEC0;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* ── Metric Selector Tabs ─────────────────────────────── */
+.stc-tabs {
+  display: flex;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(86, 87, 122, 0.2);
+  border-radius: 12px;
+  padding: 3px;
+}
+
+.stc-tab {
+  padding: 6px 14px;
+  border-radius: 10px;
+  border: none;
+  background: transparent;
+  color: #A0AEC0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: all 200ms ease;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  white-space: nowrap;
+}
+
+.stc-tab:hover {
+  color: #FFFFFF;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.stc-tab.active {
+  background: rgba(0, 212, 255, 0.12);
+  color: #00d4ff;
+  box-shadow: 0 0 8px rgba(0, 212, 255, 0.1);
+}
+
+/* ── Chart Area ───────────────────────────────────────── */
+.stc-chart-area {
+  flex: 1;
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.stc-chart-area .recharts-cartesian-grid-horizontal line,
+.stc-chart-area .recharts-cartesian-grid-vertical line {
+  stroke: rgba(86, 87, 122, 0.15);
+}
+
+.stc-chart-area .recharts-text {
+  fill: #A0AEC0;
+  font-size: 0.65rem;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+/* ── Current Value Summary ────────────────────────────── */
+.stc-summary {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(86, 87, 122, 0.2);
+}
+
+.stc-summary-label {
+  font-size: 0.7rem;
+  color: #A0AEC0;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.stc-summary-value {
+  font-size: 1.4rem;
+  font-weight: 700;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  color: #00d4ff;
+}
+
+.stc-summary-unit {
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: #A0AEC0;
+  margin-left: 4px;
+}
+
+.stc-summary-trend {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 8px;
+  margin-left: auto;
+}
+
+.stc-summary-trend.up {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+.stc-summary-trend.down {
+  background: rgba(1, 181, 116, 0.1);
+  color: #01B574;
+}
+
+.stc-summary-trend.stable {
+  background: rgba(160, 174, 192, 0.1);
+  color: #A0AEC0;
+}
+
+/* ── Empty State ──────────────────────────────────────── */
+.stc-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #A0AEC0;
+  font-size: 0.875rem;
+  padding: 40px 16px;
+}
+
+.stc-empty-icon {
+  font-size: 1.8rem;
+  opacity: 0.4;
+}
+
+/* ── Responsive ───────────────────────────────────────── */
+@media (max-width: 768px) {
+  .stc-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .stc-tabs {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .stc-tab {
+    flex: 1;
+    text-align: center;
+    padding: 6px 8px;
+    font-size: 0.68rem;
+  }
+
+  .stc-summary {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+}

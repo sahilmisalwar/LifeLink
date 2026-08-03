@@ -1,0 +1,102 @@
+/* SmartHelmet/Software/src/styles/Dashboard.css */
+
+/* ══════════════════════════════════════════════════════════════
+   GLOBAL EMERGENCY MODE — Ambient pulsing background treatment
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── Shared pulse-timing custom properties ─────────────────── */
+.dashboard-root {
+  --emergency-pulse-duration: 0s;
+  position: relative;
+}
+
+.dashboard-root[data-emergency-level="elevated"] {
+  --emergency-pulse-duration: 2.4s;
+}
+
+.dashboard-root[data-emergency-level="critical"] {
+  --emergency-pulse-duration: 1.6s;
+}
+
+/* ── Ambient vignette overlay (behind content, above WebGL bg) ── */
+.dashboard-root::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+
+/* ── Elevated (warning): subtle amber edge glow ────────────── */
+.dashboard-root[data-emergency-level="elevated"]::after {
+  opacity: 1;
+  background:
+    radial-gradient(ellipse at 0% 50%, rgba(249, 115, 22, 0.10) 0%, transparent 45%),
+    radial-gradient(ellipse at 100% 50%, rgba(249, 115, 22, 0.10) 0%, transparent 45%),
+    radial-gradient(ellipse at 50% 0%, rgba(245, 158, 11, 0.06) 0%, transparent 40%),
+    radial-gradient(ellipse at 50% 100%, rgba(245, 158, 11, 0.06) 0%, transparent 40%);
+  animation: dashboard-pulse-elevated var(--emergency-pulse-duration) ease-in-out infinite;
+}
+
+/* ── Critical (emergency): stronger red vignette + full-page pulse ── */
+.dashboard-root[data-emergency-level="critical"]::after {
+  opacity: 1;
+  background:
+    radial-gradient(ellipse at 0% 50%, rgba(239, 68, 68, 0.12) 0%, transparent 60%),
+    radial-gradient(ellipse at 100% 50%, rgba(239, 68, 68, 0.12) 0%, transparent 60%),
+    radial-gradient(ellipse at 50% 0%, rgba(220, 38, 38, 0.08) 0%, transparent 55%),
+    radial-gradient(ellipse at 50% 100%, rgba(220, 38, 38, 0.08) 0%, transparent 55%),
+    radial-gradient(ellipse at center, rgba(239, 68, 68, 0.02) 0%, rgba(127, 29, 29, 0.08) 100%);
+  animation: dashboard-pulse-critical var(--emergency-pulse-duration) ease-in-out infinite;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ── Component pulsing during emergency ── */
+.dashboard-root[data-emergency-level="critical"] .worker-status-card,
+.dashboard-root[data-emergency-level="critical"] .sensor-card,
+.dashboard-root[data-emergency-level="critical"] .env-trends-panel,
+.dashboard-root[data-emergency-level="critical"] .alerts-card,
+.dashboard-root[data-emergency-level="critical"] .sensor-trends-card,
+.dashboard-root[data-emergency-level="critical"] .map-hero-wrap,
+.dashboard-root[data-emergency-level="critical"] .active-alarm-banner {
+  animation: component-pulse-critical var(--emergency-pulse-duration) ease-in-out infinite;
+}
+
+/* ── Keyframes ─────────────────────────────────────────────── */
+@keyframes dashboard-pulse-elevated {
+  0%, 100% { opacity: 0.5; }
+  50%      { opacity: 1; }
+}
+
+@keyframes dashboard-pulse-critical {
+  0%, 100% { opacity: 0.5; }
+  50%      { opacity: 1; }
+}
+
+@keyframes component-pulse-critical {
+  0%, 100% { 
+    transform: scale(1); 
+    box-shadow: 0 4px 25px rgba(255, 0, 0, 0.3); 
+    border-color: rgba(255, 0, 0, 0.4);
+  }
+  50% { 
+    transform: scale(1.02); 
+    box-shadow: 0 0 60px rgba(255, 0, 0, 0.7); 
+    border-color: rgba(255, 0, 0, 0.9);
+  }
+}
+
+/* ── Accessibility: reduced motion ─────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-root[data-emergency-level="elevated"]::after {
+    animation: none;
+    opacity: 0.7;
+  }
+  .dashboard-root[data-emergency-level="critical"]::after {
+    animation: none;
+    opacity: 0.75;
+  }
+}

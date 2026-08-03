@@ -1,0 +1,340 @@
+/* SmartHelmet/Software/src/styles/EnvironmentalTrendsPanel.css */
+
+/* ══════════════════════════════════════════════════════════════
+   EnvironmentalTrendsPanel — SCADA-style live trends viewer
+   ══════════════════════════════════════════════════════════════ */
+
+.env-trends-panel {
+  background: linear-gradient(126.97deg, rgba(6, 11, 40, 0.74) 28%, rgba(10, 14, 35, 0.71) 91%);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  border: 1px solid rgba(86, 87, 122, 0.3);
+  border-radius: 20px;
+  padding: 0;
+  font-family: 'Plus Jakarta Sans', Inter, sans-serif;
+  color: #fff;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+/* ── Header ───────────────────────────────────────────────── */
+.etp-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 22px 28px 0;
+  flex-wrap: wrap;
+}
+
+.etp-header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.etp-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: rgba(240, 244, 255, 0.95);
+  letter-spacing: 0.03em;
+}
+
+.etp-subtitle {
+  font-size: 0.65rem;
+  color: rgba(160, 174, 192, 0.6);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* ── Metric toggle row ────────────────────────────────────── */
+.etp-toggle-row {
+  display: flex;
+  gap: 6px;
+  padding: 16px 28px 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  flex-wrap: wrap;
+}
+
+.etp-toggle-row::-webkit-scrollbar {
+  display: none;
+}
+
+.etp-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border: 1px solid rgba(86, 87, 122, 0.25);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(160, 174, 192, 0.8);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 180ms ease;
+}
+
+.etp-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(86, 87, 122, 0.45);
+  color: #d0dae8;
+}
+
+.etp-toggle-btn.active {
+  background: rgba(0, 212, 255, 0.08);
+  border-color: rgba(0, 212, 255, 0.35);
+  color: #7be4ff;
+  box-shadow: 0 0 12px rgba(0, 212, 255, 0.08);
+}
+
+.etp-toggle-icon {
+  font-size: 0.82rem;
+  line-height: 1;
+}
+
+.etp-toggle-unit {
+  font-size: 0.55rem;
+  color: rgba(160, 174, 192, 0.5);
+  font-weight: 500;
+  margin-left: -2px;
+}
+
+/* ── Live value + trend summary block ─────────────────────── */
+.etp-live-strip {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 28px 8px;
+  flex-wrap: wrap;
+}
+
+.etp-live-value-block {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.etp-live-value {
+  font-size: 2rem;
+  font-weight: 800;
+  font-family: ui-monospace, 'JetBrains Mono', 'Fira Code', SFMono-Regular, Consolas, monospace;
+  line-height: 1;
+  transition: color 300ms ease;
+}
+
+.etp-live-unit {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: rgba(160, 174, 192, 0.6);
+}
+
+.etp-live-label {
+  font-size: 0.6rem;
+  color: rgba(160, 174, 192, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+/* ── Trend summary chip ──────────────────────────────────── */
+.etp-trend-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: all 250ms ease;
+}
+
+.etp-trend-chip.stable {
+  background: rgba(1, 181, 116, 0.12);
+  color: #01B574;
+  border: 1px solid rgba(1, 181, 116, 0.2);
+}
+
+.etp-trend-chip.rising {
+  background: rgba(249, 115, 22, 0.12);
+  color: #f97316;
+  border: 1px solid rgba(249, 115, 22, 0.2);
+}
+
+.etp-trend-chip.falling {
+  background: rgba(0, 212, 255, 0.1);
+  color: #00d4ff;
+  border: 1px solid rgba(0, 212, 255, 0.18);
+}
+
+.etp-trend-chip.threshold-warn {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.25);
+}
+
+.etp-trend-chip.threshold-emergency {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  animation: etp-chip-pulse 1.8s ease-in-out infinite;
+}
+
+.etp-trend-arrow {
+  font-size: 0.8rem;
+  line-height: 1;
+}
+
+/* ── Chart area ──────────────────────────────────────────── */
+.etp-chart-area {
+  width: 100%;
+  height: 240px;
+  padding: 0 12px 0 8px;
+}
+
+/* Override recharts default styling for our theme */
+.etp-chart-area .recharts-cartesian-grid line {
+  stroke: rgba(86, 87, 122, 0.12);
+}
+
+.etp-chart-area .recharts-reference-line line {
+  opacity: 0.6;
+}
+
+.etp-chart-area .recharts-label {
+  font-size: 9px;
+  font-family: ui-monospace, 'JetBrains Mono', monospace;
+}
+
+/* ── Footer info row ─────────────────────────────────────── */
+.etp-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 28px 18px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.etp-footer-meta {
+  display: flex;
+  gap: 20px;
+}
+
+.etp-footer-item {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.etp-footer-label {
+  font-size: 0.55rem;
+  color: rgba(160, 174, 192, 0.45);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+}
+
+.etp-footer-value {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: rgba(240, 244, 255, 0.7);
+  font-family: ui-monospace, 'JetBrains Mono', monospace;
+}
+
+.etp-footer-legend {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+
+.etp-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.55rem;
+  color: rgba(160, 174, 192, 0.55);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.etp-legend-swatch {
+  width: 14px;
+  height: 3px;
+  border-radius: 2px;
+}
+
+.etp-legend-swatch.warn {
+  background: #f59e0b;
+  opacity: 0.7;
+}
+
+.etp-legend-swatch.emerg {
+  background: #ef4444;
+  opacity: 0.7;
+}
+
+/* ── Empty state ─────────────────────────────────────────── */
+.etp-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 24px;
+  gap: 12px;
+  color: rgba(160, 174, 192, 0.5);
+  font-size: 0.85rem;
+}
+
+.etp-empty-icon {
+  font-size: 2rem;
+  opacity: 0.4;
+}
+
+/* ── Keyframes ────────────────────────────────────────────── */
+@keyframes etp-chip-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.65; }
+}
+
+/* ── Responsive ──────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .etp-header {
+    padding: 18px 20px 0;
+  }
+  .etp-toggle-row {
+    padding: 12px 20px 0;
+    flex-wrap: nowrap;
+  }
+  .etp-live-strip {
+    padding: 12px 20px 6px;
+  }
+  .etp-live-value {
+    font-size: 1.5rem;
+  }
+  .etp-chart-area {
+    height: 180px;
+  }
+  .etp-footer {
+    padding: 6px 20px 14px;
+  }
+}
+
+/* ── Accessibility ────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .etp-trend-chip.threshold-emergency {
+    animation: none;
+  }
+}

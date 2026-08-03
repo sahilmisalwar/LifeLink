@@ -1,0 +1,224 @@
+/* SmartHelmet/Software/src/styles/global.css */
+
+/* ===== CSS Custom Properties ===== */
+:root {
+  /* Colors */
+  --bg-primary: #080c14;
+  --bg-surface: #0f1724;
+  --bg-surface-2: #1a2540;
+  --border-color: #1e2d4a;
+  --accent-cyan: #00d4ff;
+  --accent-orange: #f97316;
+  --color-warning: #f59e0b;
+  --color-emergency: #ef4444;
+  --color-safe: #10b981;
+  --text-primary: #f0f4ff;
+  --text-secondary: #64748b;
+
+  /* Typography */
+  --font-family: 'Inter', sans-serif;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 1.875rem;
+
+  /* Spacing */
+  --sidebar-width: 260px;
+  --header-height: 64px;
+  --card-radius: 12px;
+  --card-padding: 1.25rem;
+
+  /* Shadows */
+  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.4);
+  --shadow-glow-cyan: 0 0 20px rgba(0, 212, 255, 0.15);
+  --shadow-glow-emergency: 0 0 30px rgba(239, 68, 68, 0.3);
+}
+
+/* ===== Global Reset ===== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ===== Body ===== */
+body {
+  font-family: var(--font-family);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ===== Scrollbar Styling ===== */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1e2d4a;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #2a3f66;
+}
+
+/* ===== Status Classes ===== */
+.status-normal {
+  color: var(--color-safe);
+}
+
+.status-warning {
+  color: var(--color-warning);
+}
+
+.status-emergency {
+  color: var(--color-emergency);
+}
+
+/* ===== Card ===== */
+.card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--card-radius);
+  padding: var(--card-padding);
+  box-shadow: var(--shadow-card);
+}
+
+/* ===== Glow Effects ===== */
+.glow-cyan {
+  box-shadow: var(--shadow-glow-cyan);
+}
+
+/* ===== Emergency Pulse Animation ===== */
+@keyframes pulse-emergency {
+  0%, 100% {
+    background-color: rgba(239, 68, 68, 0.05);
+  }
+  50% {
+    background-color: rgba(239, 68, 68, 0.15);
+  }
+}
+
+.emergency-pulse {
+  animation: pulse-emergency 1s ease-in-out infinite;
+}
+
+/* ===== Dashboard Animated Background ===== */
+.dashboard-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.bg-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.35;
+}
+
+.bg-orb-1 {
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(0, 212, 255, 0.5) 0%, transparent 70%);
+  top: -10%;
+  right: 10%;
+  animation: orb-drift-1 20s ease-in-out infinite;
+}
+
+.bg-orb-2 {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(0, 117, 255, 0.4) 0%, transparent 70%);
+  bottom: 5%;
+  left: 15%;
+  animation: orb-drift-2 25s ease-in-out infinite;
+}
+
+.bg-orb-3 {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(2, 132, 199, 0.3) 0%, transparent 70%);
+  top: 40%;
+  left: 50%;
+  animation: orb-drift-3 18s ease-in-out infinite;
+}
+
+@keyframes orb-drift-1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(-60px, 40px) scale(1.1); }
+  66% { transform: translate(40px, -30px) scale(0.95); }
+}
+
+@keyframes orb-drift-2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(50px, -50px) scale(1.05); }
+  66% { transform: translate(-40px, 30px) scale(1.1); }
+}
+
+@keyframes orb-drift-3 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-70px, -40px) scale(1.15); }
+}
+
+/* ===== Map + Worker Status Side-by-Side Layout ===== */
+.map-worker-row {
+  display: flex;
+  gap: 20px;
+  align-items: stretch;
+  margin-bottom: 24px;
+}
+
+.map-worker-row .map-hero-wrap {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.worker-status-sidebar {
+  flex: 0 0 280px;
+  max-width: 280px;
+  display: flex;
+  flex-direction: column;
+}
+
+.worker-status-sidebar .worker-status-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (max-width: 1200px) {
+  .worker-status-sidebar {
+    flex: 0 0 240px;
+    max-width: 240px;
+  }
+}
+
+@media (max-width: 900px) {
+  .map-worker-row {
+    flex-direction: column;
+  }
+  .worker-status-sidebar {
+    flex: none;
+    max-width: 100%;
+  }
+}
+

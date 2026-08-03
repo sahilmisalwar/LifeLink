@@ -1,0 +1,511 @@
+/* SmartHelmet/Software/src/styles/DemoControlsPanel.css */
+
+/* ══════════════════════════════════════════════════════════════
+   DemoControlsPanel — collapsible demo/simulation utility panel
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── Floating Action Button (FAB) ─────────── */
+.dcp-fab {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(6, 11, 40, 0.9), rgba(168, 85, 247, 0.4));
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(168, 85, 247, 0.5);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 16px rgba(168, 85, 247, 0.2);
+  cursor: pointer;
+  z-index: 10001; /* Above popup and backdrop */
+  transition: all 250ms cubic-bezier(0.16, 1, 0.3, 1);
+  padding: 0;
+}
+
+.dcp-fab:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.6), 0 0 24px rgba(168, 85, 247, 0.4);
+  background: linear-gradient(135deg, rgba(6, 11, 40, 0.9), rgba(168, 85, 247, 0.6));
+}
+
+.dcp-fab:active {
+  transform: scale(0.95);
+}
+
+.dcp-fab.active {
+  background: rgba(15, 23, 42, 0.9);
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+}
+
+/* ── Backdrop ──────────────────────────────── */
+.dcp-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 9999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 300ms ease;
+}
+
+.dcp-backdrop.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ── Slide-over Panel ──────────────────────── */
+.demo-controls-panel {
+  position: fixed;
+  top: 0;
+  right: -420px; /* Hidden initially */
+  width: 400px;
+  max-width: 90vw;
+  height: 100vh;
+  background: linear-gradient(126.97deg, rgba(6, 11, 40, 0.85) 28%, rgba(10, 14, 35, 0.82) 91%);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  border-left: 1px solid rgba(86, 87, 122, 0.3);
+  font-family: 'Plus Jakarta Sans', Inter, sans-serif;
+  color: #fff;
+  box-shadow: -8px 0 32px rgba(0, 0, 0, 0.5);
+  z-index: 10000;
+  transition: right 300ms cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+}
+
+.demo-controls-panel.open {
+  right: 0;
+}
+
+.demo-controls-panel.demo-active {
+  border-left-color: rgba(168, 85, 247, 0.4);
+  box-shadow: -8px 0 32px rgba(0, 0, 0, 0.5), -4px 0 24px -6px rgba(168, 85, 247, 0.15);
+}
+
+/* ── Header ──────────────────────────────────── */
+.dcp-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 28px;
+  border-bottom: 1px solid rgba(86, 87, 122, 0.2);
+  user-select: none;
+}
+
+.dcp-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.dcp-header-icon {
+  font-size: 1.1rem;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: rgba(168, 85, 247, 0.1);
+  border: 1px solid rgba(168, 85, 247, 0.2);
+}
+
+.dcp-header-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.dcp-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: rgba(240, 244, 255, 0.9);
+}
+
+.dcp-subtitle {
+  font-size: 0.6rem;
+  color: rgba(160, 174, 192, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.dcp-close-btn {
+  background: transparent;
+  border: none;
+  color: rgba(160, 174, 192, 0.6);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 200ms ease;
+}
+
+.dcp-close-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+/* ── Body ──────────────────────────────────── */
+.dcp-body {
+  padding: 24px 28px 100px; /* extra bottom padding for FAB */
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* ── Demo mode badge ─────────────────────────────────────── */
+.dcp-demo-badge {
+  position: fixed;
+  bottom: 24px;
+  left: 24px; /* Moved to left so it doesn't overlap FAB */
+  z-index: 9999;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 12px;
+  background: rgba(168, 85, 247, 0.2);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(168, 85, 247, 0.4);
+  color: #c084fc;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  box-shadow: 0 6px 24px rgba(168, 85, 247, 0.2);
+  animation: dcp-badge-pulse 2.5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.dcp-badge-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #a855f7;
+  box-shadow: 0 0 8px rgba(168, 85, 247, 0.6);
+}
+
+@keyframes dcp-badge-pulse {
+  0%, 100% { opacity: 0.9; }
+  50%      { opacity: 1; }
+}
+
+/* ── Section titles ──────────────────────────────────────── */
+.dcp-section {
+  margin-top: 20px;
+}
+
+.dcp-section:first-child {
+  margin-top: 0;
+}
+
+.dcp-section-title {
+  font-size: 0.6rem;
+  font-weight: 800;
+  color: rgba(160, 174, 192, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin-bottom: 10px;
+}
+
+/* ── Toggle switch ───────────────────────────────────────── */
+.dcp-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(86, 87, 122, 0.2);
+  border-radius: 12px;
+}
+
+.dcp-toggle-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: rgba(240, 244, 255, 0.85);
+}
+
+.dcp-toggle-hint {
+  font-size: 0.6rem;
+  color: rgba(160, 174, 192, 0.5);
+  font-weight: 500;
+}
+
+.dcp-switch {
+  position: relative;
+  width: 48px;
+  height: 26px;
+  border-radius: 13px;
+  background: rgba(86, 87, 122, 0.3);
+  cursor: pointer;
+  transition: background 250ms ease;
+  border: none;
+  padding: 0;
+}
+
+.dcp-switch.on {
+  background: rgba(168, 85, 247, 0.5);
+}
+
+.dcp-switch-knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 200ms ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.dcp-switch.on .dcp-switch-knob {
+  transform: translateX(22px);
+}
+
+/* ── Scenario buttons grid ───────────────────────────────── */
+.dcp-scenarios {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 8px;
+}
+
+.dcp-scenario-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border: 1px solid rgba(86, 87, 122, 0.25);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(240, 244, 255, 0.8);
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 180ms ease;
+  text-align: left;
+}
+
+.dcp-scenario-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(86, 87, 122, 0.4);
+  transform: translateY(-1px);
+}
+
+.dcp-scenario-btn:active {
+  transform: translateY(0);
+}
+
+.dcp-scenario-btn.active {
+  border-color: rgba(168, 85, 247, 0.4);
+  background: rgba(168, 85, 247, 0.08);
+  color: #c084fc;
+}
+
+.dcp-scenario-icon {
+  font-size: 1rem;
+  flex: 0 0 auto;
+}
+
+.dcp-scenario-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.dcp-scenario-name {
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.dcp-scenario-desc {
+  font-size: 0.55rem;
+  color: rgba(160, 174, 192, 0.5);
+  font-weight: 500;
+}
+
+/* ── Manual overrides ────────────────────────────────────── */
+.dcp-sliders {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 10px;
+}
+
+.dcp-slider-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(86, 87, 122, 0.15);
+  border-radius: 10px;
+}
+
+.dcp-slider-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: rgba(160, 174, 192, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  min-width: 65px;
+  flex: 0 0 auto;
+}
+
+.dcp-slider-input {
+  flex: 1 1 0;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(86, 87, 122, 0.3);
+  outline: none;
+  cursor: pointer;
+}
+
+.dcp-slider-input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #a855f7;
+  border: 2px solid rgba(6, 11, 40, 0.8);
+  box-shadow: 0 2px 6px rgba(168, 85, 247, 0.3);
+  cursor: pointer;
+  transition: transform 150ms ease;
+}
+
+.dcp-slider-input::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+.dcp-slider-input::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #a855f7;
+  border: 2px solid rgba(6, 11, 40, 0.8);
+  box-shadow: 0 2px 6px rgba(168, 85, 247, 0.3);
+  cursor: pointer;
+}
+
+.dcp-slider-value {
+  font-size: 0.72rem;
+  font-weight: 700;
+  font-family: ui-monospace, 'JetBrains Mono', monospace;
+  color: rgba(240, 244, 255, 0.8);
+  min-width: 65px;
+  text-align: right;
+}
+
+/* Fall detected toggle row */
+.dcp-fall-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(86, 87, 122, 0.15);
+  border-radius: 10px;
+  margin-top: 10px;
+}
+
+.dcp-fall-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: rgba(160, 174, 192, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.dcp-fall-status {
+  font-size: 0.68rem;
+  font-weight: 700;
+  font-family: ui-monospace, monospace;
+}
+
+.dcp-fall-status.on {
+  color: #ef4444;
+}
+
+.dcp-fall-status.off {
+  color: #01B574;
+}
+
+/* ── Reset button ────────────────────────────────────────── */
+.dcp-reset-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 24px;
+  border: 1px solid rgba(86, 87, 122, 0.3);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(240, 244, 255, 0.8);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: all 180ms ease;
+  margin-top: 20px;
+}
+
+.dcp-reset-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(86, 87, 122, 0.5);
+  transform: translateY(-1px);
+}
+
+.dcp-reset-btn:active {
+  transform: translateY(0);
+}
+
+/* ── Divider ─────────────────────────────────────────────── */
+.dcp-divider {
+  height: 1px;
+  background: rgba(86, 87, 122, 0.15);
+  margin: 20px 0;
+}
+
+/* ── Responsive ──────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .dcp-header {
+    padding: 14px 20px;
+  }
+  .dcp-body {
+    padding: 0 20px 20px;
+  }
+  .dcp-scenarios {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .dcp-sliders {
+    grid-template-columns: 1fr;
+  }
+  .dcp-demo-badge {
+    bottom: 16px;
+    right: 16px;
+    font-size: 0.65rem;
+    padding: 8px 14px;
+  }
+}
+
+/* ── Accessibility ────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .dcp-demo-badge {
+    animation: none;
+  }
+}

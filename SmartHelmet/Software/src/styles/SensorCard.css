@@ -1,0 +1,130 @@
+/* SmartHelmet/Software/src/styles/SensorCard.css */
+
+.sensor-card {
+  background: linear-gradient(126.97deg, rgba(6, 11, 40, 0.74) 28%, rgba(10, 14, 35, 0.71) 91%);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  border: 1px solid rgba(86, 87, 122, 0.25);
+  border-radius: 20px;
+  padding: 22px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  color: #FFFFFF;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  transition: box-shadow 300ms ease, transform 300ms ease, border-color 300ms ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.sensor-card:hover {
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.4);
+  transform: translateY(-2px);
+  border-color: rgba(0, 212, 255, 0.25);
+}
+
+/* Status-colored left accent bar */
+.sensor-card::after {
+  content: '';
+  position: absolute;
+  top: 16px;
+  bottom: 16px;
+  left: 0;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: #01B574;
+  transition: background 300ms ease;
+}
+
+.sensor-card.warning::after {
+  background: #f97316;
+}
+
+.sensor-card.emergency::after {
+  background: #ef4444;
+}
+
+/* ── Card header row ──────────────────────────────────── */
+.sc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.sc-icon {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  transition: background 300ms ease;
+}
+
+.sensor-card.warning .sc-icon {
+  background: rgba(249, 115, 22, 0.12);
+}
+
+.sensor-card.emergency .sc-icon {
+  background: rgba(239, 68, 68, 0.12);
+}
+
+.sc-mini-badge {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #01B574;
+  box-shadow: 0 0 8px rgba(1, 181, 116, 0.4);
+}
+
+.sc-mini-badge.warning {
+  background: #f97316;
+  box-shadow: 0 0 8px rgba(249, 115, 22, 0.4);
+}
+
+.sc-mini-badge.emergency {
+  background: #ef4444;
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.4);
+  animation: sc-dot-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes sc-dot-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* ── Value area ───────────────────────────────────────── */
+.sc-value-area {
+  margin-bottom: 8px;
+}
+
+.sc-value {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.1;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+.sc-unit {
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: #A0AEC0;
+  margin-left: 4px;
+}
+
+/* ── Label and subtitle ───────────────────────────────── */
+.sc-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #A0AEC0;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 2px;
+}
+
+.sc-subtitle {
+  font-size: 0.7rem;
+  color: rgba(160, 174, 192, 0.6);
+}

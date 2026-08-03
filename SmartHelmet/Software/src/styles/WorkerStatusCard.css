@@ -1,0 +1,312 @@
+/* SmartHelmet/Software/src/styles/WorkerStatusCard.css */
+
+.worker-status-card {
+  background: linear-gradient(126.97deg, rgba(6, 11, 40, 0.74) 28%, rgba(10, 14, 35, 0.71) 91%);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  border: 1px solid rgba(86, 87, 122, 0.3);
+  border-radius: 20px;
+  padding: 28px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  color: #FFFFFF;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+  transition: box-shadow 300ms ease, transform 300ms ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.worker-status-card:hover {
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+  transform: translateY(-2px);
+}
+
+/* Accent strip at the top of the card, colored by status */
+.worker-status-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  border-radius: 20px 20px 0 0;
+  background: #01B574;
+  transition: background 300ms ease;
+}
+
+.worker-status-card.warning::before {
+  background: #f97316;
+}
+
+.worker-status-card.emergency::before {
+  background: #ef4444;
+}
+
+/* ── Header row ───────────────────────────────────────── */
+.wsc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.wsc-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #A0AEC0;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.wsc-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.wsc-status-badge.normal {
+  background: rgba(1, 181, 116, 0.15);
+  color: #01B574;
+}
+
+.wsc-status-badge.warning {
+  background: rgba(249, 115, 22, 0.15);
+  color: #f97316;
+}
+
+.wsc-status-badge.emergency {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  animation: emergency-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes emergency-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.wsc-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.wsc-status-dot.normal {
+  background: #01B574;
+  box-shadow: 0 0 10px rgba(1, 181, 116, 0.5);
+}
+
+.wsc-status-dot.warning {
+  background: #f97316;
+  box-shadow: 0 0 10px rgba(249, 115, 22, 0.5);
+}
+
+.wsc-status-dot.emergency {
+  background: #ef4444;
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+}
+
+/* ── Worker identity row ──────────────────────────────── */
+.wsc-identity {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.wsc-avatar {
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #00d4ff 0%, #0284c7 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #FFFFFF;
+}
+
+.wsc-name {
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+.wsc-id {
+  font-size: 0.8rem;
+  color: #A0AEC0;
+  margin-top: 2px;
+}
+
+/* ── Info grid ────────────────────────────────────────── */
+.wsc-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.wsc-info-item {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(86, 87, 122, 0.2);
+  border-radius: 12px;
+  padding: 12px 16px;
+}
+
+.wsc-info-label {
+  display: block;
+  font-size: 0.7rem;
+  color: #A0AEC0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+
+.wsc-info-value {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+/* ── Status message ───────────────────────────────────── */
+.wsc-message {
+  font-size: 0.875rem;
+  color: #A0AEC0;
+  line-height: 1.5;
+  padding-top: 16px;
+  border-top: 1px solid rgba(86, 87, 122, 0.25);
+}
+
+/* ══════════════════════════════════════════════════════
+   COMPACT MODE  (sidebar vertical layout)
+   ══════════════════════════════════════════════════════ */
+.wsc-compact {
+  padding: 20px 18px;
+  border-radius: 16px;
+}
+
+.wsc-compact .wsc-header {
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.wsc-compact .wsc-title {
+  font-size: 0.85rem;
+}
+
+.wsc-compact .wsc-status-badge {
+  align-self: flex-start;
+  padding: 4px 12px;
+  font-size: 0.65rem;
+}
+
+.wsc-compact .wsc-identity {
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.wsc-compact .wsc-avatar {
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  border-radius: 10px;
+  font-size: 0.95rem;
+}
+
+.wsc-compact .wsc-name {
+  font-size: 1.05rem;
+}
+
+.wsc-compact .wsc-id {
+  font-size: 0.7rem;
+}
+
+.wsc-compact .wsc-info-grid {
+  grid-template-columns: 1fr;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.wsc-compact .wsc-info-item {
+  padding: 8px 12px;
+  border-radius: 8px;
+}
+
+.wsc-compact .wsc-info-label {
+  font-size: 0.6rem;
+  margin-bottom: 2px;
+}
+
+.wsc-compact .wsc-info-value {
+  font-size: 0.82rem;
+}
+
+.wsc-compact .wsc-message {
+  font-size: 0.75rem;
+  padding-top: 12px;
+  margin-top: auto;
+}
+
+/* ── Compact vitals summary ──────────────────────────── */
+.wsc-vitals-compact {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+  padding: 10px 0;
+  border-top: 1px solid rgba(86, 87, 122, 0.2);
+  border-bottom: 1px solid rgba(86, 87, 122, 0.2);
+}
+
+.wsc-vital-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 10px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.025);
+  transition: background 200ms ease;
+}
+
+.wsc-vital-row:hover {
+  background: rgba(255, 255, 255, 0.055);
+}
+
+.wsc-vital-icon {
+  font-size: 0.85rem;
+  flex: 0 0 22px;
+  text-align: center;
+}
+
+.wsc-vital-label {
+  font-size: 0.65rem;
+  color: #A0AEC0;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.wsc-vital-val {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #eef4ff;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.wsc-vital-val small {
+  font-size: 0.6rem;
+  font-weight: 500;
+  color: #6b7fa0;
+  margin-left: 2px;
+}
+

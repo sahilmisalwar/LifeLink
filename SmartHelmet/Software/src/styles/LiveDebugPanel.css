@@ -1,0 +1,212 @@
+/* SmartHelmet/Software/src/styles/LiveDebugPanel.css */
+
+.live-debug-panel {
+  background: rgba(6, 11, 40, 0.4);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(160, 174, 192, 0.2);
+  border-radius: 16px;
+  padding: 0;
+  color: #FFFFFF;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  margin-bottom: 24px;
+  overflow: hidden;
+  transition: all 250ms ease;
+}
+
+.live-debug-panel:not(.collapsed) {
+  background: rgba(6, 11, 40, 0.74);
+  border-color: rgba(0, 212, 255, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(20px);
+}
+
+.debug-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  cursor: pointer;
+  user-select: none;
+  background: rgba(255, 255, 255, 0.02);
+  transition: background 150ms ease;
+}
+
+.debug-header:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.live-debug-panel:not(.collapsed) .debug-header {
+  border-bottom: 1px solid rgba(86, 87, 122, 0.4);
+}
+
+.debug-header-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #A0AEC0;
+  transition: color 150ms ease;
+}
+
+.debug-header:hover .debug-header-title {
+  color: #fff;
+}
+
+.debug-header h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.debug-hint {
+  font-size: 0.7rem;
+  color: rgba(160, 174, 192, 0.6);
+  margin-left: 8px;
+  font-style: italic;
+}
+
+.debug-body {
+  padding: 20px;
+}
+
+.debug-badge {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.debug-badge.live {
+  background: rgba(1, 181, 116, 0.15);
+  color: #01B574;
+  border: 1px solid rgba(1, 181, 116, 0.3);
+  box-shadow: 0 0 12px rgba(1, 181, 116, 0.2);
+}
+
+.debug-badge.loading {
+  background: rgba(0, 212, 255, 0.15);
+  color: #00d4ff;
+  border: 1px solid rgba(0, 212, 255, 0.3);
+}
+
+.debug-badge.empty {
+  background: rgba(160, 174, 192, 0.15);
+  color: #A0AEC0;
+  border: 1px solid rgba(160, 174, 192, 0.3);
+}
+
+.debug-section {
+  margin-bottom: 20px;
+}
+
+.debug-section h4 {
+  margin: 0 0 12px 0;
+  font-size: 0.875rem;
+  color: #A0AEC0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.debug-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 16px;
+}
+
+.debug-item {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  padding: 12px;
+  border: 1px solid rgba(86, 87, 122, 0.2);
+}
+
+.debug-label {
+  display: block;
+  font-size: 0.75rem;
+  color: #A0AEC0;
+  margin-bottom: 4px;
+}
+
+.debug-value {
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+.debug-status {
+  display: inline-block;
+  padding: 6px 16px;
+  border-radius: 16px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.debug-status.normal {
+  background: rgba(1, 181, 116, 0.15);
+  color: #01B574;
+}
+
+.debug-status.warning {
+  background: rgba(249, 115, 22, 0.15);
+  color: #f97316;
+}
+
+.debug-status.emergency {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+.debug-alerts {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.debug-alert-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 10px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(86, 87, 122, 0.2);
+}
+
+.alert-severity {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 8px;
+}
+
+.alert-severity.warning {
+  background: rgba(249, 115, 22, 0.15);
+  color: #f97316;
+}
+
+.alert-severity.emergency {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+.alert-message {
+  flex: 1;
+  font-size: 0.875rem;
+}
+
+.alert-time {
+  font-size: 0.75rem;
+  color: #A0AEC0;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+.debug-alert-empty {
+  color: #A0AEC0;
+  font-size: 0.875rem;
+  font-style: italic;
+  padding: 8px 0;
+}
