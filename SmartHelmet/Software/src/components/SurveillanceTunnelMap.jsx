@@ -2,33 +2,86 @@
 
 import { useRef, useEffect, useCallback, useState } from 'react';
 import { THRESHOLDS, RSSI_STRONGEST, RSSI_WEAKEST } from '../utils/constants';
+import tunnelMapBg from '../assets/tunnel-map-background.png';
 import '../styles/SurveillanceTunnelMap.css';
 
-const VIEWBOX = '0 -120 1400 1000';
+/* ═══════════════════════════════════════════════════════════════
+   IMAGE & COORDINATE CONSTANTS
+   ═══════════════════════════════════════════════════════════════ */
 
-// Art-directed mine tunnel paths — DO NOT CHANGE
-const TUNNEL_PATHS = [
-  'M 150 258 C 190 255 222 270 261 257 C 298 244 313 275 349 267 C 399 255 427 289 478 274 C 540 258 575 288 631 275 C 691 261 752 282 818 274 C 895 267 952 248 1011 207 C 1068 167 1139 161 1211 174 C 1266 184 1308 170 1344 146',
-  'M 356 266 C 361 225 349 188 327 148 C 311 125 286 115 260 103 M 353 242 C 383 212 404 178 394 139 C 387 111 363 87 326 69',
-  'M 728 276 C 732 228 741 182 775 143 C 808 106 840 75 894 57 C 940 40 997 39 1034 45',
-  'M 727 278 C 719 323 715 366 690 400 C 666 434 636 465 603 497',
-  'M 939 250 C 946 292 945 335 965 365 C 986 395 1013 416 1042 448',
-  'M 151 391 C 208 385 256 414 310 449 C 365 487 424 512 491 506 C 553 500 610 507 662 513 C 718 520 755 551 804 554 C 853 559 902 543 951 558 C 989 571 1019 589 1050 587 C 1083 585 1098 557 1125 548',
-  'M 309 449 C 297 490 271 526 226 537 C 181 548 141 535 104 512 M 292 453 C 306 496 322 534 304 573 C 289 605 263 623 242 649',
-  'M 405 510 C 395 551 378 584 344 609 C 312 634 279 645 245 650 M 440 510 C 463 549 472 594 457 630 C 443 662 414 681 393 710',
-  'M 601 499 C 640 535 662 581 659 625 C 656 665 633 699 617 722 M 696 521 C 718 565 721 609 700 644 C 680 678 647 692 617 721',
-  'M 962 371 C 1006 364 1045 352 1071 322 C 1094 294 1106 255 1129 231',
-  'M 1042 447 C 1011 488 991 526 1001 568 C 1009 602 1040 626 1075 647 C 1103 664 1148 672 1197 669',
-  'M 1126 548 C 1172 531 1212 517 1257 521 C 1292 524 1322 539 1355 540',
+// Native image dimensions (used for aspect-ratio and SVG viewBox)
+const IMG_W = 1672;
+const IMG_H = 941;
+const VIEWBOX = `0 0 ${IMG_W} ${IMG_H}`;
+
+// Helper: convert normalized percentage to absolute pixel coords
+const pct = (xPct, yPct) => ({ x: (xPct / 100) * IMG_W, y: (yPct / 100) * IMG_H });
+
+// ── 4 Verified named nodes (DO NOT CHANGE) ──────────────────
+const NODES = {
+  entrance:      pct(8.64,  51.64),   // ≈ (144.5, 485.9)
+  mainJunction:  pct(24.72, 51.65),   // ≈ (413.3, 486.0)
+  eastJunction:  pct(58.56, 55.66),   // ≈ (979.1, 523.8)
+  zoneE:         pct(86.97, 67.04),   // ≈ (1454.2, 630.8)
+};
+
+// ── Verified 24-point traced path (Ground Truth) ────────────────
+const WAYPOINTS = [
+  pct(8.63, 52.07),   // 1. Entrance (approx NODES.entrance)
+  pct(10.98, 57.86),
+  pct(14.24, 53.51),
+  pct(16.89, 50.62),
+  pct(19.64, 51.52),
+  pct(22.09, 53.70),
+  pct(24.84, 52.43),  // 7. near Main Junction (approx NODES.mainJunction)
+  pct(28.31, 53.33),
+  pct(30.35, 50.98),
+  pct(33.81, 50.43),
+  pct(35.85, 50.07),
+  pct(40.85, 53.15),
+  pct(45.23, 54.96),
+  pct(48.80, 54.42),
+  pct(51.45, 53.51),
+  pct(54.81, 56.23),
+  pct(58.58, 56.41),  // 17. near East Junction (approx NODES.eastJunction)
+  pct(62.05, 58.59),
+  pct(65.62, 58.77),
+  pct(67.66, 59.86),
+  pct(76.42, 64.93),
+  pct(80.19, 66.56),
+  pct(83.25, 66.92),
+  pct(86.72, 67.83)   // 24. Zone E (approx NODES.zoneE)
 ];
 
-const JUNCTIONS = [
-  [354, 264], [728, 276], [940, 250], [310, 449], [601, 499],
-  [804, 554], [962, 371], [1042, 447], [1001, 568], [405, 510],
-];
+/**
+ * Convert a sequence of waypoints to a smooth SVG path using Catmull-Rom → Cubic Bézier.
+ * Each waypoint is passed through exactly (interpolating spline), producing a smooth curve
+ * that hugs the road centerline far more closely than simple 4-point cubic arcs.
+ */
+function catmullRomToPath(points, tension = 0.35) {
+  if (points.length < 2) return '';
 
-// The main route from Entrance to worker area — used for rescue display AND worker positioning
-const RESCUE_PATH = 'M 151 391 C 208 385 256 414 310 449 C 365 487 424 512 491 506 C 553 500 610 507 662 513 C 718 520 755 551 804 554 C 853 559 902 543 951 558 C 989 571 1019 589 1050 587 C 1083 585 1098 557 1125 548';
+  const d = [`M ${points[0].x} ${points[0].y}`];
+
+  for (let i = 0; i < points.length - 1; i++) {
+    const p0 = points[Math.max(i - 1, 0)];
+    const p1 = points[i];
+    const p2 = points[i + 1];
+    const p3 = points[Math.min(i + 2, points.length - 1)];
+
+    // Catmull-Rom tangent → Bézier control points
+    const cp1x = p1.x + (p2.x - p0.x) * tension;
+    const cp1y = p1.y + (p2.y - p0.y) * tension;
+    const cp2x = p2.x - (p3.x - p1.x) * tension;
+    const cp2y = p2.y - (p3.y - p1.y) * tension;
+
+    d.push(`C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p2.x} ${p2.y}`);
+  }
+
+  return d.join(' ');
+}
+
+const RESCUE_PATH = catmullRomToPath(WAYPOINTS);
 
 /* ═══════════════════════════════════════════════════════════════
    RSSI → CONTINUOUS PATH POSITION HELPERS
@@ -46,10 +99,7 @@ const PREDICTION_STEP_DBM = 3;       // dBm step per prediction tick
  */
 function getPercentFromRSSI(rssi) {
   const clamped = Math.max(RSSI_WEAKEST, Math.min(RSSI_STRONGEST, rssi));
-  // clamped is in [RSSI_WEAKEST .. RSSI_STRONGEST] i.e. [-120 .. -50]
-  // (clamped - WEAKEST) / (STRONGEST - WEAKEST) gives 0 when at WEAKEST, 1 when at STRONGEST
   const ratio = (clamped - RSSI_WEAKEST) / (RSSI_STRONGEST - RSSI_WEAKEST);
-  // ratio=1 means strongest → Entrance (percent=0), ratio=0 means weakest → far (percent=1)
   return 1 - ratio;
 }
 
@@ -62,16 +112,6 @@ function getHazardLabel(reading) {
     reading.heart_rate >= THRESHOLDS.heart_rate.warningHigh
   )) return 'VITAL ALERT';
   return 'HAZARD ZONE';
-}
-
-function Marker({ x, y, active }) {
-  return (
-    <g className="stm-junction" transform={`translate(${x} ${y})`}>
-      <circle r="14" className="stm-junction-halo" />
-      <circle r="8" className={active ? 'stm-junction-ring stm-junction-ring-active' : 'stm-junction-ring'} />
-      <circle r="2.75" className="stm-junction-core" />
-    </g>
-  );
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -91,6 +131,7 @@ export default function SurveillanceTunnelMap({ worker, reading, zone, status = 
   const refPathEl = useRef(null);          // invisible reference <path>
   const workerGroupRef = useRef(null);     // <g> element of worker marker
   const rescueMaskPathRef = useRef(null);  // <mask> for dynamic rescue path length
+  const idleGlowMaskRef = useRef(null);    // <mask> for idle glow path clipping
   const rssiHistoryRef = useRef([]);       // rolling window of recent RSSI values
   const currentPercentRef = useRef(0);     // where the dot IS right now (0–1)
   const targetPercentRef = useRef(0);      // where the dot SHOULD be heading
@@ -159,6 +200,7 @@ export default function SurveillanceTunnelMap({ worker, reading, zone, status = 
     const pathEl = refPathEl.current;
     const workerEl = workerGroupRef.current;
     const maskPathEl = rescueMaskPathRef.current;
+    const idleGlowMaskEl = idleGlowMaskRef.current;
     if (!pathEl || !workerEl) return;
 
     const totalLen = pathEl.getTotalLength();
@@ -183,6 +225,13 @@ export default function SurveillanceTunnelMap({ worker, reading, zone, status = 
       maskPathEl.setAttribute('stroke-dasharray', `${totalLen} ${totalLen}`);
       maskPathEl.setAttribute('stroke-dashoffset', `${totalLen - drawnLen}`);
     }
+
+    // Dynamically clip the idle glow path to end at the worker's current position
+    if (idleGlowMaskEl) {
+      const drawnLen = clampedPercent * totalLen;
+      idleGlowMaskEl.setAttribute('stroke-dasharray', `${totalLen} ${totalLen}`);
+      idleGlowMaskEl.setAttribute('stroke-dashoffset', `${totalLen - drawnLen}`);
+    }
   }, []);
 
   // ── rAF animation loop ─────────────────────────────────────────
@@ -201,40 +250,53 @@ export default function SurveillanceTunnelMap({ worker, reading, zone, status = 
   }, [updateWorkerPosition]);
 
   // ── Fallback: initialise position if no RSSI yet ───────────────
-  const [workerFallback] = useState({ x: 1125, y: 548 });
+  const [workerFallback] = useState({ x: NODES.zoneE.x, y: NODES.zoneE.y });
 
   return (
     <section className={`surveillance-map-card stm-state-${hazardState}`} data-emergency-level={emergencyLevel || 'none'} aria-label="Tunnel surveillance map">
-      <div className="stm-background-layers" aria-hidden="true">
-        <div className="stm-grid-overlay" />
-        <div className="stm-haze stm-haze-left" />
-        <div className="stm-haze stm-haze-right" />
-        <div className="stm-vignette" />
+
+      {/* ── Background image layer ── */}
+      <div className="stm-bg-image-wrapper" aria-hidden="true">
+        <img
+          src={tunnelMapBg}
+          alt=""
+          className="stm-bg-image"
+          draggable={false}
+        />
       </div>
 
-      <header className="surveillance-map-header">
-        <div className="stm-header-left">
-          <p className="surveillance-map-kicker">LifeLink / Mine level 03</p>
-          <h2 className="surveillance-map-title">Tunnel Surveillance Map</h2>
-          <p className="surveillance-map-subtitle">Live position and rescue route guidance</p>
-        </div>
+      {/* ── Status badge (top-right, overlay) ── */}
+      <div className="stm-status-overlay">
         <div className={`stm-status-badge ${hazardState}`}>
           <span className="stm-status-dot" />
           {isEmergency ? 'Emergency' : isDanger ? 'Warning' : 'All clear'}
         </div>
-      </header>
+      </div>
 
+      {/* ── SVG overlay: only live/dynamic elements ── */}
       <div className="surveillance-map-canvas">
         <svg viewBox={VIEWBOX} preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="stm-svg-title stm-svg-description">
-          <title id="stm-svg-title">Underground tunnel surveillance scene</title>
-          <desc id="stm-svg-description">A glowing mine tunnel network with entrance, worker location, hazard area and a conditional rescue path.</desc>
+          <title id="stm-svg-title">Underground tunnel surveillance overlay</title>
+          <desc id="stm-svg-description">Live worker position, rescue path, and hazard indicators overlaid on the tunnel map.</desc>
           <defs>
+            {/* Mask for clipping rescue path to worker's position */}
             <mask id="rescue-mask">
               <path
                 ref={rescueMaskPathRef}
                 d={RESCUE_PATH}
                 stroke="white"
-                strokeWidth="100"
+                strokeWidth="200"
+                fill="none"
+                strokeLinecap="butt"
+              />
+            </mask>
+            {/* Mask for clipping idle glow to worker's position */}
+            <mask id="idle-glow-mask">
+              <path
+                ref={idleGlowMaskRef}
+                d={RESCUE_PATH}
+                stroke="white"
+                strokeWidth="200"
                 fill="none"
                 strokeLinecap="butt"
               />
@@ -246,20 +308,9 @@ export default function SurveillanceTunnelMap({ worker, reading, zone, status = 
               <feGaussianBlur in="SourceGraphic" stdDeviation="3.5" result="blur" />
               <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
             </filter>
-            <filter id="stm-rock-edge" x="-10%" y="-20%" width="120%" height="140%">
-              <feTurbulence type="fractalNoise" baseFrequency="0.014 0.12" numOctaves="2" seed="12" result="noise" />
-              <feDisplacementMap in="SourceGraphic" in2="noise" scale="3.2" xChannelSelector="R" yChannelSelector="G" />
+            <filter id="stm-idle-blur" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="6" />
             </filter>
-            <linearGradient id="stm-tunnel-body" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stopColor="#7ee8ff" stopOpacity=".76" />
-              <stop offset=".42" stopColor="#166a9f" stopOpacity=".8" />
-              <stop offset="1" stopColor="#082947" stopOpacity=".96" />
-            </linearGradient>
-            <linearGradient id="stm-tunnel-core" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0" stopColor="#3edcff" stopOpacity=".35" />
-              <stop offset=".5" stopColor="#c2f8ff" stopOpacity=".96" />
-              <stop offset="1" stopColor="#20aade" stopOpacity=".4" />
-            </linearGradient>
             <radialGradient id="stm-worker-fill">
               <stop offset="0" stopColor="#1dcdfd" stopOpacity=".75" />
               <stop offset=".55" stopColor="#075cc8" stopOpacity=".42" />
@@ -272,84 +323,34 @@ export default function SurveillanceTunnelMap({ worker, reading, zone, status = 
             </radialGradient>
           </defs>
 
-          {/* ── Background region letters (decorative, for visual depth) ── */}
-          <g className="stm-region-labels" aria-hidden="true">
-            <text x="246" y="173">A</text>
-            <text x="1095" y="124">B</text>
-            <text x="1288" y="426">C</text>
-            <text x="904" y="684">D</text>
-          </g>
-
-          {/* ── Subtle zone labels along the worker's path ── */}
-          <g className="stm-zone-labels" aria-hidden="true">
-            {/* Main Junction */}
-            <g transform="translate(340 440)">
-              <text className="stm-zone-tag" textAnchor="start" dy="-14">MAIN JUNCTION</text>
-              <line x1="0" y1="-8" x2="56" y2="-8" className="stm-zone-tag-line" />
-            </g>
-            {/* East Junction */}
-            <g transform="translate(804 530)">
-              <text className="stm-zone-tag" textAnchor="middle" dy="-14">EAST JUNCTION</text>
-              <line x1="-28" y1="-8" x2="28" y2="-8" className="stm-zone-tag-line" />
-            </g>
-            {/* Zone D */}
-            <g transform="translate(1125 524)">
-              <text className="stm-zone-tag" textAnchor="middle" dy="-14">ZONE D</text>
-              <line x1="-18" y1="-8" x2="18" y2="-8" className="stm-zone-tag-line" />
-            </g>
-          </g>
-
-          <g className="stm-tunnel-network" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <g className="stm-tunnel-aura" filter="url(#stm-cyan-haze)">
-              {TUNNEL_PATHS.map((d, index) => <path d={d} stroke="#0e98d6" strokeWidth="26" key={`aura-${index}`} />)}
-            </g>
-            <g className="stm-tunnel-shell" filter="url(#stm-rock-edge)">
-              {TUNNEL_PATHS.map((d, index) => <path d={d} stroke="#123f68" strokeWidth="18" key={`shell-${index}`} />)}
-            </g>
-            <g className="stm-tunnel-body">
-              {TUNNEL_PATHS.map((d, index) => <path d={d} stroke="url(#stm-tunnel-body)" strokeWidth="11.5" key={`body-${index}`} />)}
-            </g>
-            <g className="stm-tunnel-spark">
-              {TUNNEL_PATHS.map((d, index) => <path d={d} stroke="url(#stm-tunnel-core)" strokeWidth="2.3" key={`spark-${index}`} />)}
-            </g>
-            <g className="stm-tunnel-texture">
-              {TUNNEL_PATHS.map((d, index) => <path d={d} stroke="#d4fbff" strokeWidth=".8" strokeDasharray="4 14" key={`texture-${index}`} />)}
-            </g>
-          </g>
-
+          {/* ── Hazard zone pulse (positioned near Abandoned Area in the image) ── */}
           <g className={`stm-hazard-zone ${hazardState}`} aria-label={isDanger ? hazardLabel : 'Dormant hazard zone'}>
-            <path className="stm-hazard-haze" d="M 1111 147 C 1174 123 1252 145 1288 198 C 1325 252 1315 331 1270 370 C 1228 407 1154 404 1108 369 C 1067 337 1056 287 1072 244 C 1086 204 1077 163 1111 147 Z" fill="url(#stm-hazard-fill)" />
-            <path className="stm-hazard-contour" d="M 1100 153 C 1138 131 1189 143 1213 166 C 1248 145 1284 175 1282 209 C 1327 231 1328 275 1297 299 C 1316 339 1288 376 1247 377 C 1218 411 1171 396 1146 376 C 1099 389 1064 353 1074 314 C 1046 284 1064 246 1082 229 C 1066 190 1077 169 1100 153 Z" />
-            <g className="stm-hazard-copy" transform="translate(1188 255)">
-              <path d="M 0 -35 L 31 20 L -31 20 Z" />
-              <path className="stm-hazard-person" d="M 0 -19 a4 4 0 1 0 0 .1 M 0 -12 v17 M -11 -2 L 0 -8 L 11 -2 M -6 15 L 0 5 L 6 15" />
-              <text x="0" y="56">{hazardLabel}</text>
-            </g>
+            <circle className="stm-hazard-haze" cx="1380" cy="340" r="140" fill="url(#stm-hazard-fill)" />
+            <circle className="stm-hazard-contour" cx="1380" cy="340" r="120" />
+            {isDanger && (
+              <g className="stm-hazard-copy" transform="translate(1380 340)">
+                <path d="M 0 -35 L 31 20 L -31 20 Z" />
+                <path className="stm-hazard-person" d="M 0 -19 a4 4 0 1 0 0 .1 M 0 -12 v17 M -11 -2 L 0 -8 L 11 -2 M -6 15 L 0 5 L 6 15" />
+                <text x="0" y="56">{hazardLabel}</text>
+              </g>
+            )}
           </g>
 
-          {isDanger && (
-            <g className="stm-rescue-route" strokeLinecap="round" aria-label="Active rescue path" mask="url(#rescue-mask)">
-              <path d={RESCUE_PATH} className="stm-rescue-aura" />
-              <path d={RESCUE_PATH} className="stm-rescue-body" />
-              <path d={RESCUE_PATH} className="stm-rescue-core" />
-              <path d={RESCUE_PATH} className="stm-rescue-flow" />
-              {emergencyLevel === 'critical' && (
-                <path d={RESCUE_PATH} className="stm-rescue-shimmer" />
-              )}
-            </g>
-          )}
-
-          <g className="stm-junctions" aria-hidden="true">
-            {JUNCTIONS.map(([x, y], index) => <Marker x={x} y={y} active={isDanger && (index === 3 || index === 4 || index === 5)} key={`junction-${index}`} />)}
+          {/* ── Idle path glow (always visible, fades out during emergency) ── */}
+          <g className={`stm-idle-glow ${hazardState}`} strokeLinecap="round" mask="url(#idle-glow-mask)" aria-hidden="true">
+            <path d={RESCUE_PATH} className="stm-idle-aura" />
+            <path d={RESCUE_PATH} className="stm-idle-core" />
           </g>
 
-          <g className="stm-entrance" transform="translate(30 314)" aria-label="Entrance">
-            <rect width="116" height="102" rx="14" />
-            <path className="stm-entrance-arch" d="M 27 58 V 40 C 27 18 67 18 67 40 V 58 M 33 58 V 40 C 33 26 61 26 61 40 V 58 M 27 49 H 67 M 39 37 V 58 M 55 37 V 58" />
-            <text x="58" y="84">ENTRANCE</text>
-          </g>
-          <g className="stm-entrance-node" transform="translate(151 391)" aria-hidden="true">
-            <circle r="17" /><circle r="9" /><circle r="3.8" />
+          {/* ── Rescue route (visible only when danger is active) ── */}
+          <g className={`stm-rescue-route ${hazardState}`} strokeLinecap="round" aria-label="Active rescue path" mask="url(#rescue-mask)">
+            <path d={RESCUE_PATH} className="stm-rescue-aura" />
+            <path d={RESCUE_PATH} className="stm-rescue-body" />
+            <path d={RESCUE_PATH} className="stm-rescue-core" />
+            <path d={RESCUE_PATH} className="stm-rescue-flow" />
+            {emergencyLevel === 'critical' && (
+              <path d={RESCUE_PATH} className="stm-rescue-shimmer" />
+            )}
           </g>
 
           {/* ── Invisible reference path for getPointAtLength positioning ── */}
@@ -382,20 +383,10 @@ export default function SurveillanceTunnelMap({ worker, reading, zone, status = 
             <text className="stm-worker-label" x="0" y="84">WORKER</text>
             <text className="stm-worker-name" x="0" y="102">{workerName}</text>
           </g>
-
-          <g className="stm-compass" transform="translate(62 96)" aria-label="North orientation">
-            <circle r="32" />
-            <path d="M 0 -22 L 9 4 L 0 -2 L -9 4 Z" />
-            <path d="M 0 22 L 9 -4 L 0 2 L -9 -4 Z" />
-            <text x="0" y="-39">N</text>
-          </g>
-          <g className="stm-scale" transform="translate(42 690)" aria-label="Map scale">
-            <path d="M 0 0 H 216 M 0 -1 V 9 M 72 0 V 6 M 144 0 V 6 M 216 -1 V 9" />
-            <text x="0" y="28">0</text><text x="72" y="28">50</text><text x="144" y="28">100</text><text x="216" y="28">150m</text>
-          </g>
         </svg>
       </div>
 
+      {/* ── Footer: legend + live readouts ── */}
       <footer className="surveillance-map-footer">
         <div className="surveillance-map-legend" aria-label="Map legend">
           <span className="stm-legend-item"><i className="stm-legend-swatch tunnel" />Tunnel Network</span>

@@ -60,10 +60,10 @@
   box-shadow: 0 0 6px rgba(56, 189, 248, 0.5);
 }
 
-/* ── Main body: map + sidebar ─────────────────────────────── */
+/* ── Main body: map full-width, panels beneath ────────────── */
 .tmp-body {
-  display: grid;
-  grid-template-columns: 1fr 300px;
+  display: flex;
+  flex-direction: column;
   gap: 20px;
   flex: 1 1 auto;
   min-height: 0;
@@ -71,27 +71,25 @@
 
 /* ── Map container — lets SurveillanceTunnelMap fill fully ── */
 .tmp-map-container {
-  min-height: 520px;
   display: flex;
   flex-direction: column;
 }
 
 .tmp-map-container .surveillance-map-card {
-  flex: 1 1 auto;
-  min-height: 0;
-  height: 100%;
+  width: 100%;
+  height: auto;
 }
 
-.tmp-map-container .surveillance-map-canvas {
-  flex: 1 1 auto;
-  min-height: 420px;
-}
-
-/* ── Right sidebar panel ──────────────────────────────────── */
+/* ── Info panels row (beneath the map) ────────────────────── */
 .tmp-sidebar-panel {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  flex-wrap: wrap;
   gap: 16px;
+}
+
+.tmp-sidebar-panel > * {
+  flex: 1 1 280px;
 }
 
 /* ── Info card — glassmorphism panel ──────────────────────── */
@@ -194,27 +192,12 @@
 }
 
 /* ── Responsive ───────────────────────────────────────────── */
-@media (max-width: 1200px) {
-  .tmp-body {
-    grid-template-columns: 1fr 260px;
-  }
-}
-
-@media (max-width: 960px) {
-  .tmp-body {
-    grid-template-columns: 1fr;
-  }
-
+@media (max-width: 760px) {
   .tmp-sidebar-panel {
-    flex-direction: row;
-    flex-wrap: wrap;
+    flex-direction: column;
   }
 
-  .tmp-info-card {
-    flex: 1 1 260px;
-  }
-
-  .tmp-sidebar-panel .worker-status-card {
-    flex: 1 1 260px;
+  .tmp-sidebar-panel > * {
+    flex: 1 1 auto;
   }
 }
