@@ -272,11 +272,31 @@ export default function SurveillanceTunnelMap({ worker, reading, zone, status = 
             </radialGradient>
           </defs>
 
+          {/* ── Background region letters (decorative, for visual depth) ── */}
           <g className="stm-region-labels" aria-hidden="true">
             <text x="246" y="173">A</text>
             <text x="1095" y="124">B</text>
             <text x="1288" y="426">C</text>
             <text x="904" y="684">D</text>
+          </g>
+
+          {/* ── Subtle zone labels along the worker's path ── */}
+          <g className="stm-zone-labels" aria-hidden="true">
+            {/* Main Junction */}
+            <g transform="translate(340 440)">
+              <text className="stm-zone-tag" textAnchor="start" dy="-14">MAIN JUNCTION</text>
+              <line x1="0" y1="-8" x2="56" y2="-8" className="stm-zone-tag-line" />
+            </g>
+            {/* East Junction */}
+            <g transform="translate(804 530)">
+              <text className="stm-zone-tag" textAnchor="middle" dy="-14">EAST JUNCTION</text>
+              <line x1="-28" y1="-8" x2="28" y2="-8" className="stm-zone-tag-line" />
+            </g>
+            {/* Zone D */}
+            <g transform="translate(1125 524)">
+              <text className="stm-zone-tag" textAnchor="middle" dy="-14">ZONE D</text>
+              <line x1="-18" y1="-8" x2="18" y2="-8" className="stm-zone-tag-line" />
+            </g>
           </g>
 
           <g className="stm-tunnel-network" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

@@ -6,33 +6,24 @@ export const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiO
 export const WORKER_ID = 'W001';
 
 export const ZONE_COORDINATES = {
-  'Entrance': { x: 80, y: 620 },
-  'Main Junction': { x: 240, y: 480 },
-  'West Junction': { x: 380, y: 340 },
-  'East Junction': { x: 520, y: 520 },
-  'Zone A': { x: 300, y: 200 },
-  'Zone B': { x: 480, y: 380 },
-  'Zone C': { x: 600, y: 260 },
+  'Entrance': { x: 151, y: 391 },
+  'Main Junction': { x: 310, y: 449 },
+  'East Junction': { x: 804, y: 554 },
+  'Zone D': { x: 1125, y: 548 },
 };
 
 export const TUNNEL_GRAPH = {
   'Entrance': { 'Main Junction': 120 },
-  'Main Junction': { 'Entrance': 120, 'West Junction': 100, 'East Junction': 140 },
-  'West Junction': { 'Main Junction': 100, 'Zone A': 90, 'Zone B': 80 },
-  'East Junction': { 'Main Junction': 140, 'Zone B': 110, 'Zone C': 95 },
-  'Zone A': { 'West Junction': 90 },
-  'Zone B': { 'West Junction': 80, 'East Junction': 110 },
-  'Zone C': { 'East Junction': 95 },
+  'Main Junction': { 'Entrance': 120, 'East Junction': 260 },
+  'East Junction': { 'Main Junction': 260, 'Zone D': 180 },
+  'Zone D': { 'East Junction': 180 },
 };
 
 export const RSSI_ZONE_MAP = [
-  { threshold: -60, zone: 'Entrance' },
-  { threshold: -72, zone: 'Main Junction' },
-  { threshold: -82, zone: 'West Junction' },
-  { threshold: -90, zone: 'East Junction' },
-  { threshold: -98, zone: 'Zone B' },
-  { threshold: -106, zone: 'Zone C' },
-  { threshold: -999, zone: 'Zone A' },
+  { threshold: -55, zone: 'Entrance' },
+  { threshold: -84, zone: 'Main Junction' },
+  { threshold: -104, zone: 'East Junction' },
+  { threshold: -999, zone: 'Zone D' },
 ];
 
 export const THRESHOLDS = {
@@ -50,7 +41,7 @@ export const STATUS = {
 };
 
 // RSSI range for continuous worker positioning along the tunnel path
-export const RSSI_STRONGEST = -50;   // maps to 0% along path (at Entrance)
+export const RSSI_STRONGEST = -40;   // maps to 0% along path (at Entrance)
 export const RSSI_WEAKEST   = -120;  // maps to 100% along path (farthest point)
 
 /**

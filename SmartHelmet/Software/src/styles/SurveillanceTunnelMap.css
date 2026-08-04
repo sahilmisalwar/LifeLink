@@ -75,6 +75,27 @@
 .stm-tunnel-spark path { fill: none; stroke-width: 3px; filter: url(#stm-tight-glow); }
 .stm-tunnel-texture path { fill: none; stroke-width: 1.45px; stroke-dasharray: 3 11; opacity: .52; }
 
+/* ── Subtle zone labels along the worker path ──────────── */
+.stm-zone-labels { pointer-events: none; }
+.stm-zone-tag {
+  fill: rgba(200, 240, 255, .88);
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  filter: url(#stm-tight-glow);
+  paint-order: stroke fill;
+  stroke: rgba(4, 16, 36, .7);
+  stroke-width: 3px;
+  stroke-linejoin: round;
+}
+.stm-zone-tag-line {
+  stroke: rgba(160, 230, 255, .45);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+
 .stm-junction-halo { fill: rgba(24, 184, 255, .15); filter: url(#stm-tight-glow); }
 .stm-junction-ring { fill: #06162b; stroke: rgba(143, 228, 255, .94); stroke-width: 2; }
 .stm-junction-ring-active { stroke: #8dffb1; stroke-width: 2.5; }
