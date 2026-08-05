@@ -57,11 +57,11 @@ The system is designed for safety officers and control room operators who need t
   - Demo/live mode toggle with visual badge indicator
 - All dashboard components respond identically to demo data and real data
 
-### Polished UX
-- **Cinematic splash screen** with animated logo and a smooth 3-phase state-machine transition into the dashboard (fade-out → mount → fade-in)
-- Sidebar navigation between Dashboard overview, Alerts, Tunnel Map, and Settings views
+### Polished UX & Cinematic Animations
+- **Cinematic splash screen** with animated logo, drawing ECG heartbeat path, and sequential status checklist.
+- **Advanced 4-phase transition** (splash → exiting → revealing → dashboard): Pre-renders the dashboard hidden in the background while the splash exits, followed by a smooth 1-second fade and scale reveal to ensure zero stutter.
 - Dark **glassmorphism design system** throughout — gradient backgrounds, blur-backed panels, glowing accents
-- WebGL animated gradient wave background (via `GradientWave` component)
+- WebGL animated gradient wave background (via `GradientWave` component) utilizing dynamic mesh deformation.
 - Responsive layout with sidebar collapse on narrow viewports
 
 ---
@@ -121,10 +121,11 @@ SmartHelmet/
         │   ├── SurveillanceTunnelMap.css
         │   ├── AlertsPage.css
         │   ├── DemoControlsPanel.css
+        │   ├── SplashScreen.css
         │   └── ...                  # One .css per component
         ├── utils/               # Constants and helpers
         │   └── constants.js         # Thresholds, zone maps, status logic
-        ├── App.jsx              # Root component (splash → dashboard transition)
+        ├── App.jsx              # Root component (handles cinematic splash transitions)
         └── index.js             # React entry point
 ```
 
@@ -141,7 +142,7 @@ SmartHelmet/
 
 ```bash
 git clone https://github.com/<your-username>/LifeLink.git
-cd LifeLink/SmartHelmet/Software
+cd "LifeLink/SmartHelmet/Software"
 ```
 
 ### 2. Install dependencies
@@ -201,11 +202,17 @@ REACT_APP_SUPABASE_ANON_KEY=your-anon-key-here
 
 ### 5. Run locally
 
+**Option A (Standard)**
 ```bash
 npm start
 ```
-
 The app will open at `http://localhost:3000` (or the next available port).
+
+**Option B (If Port 3000 is occupied)**
+If you receive an error that something is running on port 3000, start the application on port 3001 using:
+* In Windows Command Prompt (CMD): `set PORT=3001 && npm start`
+* In Windows PowerShell: `$env:PORT="3001"; npm start`
+* In macOS / Linux: `PORT=3001 npm start`
 
 ### 6. Build for production
 
@@ -258,33 +265,6 @@ The dashboard classifies each sensor reading into `normal`, `warning`, or `emerg
 
 ---
 
-## Screenshots
-
-> *(Add screenshots here before submission)*
-
-```
-![Dashboard Overview](./screenshots/dashboard-overview.png)
-![Surveillance Tunnel Map](./screenshots/tunnel-map.png)
-![Emergency Mode](./screenshots/emergency-mode.png)
-![Alerts Page](./screenshots/alerts-page.png)
-![Demo Controls](./screenshots/demo-controls.png)
-![Splash Screen](./screenshots/splash-screen.png)
-```
-
----
-
-## Team
-
-> *(Fill in team member names and roles before submission)*
-
-| Name | Role |
-|---|---|
-| — | — |
-
----
-
 ## License
 
 This project is licensed under the **MIT License** — see [LICENSE](./LICENSE) for details.
-
-> *If no LICENSE file exists yet, create one before publishing.*

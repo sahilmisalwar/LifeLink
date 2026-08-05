@@ -9,21 +9,21 @@ export const ZONE_COORDINATES = {
   'Entrance': { x: 151, y: 391 },
   'Main Junction': { x: 310, y: 449 },
   'East Junction': { x: 804, y: 554 },
-  'Zone D': { x: 1125, y: 548 },
+  'Zone E': { x: 1125, y: 548 },
 };
 
 export const TUNNEL_GRAPH = {
   'Entrance': { 'Main Junction': 120 },
   'Main Junction': { 'Entrance': 120, 'East Junction': 260 },
-  'East Junction': { 'Main Junction': 260, 'Zone D': 180 },
-  'Zone D': { 'East Junction': 180 },
+  'East Junction': { 'Main Junction': 260, 'Zone E': 180 },
+  'Zone E': { 'East Junction': 180 },
 };
 
 export const RSSI_ZONE_MAP = [
   { threshold: -55, zone: 'Entrance' },
   { threshold: -84, zone: 'Main Junction' },
   { threshold: -104, zone: 'East Junction' },
-  { threshold: -999, zone: 'Zone D' },
+  { threshold: -999, zone: 'Zone E' },
 ];
 
 export const THRESHOLDS = {

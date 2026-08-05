@@ -1,13 +1,14 @@
 {
   "files": {
-    "main.css": "/static/css/main.b25b7e46.css",
-    "main.js": "/static/js/main.041424c6.js",
+    "main.css": "/static/css/main.db9dd7b4.css",
+    "main.js": "/static/js/main.3da6057c.js",
+    "static/media/tunnel-map-background.png": "/static/media/tunnel-map-background.00a1bf903b6c79e0290f.png",
     "index.html": "/index.html",
-    "main.b25b7e46.css.map": "/static/css/main.b25b7e46.css.map",
-    "main.041424c6.js.map": "/static/js/main.041424c6.js.map"
+    "main.db9dd7b4.css.map": "/static/css/main.db9dd7b4.css.map",
+    "main.3da6057c.js.map": "/static/js/main.3da6057c.js.map"
   },
   "entrypoints": [
-    "static/css/main.b25b7e46.css",
-    "static/js/main.041424c6.js"
+    "static/css/main.db9dd7b4.css",
+    "static/js/main.3da6057c.js"
   ]
 }
