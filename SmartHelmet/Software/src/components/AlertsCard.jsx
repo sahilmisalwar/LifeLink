@@ -13,6 +13,23 @@ export default function AlertsCard({ alerts }) {
     return 'normal';
   };
 
+  const formatAlertMessage = (text) => {
+    if (typeof text !== 'string') return text;
+    const parts = text.split(',');
+    if (parts.length > 1 && parts.every(p => p.includes(':'))) {
+      return (
+        <span className="alert-msg-formatted">
+          {parts.map((p, i) => (
+            <span key={i} className="alert-msg-part">
+              {p.trim()}{i < parts.length - 1 ? <span className="alert-msg-comma">, </span> : ''}
+            </span>
+          ))}
+        </span>
+      );
+    }
+    return text;
+  };
+
   return (
     <div className="alerts-card">
       {/* ── Header ────────────────────────────────── */}
@@ -35,7 +52,7 @@ export default function AlertsCard({ alerts }) {
                   {alert.severity || 'INFO'}
                 </span>
                 <span className="ac-message">
-                  {alert.alert_type || alert.message || 'Alert'}
+                  {formatAlertMessage(alert.alert_type || alert.message || 'Alert')}
                 </span>
                 <span className="ac-time">
                   {alert.created_at

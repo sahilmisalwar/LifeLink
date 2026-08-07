@@ -482,6 +482,17 @@
 }
 
 /* ── Responsive ──────────────────────────────────────────── */
+@media (max-width: 1100px) {
+  .dcp-demo-badge {
+    bottom: calc(64px + 24px + env(safe-area-inset-bottom, 0px));
+    left: 24px;
+    right: auto;
+  }
+  .dcp-fab {
+    bottom: calc(64px + 24px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
 @media (max-width: 768px) {
   .dcp-header {
     padding: 14px 20px;
@@ -496,10 +507,15 @@
     grid-template-columns: 1fr;
   }
   .dcp-demo-badge {
-    bottom: 16px;
-    right: 16px;
+    bottom: calc(64px + 16px + env(safe-area-inset-bottom, 0px));
+    left: 16px;
+    right: auto;
     font-size: 0.65rem;
     padding: 8px 14px;
+  }
+  .dcp-fab {
+    bottom: calc(64px + 16px + env(safe-area-inset-bottom, 0px));
+    right: 16px;
   }
 }
 

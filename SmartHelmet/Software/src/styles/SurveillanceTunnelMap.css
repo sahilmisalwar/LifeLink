@@ -18,6 +18,11 @@
   aspect-ratio: 1672 / 941;
 }
 
+.stm-map-layers {
+  position: absolute;
+  inset: 0;
+}
+
 /* ── Background image layer ─────────────────────────── */
 .stm-bg-image-wrapper {
   position: absolute;
@@ -154,15 +159,35 @@
 
 /* ── Responsive ─────────────────────────────────────── */
 @media (max-width: 1100px) {
-  .surveillance-map-footer { padding-left: 20px; }
-  .surveillance-map-legend { gap: 7px 13px; }
-  .stm-legend-item { font-size: .53rem; }
+  .surveillance-map-card { 
+    aspect-ratio: auto;
+    display: flex;
+    flex-direction: column;
+  }
+  .stm-map-layers {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1672 / 941;
+  }
+  .surveillance-map-footer { 
+    position: relative;
+    padding: 16px 20px 20px;
+    background: transparent;
+  }
+  .surveillance-map-legend { 
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 12px;
+  }
+  .stm-legend-item { font-size: .4rem; }
+  .stm-summary-block span { font-size: .4rem; }
+  .stm-summary-block strong { font-size: .5rem; }
 }
 
 @media (max-width: 760px) {
   .surveillance-map-card { border-radius: 14px; }
   .stm-status-overlay { top: 10px; right: 10px; }
-  .stm-status-badge { padding: 6px 8px; font-size: .53rem; }
+  .stm-status-badge { padding: 4px 6px; font-size: .42rem; }
   .surveillance-map-footer { align-items: flex-start; flex-direction: column; gap: 8px; padding: 12px 16px; }
   .surveillance-map-legend { max-width: 100%; gap: 6px 12px; }
   .surveillance-map-summary { gap: 18px; padding: 6px 9px; }

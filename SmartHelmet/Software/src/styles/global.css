@@ -222,3 +222,37 @@ body {
   }
 }
 
+/* ===== Alert Message Formatting ===== */
+.alert-msg-formatted {
+  display: inline;
+}
+
+@media (max-width: 1100px) {
+  .alert-msg-formatted {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 8px;
+    margin-top: 6px;
+  }
+  .alert-msg-comma {
+    display: none;
+  }
+  .alert-msg-part {
+    background: rgba(255, 255, 255, 0.08);
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 0.9em;
+    border: 1px solid rgba(86, 87, 122, 0.2);
+    white-space: nowrap;
+  }
+  
+  .ac-item,
+  .ap-alert-row {
+    align-items: flex-start !important;
+  }
+  .ac-time,
+  .ap-alert-time {
+    margin-top: 2px;
+  }
+}
+

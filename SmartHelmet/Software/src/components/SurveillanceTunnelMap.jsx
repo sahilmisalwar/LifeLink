@@ -255,135 +255,138 @@ export default function SurveillanceTunnelMap({ worker, reading, zone, status = 
   return (
     <section className={`surveillance-map-card stm-state-${hazardState}`} data-emergency-level={emergencyLevel || 'none'} aria-label="Tunnel surveillance map">
 
-      {/* ── Background image layer ── */}
-      <div className="stm-bg-image-wrapper" aria-hidden="true">
-        <img
-          src={tunnelMapBg}
-          alt=""
-          className="stm-bg-image"
-          draggable={false}
-        />
-      </div>
-
-      {/* ── Status badge (top-right, overlay) ── */}
-      <div className="stm-status-overlay">
-        <div className={`stm-status-badge ${hazardState}`}>
-          <span className="stm-status-dot" />
-          {isEmergency ? 'Emergency' : isDanger ? 'Warning' : 'All clear'}
-        </div>
-      </div>
-
-      {/* ── SVG overlay: only live/dynamic elements ── */}
-      <div className="surveillance-map-canvas">
-        <svg viewBox={VIEWBOX} preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="stm-svg-title stm-svg-description">
-          <title id="stm-svg-title">Underground tunnel surveillance overlay</title>
-          <desc id="stm-svg-description">Live worker position, rescue path, and hazard indicators overlaid on the tunnel map.</desc>
-          <defs>
-            {/* Mask for clipping rescue path to worker's position */}
-            <mask id="rescue-mask">
-              <path
-                ref={rescueMaskPathRef}
-                d={RESCUE_PATH}
-                stroke="white"
-                strokeWidth="200"
-                fill="none"
-                strokeLinecap="butt"
-              />
-            </mask>
-            {/* Mask for clipping idle glow to worker's position */}
-            <mask id="idle-glow-mask">
-              <path
-                ref={idleGlowMaskRef}
-                d={RESCUE_PATH}
-                stroke="white"
-                strokeWidth="200"
-                fill="none"
-                strokeLinecap="butt"
-              />
-            </mask>
-            <filter id="stm-cyan-haze" x="-30%" y="-35%" width="160%" height="170%">
-              <feGaussianBlur stdDeviation="13" />
-            </filter>
-            <filter id="stm-tight-glow" x="-40%" y="-40%" width="180%" height="180%">
-              <feGaussianBlur in="SourceGraphic" stdDeviation="3.5" result="blur" />
-              <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
-            </filter>
-            <filter id="stm-idle-blur" x="-50%" y="-50%" width="200%" height="200%">
-              <feGaussianBlur stdDeviation="6" />
-            </filter>
-            <radialGradient id="stm-worker-fill">
-              <stop offset="0" stopColor="#1dcdfd" stopOpacity=".75" />
-              <stop offset=".55" stopColor="#075cc8" stopOpacity=".42" />
-              <stop offset="1" stopColor="#06215b" stopOpacity="0" />
-            </radialGradient>
-            <radialGradient id="stm-hazard-fill">
-              <stop offset="0" stopColor={isEmergency ? '#fa3a37' : '#f39a39'} stopOpacity={isDanger ? '.28' : '.03'} />
-              <stop offset=".64" stopColor={isEmergency ? '#d61f33' : '#e06b20'} stopOpacity={isDanger ? '.13' : '.01'} />
-              <stop offset="1" stopColor="#ff3349" stopOpacity="0" />
-            </radialGradient>
-          </defs>
-
-          {/* ── Hazard zone pulse (positioned near Abandoned Area in the image) ── */}
-          <g className={`stm-hazard-zone ${hazardState}`} aria-label={isDanger ? hazardLabel : 'Dormant hazard zone'}>
-            <circle className="stm-hazard-haze" cx="1380" cy="340" r="140" fill="url(#stm-hazard-fill)" />
-            <circle className="stm-hazard-contour" cx="1380" cy="340" r="120" />
-            {isDanger && (
-              <g className="stm-hazard-copy" transform="translate(1380 340)">
-                <path d="M 0 -35 L 31 20 L -31 20 Z" />
-                <path className="stm-hazard-person" d="M 0 -19 a4 4 0 1 0 0 .1 M 0 -12 v17 M -11 -2 L 0 -8 L 11 -2 M -6 15 L 0 5 L 6 15" />
-                <text x="0" y="56">{hazardLabel}</text>
-              </g>
-            )}
-          </g>
-
-          {/* ── Idle path glow (always visible, fades out during emergency) ── */}
-          <g className={`stm-idle-glow ${hazardState}`} strokeLinecap="round" mask="url(#idle-glow-mask)" aria-hidden="true">
-            <path d={RESCUE_PATH} className="stm-idle-aura" />
-            <path d={RESCUE_PATH} className="stm-idle-core" />
-          </g>
-
-          {/* ── Rescue route (visible only when danger is active) ── */}
-          <g className={`stm-rescue-route ${hazardState}`} strokeLinecap="round" aria-label="Active rescue path" mask="url(#rescue-mask)">
-            <path d={RESCUE_PATH} className="stm-rescue-aura" />
-            <path d={RESCUE_PATH} className="stm-rescue-body" />
-            <path d={RESCUE_PATH} className="stm-rescue-core" />
-            <path d={RESCUE_PATH} className="stm-rescue-flow" />
-            {emergencyLevel === 'critical' && (
-              <path d={RESCUE_PATH} className="stm-rescue-shimmer" />
-            )}
-          </g>
-
-          {/* ── Invisible reference path for getPointAtLength positioning ── */}
-          <path
-            ref={refPathEl}
-            d={RESCUE_PATH}
-            fill="none"
-            stroke="none"
-            strokeWidth="0"
-            style={{ pointerEvents: 'none' }}
+      {/* ── Map Layers (Image + SVG + Overlays) ── */}
+      <div className="stm-map-layers">
+        {/* ── Background image layer ── */}
+        <div className="stm-bg-image-wrapper" aria-hidden="true">
+          <img
+            src={tunnelMapBg}
+            alt=""
+            className="stm-bg-image"
+            draggable={false}
           />
+        </div>
 
-          {/* ── Live Worker Marker (positioned by rAF loop) ── */}
-          <g
-            ref={workerGroupRef}
-            className="stm-worker"
-            transform={`translate(${workerFallback.x} ${workerFallback.y})`}
-            aria-label={`Worker position, ${workerName}`}
-          >
-            <circle className="stm-worker-pulse stm-worker-pulse-one" r="50" />
-            <circle className="stm-worker-pulse stm-worker-pulse-two" r="50" />
-            <circle className="stm-worker-halo" r="66" />
-            <circle className="stm-worker-field" r="57" fill="url(#stm-worker-fill)" />
-            <circle className="stm-worker-ring" r="44" />
-            <circle className="stm-worker-inner" r="32" />
-            <g className="stm-worker-icon">
-              <circle cy="-11" r="7" />
-              <path d="M -12 22 V 6 C -12 -1 -7 -4 0 -4 C 7 -4 12 -1 12 6 V 22 M -12 7 L -20 16 M 12 7 L 20 16 M -7 29 L -7 18 M 7 29 L 7 18" />
+        {/* ── Status badge (top-right, overlay) ── */}
+        <div className="stm-status-overlay">
+          <div className={`stm-status-badge ${hazardState}`}>
+            <span className="stm-status-dot" />
+            {isEmergency ? 'Emergency' : isDanger ? 'Warning' : 'All clear'}
+          </div>
+        </div>
+
+        {/* ── SVG overlay: only live/dynamic elements ── */}
+        <div className="surveillance-map-canvas">
+          <svg viewBox={VIEWBOX} preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="stm-svg-title stm-svg-description">
+            <title id="stm-svg-title">Underground tunnel surveillance overlay</title>
+            <desc id="stm-svg-description">Live worker position, rescue path, and hazard indicators overlaid on the tunnel map.</desc>
+            <defs>
+              {/* Mask for clipping rescue path to worker's position */}
+              <mask id="rescue-mask">
+                <path
+                  ref={rescueMaskPathRef}
+                  d={RESCUE_PATH}
+                  stroke="white"
+                  strokeWidth="200"
+                  fill="none"
+                  strokeLinecap="butt"
+                />
+              </mask>
+              {/* Mask for clipping idle glow to worker's position */}
+              <mask id="idle-glow-mask">
+                <path
+                  ref={idleGlowMaskRef}
+                  d={RESCUE_PATH}
+                  stroke="white"
+                  strokeWidth="200"
+                  fill="none"
+                  strokeLinecap="butt"
+                />
+              </mask>
+              <filter id="stm-cyan-haze" x="-30%" y="-35%" width="160%" height="170%">
+                <feGaussianBlur stdDeviation="13" />
+              </filter>
+              <filter id="stm-tight-glow" x="-40%" y="-40%" width="180%" height="180%">
+                <feGaussianBlur in="SourceGraphic" stdDeviation="3.5" result="blur" />
+                <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+              </filter>
+              <filter id="stm-idle-blur" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="6" />
+              </filter>
+              <radialGradient id="stm-worker-fill">
+                <stop offset="0" stopColor="#1dcdfd" stopOpacity=".75" />
+                <stop offset=".55" stopColor="#075cc8" stopOpacity=".42" />
+                <stop offset="1" stopColor="#06215b" stopOpacity="0" />
+              </radialGradient>
+              <radialGradient id="stm-hazard-fill">
+                <stop offset="0" stopColor={isEmergency ? '#fa3a37' : '#f39a39'} stopOpacity={isDanger ? '.28' : '.03'} />
+                <stop offset=".64" stopColor={isEmergency ? '#d61f33' : '#e06b20'} stopOpacity={isDanger ? '.13' : '.01'} />
+                <stop offset="1" stopColor="#ff3349" stopOpacity="0" />
+              </radialGradient>
+            </defs>
+
+            {/* ── Hazard zone pulse (positioned near Abandoned Area in the image) ── */}
+            <g className={`stm-hazard-zone ${hazardState}`} aria-label={isDanger ? hazardLabel : 'Dormant hazard zone'}>
+              <circle className="stm-hazard-haze" cx="1380" cy="340" r="140" fill="url(#stm-hazard-fill)" />
+              <circle className="stm-hazard-contour" cx="1380" cy="340" r="120" />
+              {isDanger && (
+                <g className="stm-hazard-copy" transform="translate(1380 340)">
+                  <path d="M 0 -35 L 31 20 L -31 20 Z" />
+                  <path className="stm-hazard-person" d="M 0 -19 a4 4 0 1 0 0 .1 M 0 -12 v17 M -11 -2 L 0 -8 L 11 -2 M -6 15 L 0 5 L 6 15" />
+                  <text x="0" y="56">{hazardLabel}</text>
+                </g>
+              )}
             </g>
-            <text className="stm-worker-label" x="0" y="84">WORKER</text>
-            <text className="stm-worker-name" x="0" y="102">{workerName}</text>
-          </g>
-        </svg>
+
+            {/* ── Idle path glow (always visible, fades out during emergency) ── */}
+            <g className={`stm-idle-glow ${hazardState}`} strokeLinecap="round" mask="url(#idle-glow-mask)" aria-hidden="true">
+              <path d={RESCUE_PATH} className="stm-idle-aura" />
+              <path d={RESCUE_PATH} className="stm-idle-core" />
+            </g>
+
+            {/* ── Rescue route (visible only when danger is active) ── */}
+            <g className={`stm-rescue-route ${hazardState}`} strokeLinecap="round" aria-label="Active rescue path" mask="url(#rescue-mask)">
+              <path d={RESCUE_PATH} className="stm-rescue-aura" />
+              <path d={RESCUE_PATH} className="stm-rescue-body" />
+              <path d={RESCUE_PATH} className="stm-rescue-core" />
+              <path d={RESCUE_PATH} className="stm-rescue-flow" />
+              {emergencyLevel === 'critical' && (
+                <path d={RESCUE_PATH} className="stm-rescue-shimmer" />
+              )}
+            </g>
+
+            {/* ── Invisible reference path for getPointAtLength positioning ── */}
+            <path
+              ref={refPathEl}
+              d={RESCUE_PATH}
+              fill="none"
+              stroke="none"
+              strokeWidth="0"
+              style={{ pointerEvents: 'none' }}
+            />
+
+            {/* ── Live Worker Marker (positioned by rAF loop) ── */}
+            <g
+              ref={workerGroupRef}
+              className="stm-worker"
+              transform={`translate(${workerFallback.x} ${workerFallback.y})`}
+              aria-label={`Worker position, ${workerName}`}
+            >
+              <circle className="stm-worker-pulse stm-worker-pulse-one" r="50" />
+              <circle className="stm-worker-pulse stm-worker-pulse-two" r="50" />
+              <circle className="stm-worker-halo" r="66" />
+              <circle className="stm-worker-field" r="57" fill="url(#stm-worker-fill)" />
+              <circle className="stm-worker-ring" r="44" />
+              <circle className="stm-worker-inner" r="32" />
+              <g className="stm-worker-icon">
+                <circle cy="-11" r="7" />
+                <path d="M -12 22 V 6 C -12 -1 -7 -4 0 -4 C 7 -4 12 -1 12 6 V 22 M -12 7 L -20 16 M 12 7 L 20 16 M -7 29 L -7 18 M 7 29 L 7 18" />
+              </g>
+              <text className="stm-worker-label" x="0" y="84">WORKER</text>
+              <text className="stm-worker-name" x="0" y="102">{workerName}</text>
+            </g>
+          </svg>
+        </div>
       </div>
 
       {/* ── Footer: legend + live readouts ── */}

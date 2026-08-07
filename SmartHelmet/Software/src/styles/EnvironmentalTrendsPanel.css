@@ -399,3 +399,17 @@
     animation: none;
   }
 }
+
+/* ── Mobile Layout Fixes ─────────────────────────────────── */
+@media (max-width: 1100px) {
+  .etp-toggle-row {
+    flex-wrap: nowrap !important;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 8px;
+  }
+  
+  .etp-toggle-btn {
+    flex-shrink: 0;
+  }
+}

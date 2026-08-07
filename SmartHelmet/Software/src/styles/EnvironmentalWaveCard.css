@@ -107,3 +107,19 @@
   color: #64748b;
   font-size: 1rem;
 }
+
+/* ── Mobile-specific: stack header vertically ────────────── */
+@media (max-width: 1100px) {
+  .ewc-header {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .ewc-toggles {
+    flex-wrap: wrap;
+  }
+
+  .ewc-chart-area {
+    min-height: 200px;
+  }
+}

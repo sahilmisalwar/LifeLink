@@ -31,6 +31,23 @@ function formatTimestamp(isoString) {
   });
 }
 
+function formatAlertMessage(text) {
+  if (typeof text !== 'string') return text;
+  const parts = text.split(',');
+  if (parts.length > 1 && parts.every(p => p.includes(':'))) {
+    return (
+      <span className="alert-msg-formatted">
+        {parts.map((p, i) => (
+          <span key={i} className="alert-msg-part">
+            {p.trim()}{i < parts.length - 1 ? <span className="alert-msg-comma">, </span> : ''}
+          </span>
+        ))}
+      </span>
+    );
+  }
+  return text;
+}
+
 export default function AlertsPage({ alerts: liveAlerts }) {
   const [fullAlerts, setFullAlerts] = useState([]);
   const [activeFilter, setActiveFilter] = useState('all');
@@ -148,7 +165,7 @@ export default function AlertsPage({ alerts: liveAlerts }) {
                   </span>
                   <div className="ap-alert-body">
                     <div className="ap-alert-message">
-                      {alert.alert_type || alert.message || 'Alert'}
+                      {formatAlertMessage(alert.alert_type || alert.message || 'Alert')}
                     </div>
                     <div className="ap-alert-meta">
                       <span className="ap-alert-worker">

@@ -290,3 +290,10 @@
   margin-left: 2px;
 }
 
+/* ── Mobile: hide compact vitals (shown in full SensorCard grid instead) ── */
+@media (max-width: 1100px) {
+  .wsc-vitals-compact {
+    display: none;
+  }
+}
+
