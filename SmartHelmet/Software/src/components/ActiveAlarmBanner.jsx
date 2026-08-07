@@ -15,8 +15,7 @@ import '../styles/ActiveAlarmBanner.css';
  *  - isEmergencyMode:  boolean — true when status is warning or emergency
  *  - emergencyLevel:   'none' | 'elevated' | 'critical'
  */
-export default function ActiveAlarmBanner({ alerts, status, isEmergencyMode, emergencyLevel }) {
-  const [acknowledged, setAcknowledged] = useState(false);
+export default function ActiveAlarmBanner({ alerts, status, isEmergencyMode, emergencyLevel, acknowledged, setAcknowledged }) {
 
   // Reset acknowledgement when status drops back to normal
   // (handled implicitly — banner is hidden when not in emergency mode)

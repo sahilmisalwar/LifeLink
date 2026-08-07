@@ -143,6 +143,7 @@ export default function DemoControlsPanel({
   setDemoReading,
   liveReading,
   worker,
+  setAcknowledged,
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [activeScenario, setActiveScenario] = useState(null);
@@ -163,6 +164,7 @@ export default function DemoControlsPanel({
   const handleToggle = useCallback(() => {
     const next = !demoMode;
     setDemoMode(next);
+    setAcknowledged?.(false);
     if (next && !demoReading) {
       // Initialize demo reading from current live reading or defaults
       setDemoReading({
@@ -171,28 +173,30 @@ export default function DemoControlsPanel({
         created_at: new Date().toISOString(),
       });
     }
-  }, [demoMode, demoReading, liveReading, setDemoMode, setDemoReading]);
+  }, [demoMode, demoReading, liveReading, setDemoMode, setDemoReading, setAcknowledged]);
 
   // Apply a scenario
   const applyScenario = useCallback((scenario) => {
     setDemoMode(true);
+    setAcknowledged?.(false);
     setDemoReading({
       ...scenario.reading,
       created_at: new Date().toISOString(),
       worker_id: worker?.worker_id || 'W001',
     });
     setActiveScenario(scenario.id);
-  }, [setDemoMode, setDemoReading, worker]);
+  }, [setDemoMode, setDemoReading, worker, setAcknowledged]);
 
   // Update a single field
   const updateField = useCallback((field, value) => {
     setActiveScenario(null); // clear scenario highlight
+    setAcknowledged?.(false);
     setDemoReading((prev) => ({
       ...(prev || DEFAULT_READING),
       [field]: value,
       created_at: new Date().toISOString(),
     }));
-  }, [setDemoReading]);
+  }, [setDemoReading, setAcknowledged]);
 
   // Reset
   const handleReset = useCallback(() => {

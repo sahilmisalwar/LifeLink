@@ -60,7 +60,6 @@
 .dashboard-root[data-emergency-level="critical"] .env-trends-panel,
 .dashboard-root[data-emergency-level="critical"] .alerts-card,
 .dashboard-root[data-emergency-level="critical"] .sensor-trends-card,
-.dashboard-root[data-emergency-level="critical"] .map-hero-wrap,
 .dashboard-root[data-emergency-level="critical"] .active-alarm-banner {
   animation: component-pulse-critical var(--emergency-pulse-duration) ease-in-out infinite;
 }
@@ -146,4 +145,19 @@
 @keyframes dashboardHintFade {
   0%, 80% { opacity: 1; }
   100% { opacity: 0; }
+}
+
+/* ── Acknowledged State Override ────────────────────────────── */
+.dashboard-root[data-acknowledged="true"]::after {
+  animation: none !important;
+  opacity: 0 !important;
+}
+
+.dashboard-root[data-acknowledged="true"] .worker-status-card,
+.dashboard-root[data-acknowledged="true"] .sensor-card,
+.dashboard-root[data-acknowledged="true"] .env-trends-panel,
+.dashboard-root[data-acknowledged="true"] .alerts-card,
+.dashboard-root[data-acknowledged="true"] .sensor-trends-card,
+.dashboard-root[data-acknowledged="true"] .active-alarm-banner {
+  animation: none !important;
 }

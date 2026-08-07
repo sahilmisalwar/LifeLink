@@ -35,6 +35,9 @@ export default function Dashboard() {
   const [demoMode, setDemoMode] = useState(false);
   const [demoReading, setDemoReading] = useState(null);
 
+  // ── Alarm Acknowledgement State ─────────────────────────
+  const [acknowledged, setAcknowledged] = useState(false);
+
   // ── Effective reading & status (demo overrides live) ──
   const effectiveReading = demoMode && demoReading ? demoReading : reading;
   const effectiveStatus = demoMode && demoReading
@@ -53,10 +56,20 @@ export default function Dashboard() {
     sirenAudioRef.current.loop = true;
     sirenAudioRef.current.volume = 0.75;
     
+    // Prevent OS/hardware media keys from hijacking the siren
+    if ('mediaSession' in navigator) {
+      navigator.mediaSession.setActionHandler('play', () => {});
+      navigator.mediaSession.setActionHandler('pause', () => {});
+    }
+    
     return () => {
       if (sirenAudioRef.current) {
         sirenAudioRef.current.pause();
         sirenAudioRef.current = null;
+      }
+      if ('mediaSession' in navigator) {
+        navigator.mediaSession.setActionHandler('play', null);
+        navigator.mediaSession.setActionHandler('pause', null);
       }
     };
   }, []);
@@ -64,7 +77,7 @@ export default function Dashboard() {
   useEffect(() => {
     if (!sirenAudioRef.current) return;
     
-    if (effectiveStatus === 'emergency') {
+    if (effectiveStatus === 'emergency' && !acknowledged) {
       sirenAudioRef.current.play().catch((err) => {
         console.warn('Siren autoplay blocked by browser policy:', err);
       });
@@ -72,7 +85,7 @@ export default function Dashboard() {
       sirenAudioRef.current.pause();
       sirenAudioRef.current.currentTime = 0;
     }
-  }, [effectiveStatus]);
+  }, [effectiveStatus, acknowledged]);
 
   useEffect(() => {
     if (!effectiveReading) return;
@@ -105,6 +118,15 @@ export default function Dashboard() {
   // ── Global Emergency Mode state (single source of truth) ──
   const isEmergencyMode = effectiveStatus === 'warning' || effectiveStatus === 'emergency';
   const emergencyLevel = effectiveStatus === 'emergency' ? 'critical' : effectiveStatus === 'warning' ? 'elevated' : 'none';
+
+  // ── Alarm Acknowledgement State ─────────────────────────
+  // (State declared at top to avoid ReferenceError)
+
+  useEffect(() => {
+    if (effectiveStatus === 'normal') {
+      setAcknowledged(false);
+    }
+  }, [effectiveStatus]);
 
   // ── Pinch-to-Zoom logic for Dashboard Map ─────────────
   const viewportRef = useRef(null);
@@ -263,6 +285,8 @@ export default function Dashboard() {
               status={effectiveStatus}
               isEmergencyMode={isEmergencyMode}
               emergencyLevel={emergencyLevel}
+              acknowledged={acknowledged}
+              setAcknowledged={setAcknowledged}
             />
 
             {/* ── Row 0: Tunnel Map + Worker Status side-by-side ── */}
@@ -374,7 +398,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen dashboard-root" data-emergency-level={emergencyLevel} style={{ position: 'relative', background: '#060B26' }}>
+    <div className="min-h-screen dashboard-root" data-emergency-level={emergencyLevel} data-acknowledged={acknowledged} style={{ position: 'relative', background: '#060B26' }}>
       {/* ── Custom Animated WebGL Background ───────────── */}
       <div
         style={{
@@ -423,6 +447,7 @@ export default function Dashboard() {
           setDemoReading={setDemoReading}
           liveReading={reading}
           worker={worker}
+          setAcknowledged={setAcknowledged}
         />
       </main>
 
