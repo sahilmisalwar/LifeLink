@@ -1,10 +1,10 @@
 /* SmartHelmet/Software/src/styles/SensorCard.css */
 
 .sensor-card {
-  background: linear-gradient(126.97deg, rgba(6, 11, 40, 0.74) 28%, rgba(10, 14, 35, 0.71) 91%);
+  background: linear-gradient(126.97deg, rgba(13, 17, 23, 0.74) 28%, rgba(22, 27, 34, 0.71) 91%);
   backdrop-filter: blur(40px);
   -webkit-backdrop-filter: blur(40px);
-  border: 1px solid rgba(86, 87, 122, 0.25);
+  border: 1px solid rgba(99, 110, 123, 0.25);
   border-radius: 20px;
   padding: 22px;
   font-family: 'Plus Jakarta Sans', sans-serif;
@@ -19,9 +19,9 @@
 }
 
 .sensor-card:hover {
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 24px rgba(0, 212, 255, 0.15);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 16px rgba(91, 143, 185, 0.08);
   transform: translateY(-6px) scale(1.02);
-  border-color: rgba(0, 212, 255, 0.45);
+  border-color: rgba(91, 143, 185, 0.3);
   z-index: 10;
 }
 
@@ -30,7 +30,7 @@
   content: '';
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: radial-gradient(circle 120px at var(--mouse-x) var(--mouse-y), rgba(0, 212, 255, 0.15), transparent 80%);
+  background: radial-gradient(circle 120px at var(--mouse-x) var(--mouse-y), rgba(91, 143, 185, 0.10), transparent 80%);
   opacity: 0;
   transition: opacity 0.3s ease;
   pointer-events: none;
@@ -125,7 +125,7 @@
 .sc-unit {
   font-size: 0.85rem;
   font-weight: 400;
-  color: #A0AEC0;
+  color: #8b949e;
   margin-left: 4px;
 }
 
@@ -133,7 +133,7 @@
 .sc-label {
   font-size: 0.8rem;
   font-weight: 600;
-  color: #A0AEC0;
+  color: #8b949e;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   margin-bottom: 2px;
@@ -141,13 +141,13 @@
 
 .sc-subtitle {
   font-size: 0.7rem;
-  color: rgba(160, 174, 192, 0.6);
+  color: rgba(139, 148, 158, 0.6);
 }
 
 /* ── Sensor Cards Grid (base — matches prior inline styles) ── */
 .sensor-cards-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(6, 1fr);
   gap: 20px;
   margin-bottom: 24px;
 }

@@ -282,25 +282,25 @@ export default function SurveillanceTunnelMap({ worker, reading, zone, status = 
             <desc id="stm-svg-description">Live worker position, rescue path, and hazard indicators overlaid on the tunnel map.</desc>
             <defs>
               {/* Mask for clipping rescue path to worker's position */}
-              <mask id="rescue-mask">
+              <mask id="rescue-mask" x="-50%" y="-50%" width="200%" height="200%">
                 <path
                   ref={rescueMaskPathRef}
                   d={RESCUE_PATH}
                   stroke="white"
-                  strokeWidth="200"
+                  strokeWidth="100"
                   fill="none"
-                  strokeLinecap="butt"
+                  strokeLinecap="round"
                 />
               </mask>
               {/* Mask for clipping idle glow to worker's position */}
-              <mask id="idle-glow-mask">
+              <mask id="idle-glow-mask" x="-50%" y="-50%" width="200%" height="200%">
                 <path
                   ref={idleGlowMaskRef}
                   d={RESCUE_PATH}
                   stroke="white"
-                  strokeWidth="200"
+                  strokeWidth="100"
                   fill="none"
-                  strokeLinecap="butt"
+                  strokeLinecap="round"
                 />
               </mask>
               <filter id="stm-cyan-haze" x="-30%" y="-35%" width="160%" height="170%">

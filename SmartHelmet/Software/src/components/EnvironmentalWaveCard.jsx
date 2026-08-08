@@ -7,7 +7,7 @@ import '../styles/EnvironmentalWaveCard.css';
 
 const METRICS = {
   temperature: { label: 'Temp', color: '#f97316', icon: Thermometer, unit: '°C' },
-  gas_level: { label: 'Gas', color: '#00d4ff', icon: Wind, unit: 'ppm' },
+  gas_level: { label: 'Gas', color: '#5b8fb9', icon: Wind, unit: 'ppm' },
   rssi: { label: 'RSSI', color: '#6366f1', icon: Wifi, unit: 'dBm' }
 };
 

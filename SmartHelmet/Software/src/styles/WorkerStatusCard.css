@@ -1,10 +1,10 @@
 /* SmartHelmet/Software/src/styles/WorkerStatusCard.css */
 
 .worker-status-card {
-  background: linear-gradient(126.97deg, rgba(6, 11, 40, 0.74) 28%, rgba(10, 14, 35, 0.71) 91%);
+  background: linear-gradient(126.97deg, rgba(13, 17, 23, 0.74) 28%, rgba(22, 27, 34, 0.71) 91%);
   backdrop-filter: blur(40px);
   -webkit-backdrop-filter: blur(40px);
-  border: 1px solid rgba(86, 87, 122, 0.3);
+  border: 1px solid rgba(99, 110, 123, 0.3);
   border-radius: 20px;
   padding: 28px;
   font-family: 'Plus Jakarta Sans', sans-serif;
@@ -32,7 +32,7 @@
 .wsc-title {
   font-size: 1.1rem;
   font-weight: 600;
-  color: #A0AEC0;
+  color: #8b949e;
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
@@ -104,7 +104,7 @@
   height: 48px;
   min-width: 48px;
   border-radius: 14px;
-  background: linear-gradient(135deg, #00d4ff 0%, #0284c7 100%);
+  background: linear-gradient(135deg, #5b8fb9 0%, #3d6f8e 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -120,7 +120,7 @@
 
 .wsc-id {
   font-size: 0.8rem;
-  color: #A0AEC0;
+  color: #8b949e;
   margin-top: 2px;
 }
 
@@ -134,7 +134,7 @@
 
 .wsc-info-item {
   background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(86, 87, 122, 0.2);
+  border: 1px solid rgba(99, 110, 123, 0.2);
   border-radius: 12px;
   padding: 12px 16px;
 }
@@ -142,7 +142,7 @@
 .wsc-info-label {
   display: block;
   font-size: 0.7rem;
-  color: #A0AEC0;
+  color: #8b949e;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-bottom: 4px;
@@ -156,10 +156,10 @@
 /* ── Status message ───────────────────────────────────── */
 .wsc-message {
   font-size: 0.875rem;
-  color: #A0AEC0;
+  color: #8b949e;
   line-height: 1.5;
   padding-top: 16px;
-  border-top: 1px solid rgba(86, 87, 122, 0.25);
+  border-top: 1px solid rgba(99, 110, 123, 0.25);
 }
 
 /* ══════════════════════════════════════════════════════
@@ -240,8 +240,8 @@
   gap: 6px;
   margin-bottom: 14px;
   padding: 10px 0;
-  border-top: 1px solid rgba(86, 87, 122, 0.2);
-  border-bottom: 1px solid rgba(86, 87, 122, 0.2);
+  border-top: 1px solid rgba(99, 110, 123, 0.2);
+  border-bottom: 1px solid rgba(99, 110, 123, 0.2);
 }
 
 .wsc-vital-row {
@@ -266,7 +266,7 @@
 
 .wsc-vital-label {
   font-size: 0.65rem;
-  color: #A0AEC0;
+  color: #8b949e;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   font-weight: 600;
@@ -277,7 +277,7 @@
 .wsc-vital-val {
   font-size: 0.88rem;
   font-weight: 700;
-  color: #eef4ff;
+  color: #e6edf3;
   font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
   text-align: right;
   white-space: nowrap;
@@ -286,7 +286,7 @@
 .wsc-vital-val small {
   font-size: 0.6rem;
   font-weight: 500;
-  color: #6b7fa0;
+  color: #8b949e;
   margin-left: 2px;
 }
 

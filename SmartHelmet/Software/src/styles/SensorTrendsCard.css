@@ -1,10 +1,10 @@
 /* SmartHelmet/Software/src/styles/SensorTrendsCard.css */
 
 .sensor-trends-card {
-  background: linear-gradient(126.97deg, rgba(6, 11, 40, 0.74) 28%, rgba(10, 14, 35, 0.71) 91%);
+  background: linear-gradient(126.97deg, rgba(13, 17, 23, 0.74) 28%, rgba(22, 27, 34, 0.71) 91%);
   backdrop-filter: blur(40px);
   -webkit-backdrop-filter: blur(40px);
-  border: 1px solid rgba(86, 87, 122, 0.25);
+  border: 1px solid rgba(99, 110, 123, 0.25);
   border-radius: 20px;
   padding: 24px;
   font-family: 'Plus Jakarta Sans', sans-serif;
@@ -28,13 +28,13 @@
   align-items: center;
   margin-bottom: 16px;
   padding-bottom: 12px;
-  border-bottom: 1px solid rgba(86, 87, 122, 0.3);
+  border-bottom: 1px solid rgba(99, 110, 123, 0.3);
 }
 
 .stc-title {
   font-size: 1.1rem;
   font-weight: 600;
-  color: #A0AEC0;
+  color: #8b949e;
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
@@ -44,7 +44,7 @@
   display: flex;
   gap: 4px;
   background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(86, 87, 122, 0.2);
+  border: 1px solid rgba(99, 110, 123, 0.2);
   border-radius: 12px;
   padding: 3px;
 }
@@ -54,7 +54,7 @@
   border-radius: 10px;
   border: none;
   background: transparent;
-  color: #A0AEC0;
+  color: #8b949e;
   font-size: 0.72rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -71,9 +71,9 @@
 }
 
 .stc-tab.active {
-  background: rgba(0, 212, 255, 0.12);
-  color: #00d4ff;
-  box-shadow: 0 0 8px rgba(0, 212, 255, 0.1);
+  background: rgba(91, 143, 185, 0.12);
+  color: #5b8fb9;
+  box-shadow: 0 0 6px rgba(91, 143, 185, 0.06);
 }
 
 /* ── Chart Area ───────────────────────────────────────── */
@@ -88,11 +88,11 @@
 
 .stc-chart-area .recharts-cartesian-grid-horizontal line,
 .stc-chart-area .recharts-cartesian-grid-vertical line {
-  stroke: rgba(86, 87, 122, 0.15);
+  stroke: rgba(99, 110, 123, 0.15);
 }
 
 .stc-chart-area .recharts-text {
-  fill: #A0AEC0;
+  fill: #8b949e;
   font-size: 0.65rem;
   font-family: 'JetBrains Mono', 'Fira Code', monospace;
 }
@@ -104,12 +104,12 @@
   gap: 16px;
   margin-top: 14px;
   padding-top: 14px;
-  border-top: 1px solid rgba(86, 87, 122, 0.2);
+  border-top: 1px solid rgba(99, 110, 123, 0.2);
 }
 
 .stc-summary-label {
   font-size: 0.7rem;
-  color: #A0AEC0;
+  color: #8b949e;
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
@@ -118,13 +118,13 @@
   font-size: 1.4rem;
   font-weight: 700;
   font-family: 'JetBrains Mono', 'Fira Code', monospace;
-  color: #00d4ff;
+  color: #5b8fb9;
 }
 
 .stc-summary-unit {
   font-size: 0.8rem;
   font-weight: 400;
-  color: #A0AEC0;
+  color: #8b949e;
   margin-left: 4px;
 }
 
@@ -148,7 +148,7 @@
 
 .stc-summary-trend.stable {
   background: rgba(160, 174, 192, 0.1);
-  color: #A0AEC0;
+  color: #8b949e;
 }
 
 /* ── Empty State ──────────────────────────────────────── */
@@ -158,7 +158,7 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  color: #A0AEC0;
+  color: #8b949e;
   font-size: 0.875rem;
   padding: 40px 16px;
 }

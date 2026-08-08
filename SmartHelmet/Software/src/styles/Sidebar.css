@@ -7,7 +7,7 @@
   left: 0;
   width: 260px;
   height: 100vh;
-  background: linear-gradient(126.97deg, rgba(6, 11, 40, 0.74) 28%, rgba(10, 14, 35, 0.71) 91%);
+  background: linear-gradient(126.97deg, rgba(13, 17, 23, 0.74) 28%, rgba(22, 27, 34, 0.71) 91%);
   backdrop-filter: blur(40px);
   -webkit-backdrop-filter: blur(40px);
   border-radius: 0 20px 20px 0;
@@ -21,7 +21,7 @@
 /* ── Logo ─────────────────────────────────────────────── */
 .sidebar-logo {
   padding: 24px;
-  border-bottom: 1px solid rgba(86, 87, 122, 0.4);
+  border-bottom: 1px solid rgba(99, 110, 123, 0.4);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -33,28 +33,28 @@
   align-items: center;
   gap: 12px;
   animation: logo-breathe 4s ease-in-out infinite;
-  filter: drop-shadow(0 0 8px rgba(0, 212, 255, 0.4));
+  filter: drop-shadow(0 0 6px rgba(91, 143, 185, 0.25));
 }
 
 .sidebar-logo-icon {
   width: 24px;
   height: 24px;
-  color: #00d4ff;
+  color: #5b8fb9;
 }
 
 .sidebar-logo-text {
   font-weight: 800;
   font-size: 1.6rem;
   letter-spacing: -0.02em;
-  background: linear-gradient(135deg, #00d4ff 0%, #ffffff 100%);
+  background: linear-gradient(135deg, #5b8fb9 0%, #e6edf3 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 @keyframes logo-breathe {
-  0%, 100% { filter: drop-shadow(0 0 6px rgba(0, 212, 255, 0.3)); }
-  50% { filter: drop-shadow(0 0 12px rgba(0, 212, 255, 0.6)); }
+  0%, 100% { filter: drop-shadow(0 0 4px rgba(91, 143, 185, 0.2)); }
+  50% { filter: drop-shadow(0 0 8px rgba(91, 143, 185, 0.35)); }
 }
 
 /* ── Navigation list ──────────────────────────────────── */
@@ -74,7 +74,7 @@
   padding: 14px 16px;
   border-radius: 14px;
   cursor: pointer;
-  color: #A0AEC0;
+  color: #8b949e;
   background: rgba(255, 255, 255, 0.015);
   border: 1px solid rgba(255, 255, 255, 0.06);
   font-size: 0.9rem;
@@ -93,7 +93,7 @@
   content: '';
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: radial-gradient(circle 70px at var(--mouse-x) var(--mouse-y), rgba(0, 212, 255, 0.15), transparent 80%);
+  background: radial-gradient(circle 70px at var(--mouse-x) var(--mouse-y), rgba(91, 143, 185, 0.10), transparent 80%);
   opacity: 0;
   transition: opacity 0.3s ease;
   pointer-events: none;
@@ -108,18 +108,18 @@
 .nav-item:hover {
   transform: scale(1.02);
   color: #e2e8f0;
-  border-color: rgba(0, 212, 255, 0.3);
+  border-color: rgba(91, 143, 185, 0.2);
 }
 
 .nav-item:hover .nav-icon {
-  filter: drop-shadow(0 0 6px rgba(0, 212, 255, 0.6));
+  filter: drop-shadow(0 0 4px rgba(91, 143, 185, 0.35));
 }
 
 /* Active item layer */
 .nav-item.active {
-  background: linear-gradient(135deg, rgba(0, 230, 255, 0.35) 0%, rgba(10, 35, 75, 0.95) 100%);
-  border: 1px solid rgba(0, 230, 255, 0.5);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), 0 0 15px rgba(0, 212, 255, 0.2);
+  background: linear-gradient(135deg, rgba(91, 143, 185, 0.2) 0%, rgba(13, 17, 23, 0.95) 100%);
+  border: 1px solid rgba(91, 143, 185, 0.35);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), 0 0 10px rgba(91, 143, 185, 0.1);
   color: #FFFFFF;
   font-weight: 600;
 }
@@ -130,7 +130,7 @@
 }
 
 .nav-item.clicked.active {
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35), 0 0 25px rgba(0, 212, 255, 0.4);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35), 0 0 16px rgba(91, 143, 185, 0.2);
 }
 
 @keyframes press-and-settle {
@@ -154,8 +154,8 @@
 }
 
 .nav-item.active .nav-icon-chip {
-  background: linear-gradient(135deg, #00d4ff 0%, #0284c7 100%);
-  box-shadow: 0 2px 10px rgba(0, 212, 255, 0.35);
+  background: linear-gradient(135deg, #5b8fb9 0%, #3d6f8e 100%);
+  box-shadow: 0 2px 10px rgba(91, 143, 185, 0.25);
 }
 
 /* ── Nav icon SVG ─────────────────────────────────────── */

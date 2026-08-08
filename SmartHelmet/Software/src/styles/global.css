@@ -2,18 +2,18 @@
 
 /* ===== CSS Custom Properties ===== */
 :root {
-  /* Colors */
+  /* Colors — Industrial Safety Palette */
   --bg-primary: #080c14;
-  --bg-surface: #0f1724;
-  --bg-surface-2: #1a2540;
-  --border-color: #1e2d4a;
-  --accent-cyan: #00d4ff;
+  --bg-surface: #0d1117;
+  --bg-surface-2: #161b22;
+  --border-color: #21262d;
+  --accent-cyan: #5b8fb9;
   --accent-orange: #f97316;
   --color-warning: #f59e0b;
   --color-emergency: #ef4444;
   --color-safe: #10b981;
-  --text-primary: #f0f4ff;
-  --text-secondary: #64748b;
+  --text-primary: #e6edf3;
+  --text-secondary: #8b949e;
 
   /* Typography */
   --font-family: 'Inter', sans-serif;
@@ -33,7 +33,7 @@
 
   /* Shadows */
   --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.4);
-  --shadow-glow-cyan: 0 0 20px rgba(0, 212, 255, 0.15);
+  --shadow-glow-cyan: 0 0 12px rgba(91, 143, 185, 0.08);
   --shadow-glow-emergency: 0 0 30px rgba(239, 68, 68, 0.3);
 }
 
@@ -138,7 +138,7 @@ body {
 .bg-orb-1 {
   width: 600px;
   height: 600px;
-  background: radial-gradient(circle, rgba(0, 212, 255, 0.5) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(91, 143, 185, 0.35) 0%, transparent 70%);
   top: -10%;
   right: 10%;
   animation: orb-drift-1 20s ease-in-out infinite;
@@ -147,7 +147,7 @@ body {
 .bg-orb-2 {
   width: 500px;
   height: 500px;
-  background: radial-gradient(circle, rgba(0, 117, 255, 0.4) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(42, 74, 107, 0.3) 0%, transparent 70%);
   bottom: 5%;
   left: 15%;
   animation: orb-drift-2 25s ease-in-out infinite;
@@ -156,7 +156,7 @@ body {
 .bg-orb-3 {
   width: 400px;
   height: 400px;
-  background: radial-gradient(circle, rgba(2, 132, 199, 0.3) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(61, 111, 142, 0.25) 0%, transparent 70%);
   top: 40%;
   left: 50%;
   animation: orb-drift-3 18s ease-in-out infinite;
@@ -242,7 +242,7 @@ body {
     padding: 3px 8px;
     border-radius: 6px;
     font-size: 0.9em;
-    border: 1px solid rgba(86, 87, 122, 0.2);
+    border: 1px solid rgba(99, 110, 123, 0.2);
     white-space: nowrap;
   }
   

@@ -289,27 +289,7 @@ export default function Dashboard() {
               setAcknowledged={setAcknowledged}
             />
 
-            {/* ── Row 0: Tunnel Map + Worker Status side-by-side ── */}
-            <div className="map-worker-row">
-              <section className="map-hero-wrap dashboard-map-viewport" ref={viewportRef}>
-                {showHint && <div className="dashboard-zoom-hint">Double-tap to reset &bull; Pinch to zoom</div>}
-                <div className="dashboard-zoomable-wrapper" ref={wrapperRef}>
-                  <SurveillanceTunnelMap
-                    worker={worker}
-                    reading={effectiveReading}
-                    zone={currentZone}
-                    status={effectiveStatus}
-                    isEmergencyMode={isEmergencyMode}
-                    emergencyLevel={emergencyLevel}
-                  />
-                </div>
-              </section>
-              <aside className="worker-status-sidebar">
-                <WorkerStatusCard worker={worker} status={effectiveStatus} reading={effectiveReading} compact zone={currentZone} />
-              </aside>
-            </div>
-
-            {/* ── Row 2: Sensor Cards Grid ─────────────── */}
+            {/* ── Row 1: Sensor Cards Grid (KPI at-a-glance) ── */}
             <div className="sensor-cards-grid">
               <SensorCard
                 label="Temperature"
@@ -361,6 +341,26 @@ export default function Dashboard() {
               />
             </div>
 
+            {/* ── Row 2: Tunnel Map + Worker Status side-by-side ── */}
+            <div className="map-worker-row">
+              <section className="map-hero-wrap dashboard-map-viewport" ref={viewportRef}>
+                {showHint && <div className="dashboard-zoom-hint">Double-tap to reset &bull; Pinch to zoom</div>}
+                <div className="dashboard-zoomable-wrapper" ref={wrapperRef}>
+                  <SurveillanceTunnelMap
+                    worker={worker}
+                    reading={effectiveReading}
+                    zone={currentZone}
+                    status={effectiveStatus}
+                    isEmergencyMode={isEmergencyMode}
+                    emergencyLevel={emergencyLevel}
+                  />
+                </div>
+              </section>
+              <aside className="worker-status-sidebar">
+                <WorkerStatusCard worker={worker} status={effectiveStatus} reading={effectiveReading} compact zone={currentZone} />
+              </aside>
+            </div>
+
             {/* ── Row 3: Environmental Trends ───────────── */}
             <EnvironmentalTrendsPanel
               history={history}
@@ -398,7 +398,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen dashboard-root" data-emergency-level={emergencyLevel} data-acknowledged={acknowledged} style={{ position: 'relative', background: '#060B26' }}>
+    <div className="min-h-screen dashboard-root" data-emergency-level={emergencyLevel} data-acknowledged={acknowledged} style={{ position: 'relative', background: '#080c14' }}>
       {/* ── Custom Animated WebGL Background ───────────── */}
       <div
         style={{
@@ -413,7 +413,7 @@ export default function Dashboard() {
         }}
       >
         <GradientWave
-          colors={["#060B26", "#0F123B", "#090D2E", "#00d4ff", "#020515", "#0F123B"]}
+          colors={["#0d1117", "#161b22", "#0d1117", "#2a4a6b", "#0d1117", "#161b22"]}
           isPlaying={true}
           noiseSpeed={0.00001}
           shadowPower={6}

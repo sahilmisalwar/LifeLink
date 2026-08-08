@@ -31,7 +31,7 @@
 
 .tmp-subtitle {
   font-size: 0.82rem;
-  color: #64748b;
+  color: #8b949e;
   margin: 4px 0 0;
   letter-spacing: 0.01em;
 }
@@ -42,11 +42,11 @@
   gap: 8px;
   padding: 6px 16px;
   border-radius: 24px;
-  background: rgba(14, 165, 233, 0.08);
-  border: 1px solid rgba(14, 165, 233, 0.18);
+  background: rgba(91, 143, 185, 0.08);
+  border: 1px solid rgba(91, 143, 185, 0.15);
   font-size: 0.78rem;
   font-weight: 600;
-  color: #7dd3fc;
+  color: #5b8fb9;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   white-space: nowrap;
@@ -56,8 +56,8 @@
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #38bdf8;
-  box-shadow: 0 0 6px rgba(56, 189, 248, 0.5);
+  background: #5b8fb9;
+  box-shadow: 0 0 6px rgba(91, 143, 185, 0.4);
 }
 
 /* ── Main body: map full-width, panels beneath ────────────── */
@@ -94,8 +94,8 @@
 
 /* ── Info card — glassmorphism panel ──────────────────────── */
 .tmp-info-card {
-  background: rgba(15, 23, 60, 0.55);
-  border: 1px solid rgba(56, 189, 248, 0.1);
+  background: rgba(13, 17, 23, 0.55);
+  border: 1px solid rgba(99, 110, 123, 0.15);
   border-radius: 16px;
   padding: 20px;
   backdrop-filter: blur(14px);
@@ -105,7 +105,7 @@
 .tmp-info-card-title {
   font-size: 0.72rem;
   font-weight: 700;
-  color: #64748b;
+  color: #8b949e;
   text-transform: uppercase;
   letter-spacing: 0.09em;
   margin: 0 0 14px;
@@ -124,13 +124,13 @@
   gap: 10px;
   padding: 8px 10px;
   border-radius: 10px;
-  background: rgba(15, 23, 60, 0.45);
-  border: 1px solid rgba(100, 116, 139, 0.08);
+  background: rgba(13, 17, 23, 0.45);
+  border: 1px solid rgba(99, 110, 123, 0.08);
   transition: background 0.2s;
 }
 
 .tmp-reading-row:hover {
-  background: rgba(30, 40, 80, 0.55);
+  background: rgba(22, 27, 34, 0.55);
 }
 
 .tmp-reading-icon {
@@ -140,8 +140,8 @@
   width: 28px;
   height: 28px;
   border-radius: 8px;
-  background: rgba(56, 189, 248, 0.08);
-  color: #7dd3fc;
+  background: rgba(91, 143, 185, 0.08);
+  color: #5b8fb9;
   flex-shrink: 0;
 }
 
@@ -161,7 +161,7 @@
 .tmp-reading-unit {
   font-size: 0.68rem;
   font-weight: 400;
-  color: #64748b;
+  color: #8b949e;
   margin-left: 2px;
 }
 
@@ -230,9 +230,9 @@
     z-index: 20;
     padding: 6px 16px;
     border-radius: 20px;
-    background: rgba(14, 165, 233, 0.2);
-    border: 1px solid rgba(14, 165, 233, 0.4);
-    color: #7dd3fc;
+    background: rgba(91, 107, 120, 0.2);
+    border: 1px solid rgba(91, 107, 120, 0.4);
+    color: #5b8fb9;
     font-size: 0.75rem;
     font-weight: 600;
     text-transform: uppercase;

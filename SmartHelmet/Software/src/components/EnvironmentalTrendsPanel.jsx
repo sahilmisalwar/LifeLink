@@ -36,7 +36,7 @@ const METRICS = [
     label: 'Gas Level',
     unit: 'ppm',
     icon: <Wind size={16} strokeWidth={2.5} />,
-    color: '#00d4ff',
+    color: '#5b8fb9',
     gradientId: 'etp-grad-gas',
     thresholds: () => ({
       warning: THRESHOLDS.gas_level.warning,

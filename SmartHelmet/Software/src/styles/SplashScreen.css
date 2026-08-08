@@ -11,7 +11,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background-color: #080c14;
+  background-color: #0C1117;
   z-index: 100;
   padding: 1.5rem;
   overflow: hidden;
@@ -24,7 +24,7 @@
   width: 500px;
   height: 500px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(0, 212, 255, 0.06) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(91, 143, 185, 0.06) 0%, transparent 70%);
   animation: ambient-pulse 4s ease-in-out infinite;
   pointer-events: none;
 }
@@ -50,9 +50,9 @@
   font-size: 4.5rem;
   color: #00d4ff;
   text-shadow:
-    0 0 20px rgba(0, 212, 255, 0.5),
-    0 0 40px rgba(0, 212, 255, 0.2),
-    0 0 80px rgba(0, 212, 255, 0.1);
+    0 0 20px rgba(0, 212, 255, 0.4),
+    0 0 40px rgba(0, 212, 255, 0.15),
+    0 0 80px rgba(0, 212, 255, 0.08);
   letter-spacing: 0.06em;
   user-select: none;
   position: relative;
@@ -77,15 +77,15 @@
 @keyframes logo-glow-pulse {
   0%, 100% {
     text-shadow:
-      0 0 20px rgba(0, 212, 255, 0.5),
-      0 0 40px rgba(0, 212, 255, 0.2),
-      0 0 80px rgba(0, 212, 255, 0.1);
+      0 0 20px rgba(0, 212, 255, 0.4),
+      0 0 40px rgba(0, 212, 255, 0.15),
+      0 0 80px rgba(0, 212, 255, 0.08);
   }
   50% {
     text-shadow:
-      0 0 30px rgba(0, 212, 255, 0.7),
-      0 0 60px rgba(0, 212, 255, 0.35),
-      0 0 100px rgba(0, 212, 255, 0.15);
+      0 0 30px rgba(0, 212, 255, 0.55),
+      0 0 60px rgba(0, 212, 255, 0.25),
+      0 0 100px rgba(0, 212, 255, 0.1);
   }
 }
 
@@ -112,7 +112,7 @@
   stroke-linejoin: round;
   stroke-dasharray: 600;
   stroke-dashoffset: 600;
-  filter: drop-shadow(0 0 6px rgba(0, 212, 255, 0.6));
+  filter: drop-shadow(0 0 6px rgba(0, 212, 255, 0.5));
 }
 
 .splash-heartbeat-path.animate {
@@ -132,13 +132,13 @@
 }
 
 @keyframes ecg-pulse {
-  0%, 100% { opacity: 0.6; filter: drop-shadow(0 0 4px rgba(0, 212, 255, 0.4)); }
-  50%      { opacity: 1;   filter: drop-shadow(0 0 10px rgba(0, 212, 255, 0.8)); }
+  0%, 100% { opacity: 0.6; filter: drop-shadow(0 0 4px rgba(0, 212, 255, 0.35)); }
+  50%      { opacity: 1;   filter: drop-shadow(0 0 10px rgba(0, 212, 255, 0.65)); }
 }
 
 /* ── Tagline ──────────────────────────────────────────── */
 .splash-tagline {
-  color: #64748b;
+  color: #8b949e;
   font-size: 0.95rem;
   font-weight: 400;
   margin-bottom: 2.5rem;
@@ -175,14 +175,14 @@
   height: 8px;
   min-width: 8px;
   border-radius: 50%;
-  background-color: #1e2d4a;
+  background-color: #21262d;
   transition: background-color 0.3s ease;
 }
 
 .status-dot.active {
   background-color: #00d4ff;
   animation: dot-pulse 0.5s ease-out forwards;
-  box-shadow: 0 0 8px rgba(0, 212, 255, 0.5);
+  box-shadow: 0 0 8px rgba(0, 212, 255, 0.4);
 }
 
 @keyframes dot-pulse {
@@ -194,17 +194,17 @@
 /* ── Status text ──────────────────────────────────────── */
 .status-text {
   font-size: 0.9rem;
-  color: #64748b;
+  color: #8b949e;
   transition: color 0.3s ease;
 }
 
 .status-text.active {
-  color: #f0f4ff;
+  color: #e6edf3;
 }
 
 /* ── Checkmark icon ───────────────────────────────────── */
 .status-check {
-  color: #64748b;
+  color: #8b949e;
   opacity: 0;
   transition: opacity 0.3s ease, color 0.3s ease;
   margin-left: auto;
@@ -219,7 +219,7 @@
 /* ── Launch button ────────────────────────────────────── */
 .launch-button {
   margin-top: 2.5rem;
-  background: linear-gradient(135deg, #00d4ff, #0ea5e9);
+  background: linear-gradient(135deg, #00d4ff, #0284c7);
   color: #080c14;
   font-weight: 600;
   font-size: 1rem;
@@ -241,7 +241,7 @@
 
 .launch-button:hover {
   filter: brightness(1.12);
-  box-shadow: 0 0 18px rgba(0, 212, 255, 0.45), 0 4px 14px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 0 14px rgba(0, 212, 255, 0.3), 0 4px 14px rgba(0, 0, 0, 0.3);
 }
 
 .launch-button:active {

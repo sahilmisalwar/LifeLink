@@ -30,14 +30,14 @@
     /* Match sidebar glassmorphism */
     background: linear-gradient(
       126.97deg,
-      rgba(6, 11, 40, 0.92) 28%,
-      rgba(10, 14, 35, 0.90) 91%
+      rgba(13, 17, 23, 0.92) 28%,
+      rgba(22, 27, 34, 0.90) 91%
     );
     backdrop-filter: blur(40px);
     -webkit-backdrop-filter: blur(40px);
 
     /* Top border to separate from content */
-    border-top: 1px solid rgba(86, 87, 122, 0.4);
+    border-top: 1px solid rgba(99, 110, 123, 0.4);
     box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.4);
 
     font-family: 'Plus Jakarta Sans', sans-serif;
@@ -54,7 +54,7 @@
     height: 100%;
     padding: 8px 4px;
     cursor: pointer;
-    color: #A0AEC0;
+    color: #8b949e;
     background: transparent;
     border: none;
     outline: none;
@@ -69,7 +69,7 @@
 
   /* ── Active state ────────────────────────────────────────── */
   .bottom-tab-item.active {
-    color: #00d4ff;
+    color: #5b8fb9;
   }
 
   /* Active indicator line above the icon */
@@ -81,8 +81,8 @@
     right: 25%;
     height: 3px;
     border-radius: 0 0 3px 3px;
-    background: linear-gradient(135deg, #00d4ff 0%, #0284c7 100%);
-    box-shadow: 0 2px 8px rgba(0, 212, 255, 0.4);
+    background: linear-gradient(135deg, #5b8fb9 0%, #3d6f8e 100%);
+    box-shadow: 0 2px 6px rgba(91, 143, 185, 0.25);
   }
 
   /* ── Tab icon ────────────────────────────────────────────── */
@@ -101,7 +101,7 @@
   }
 
   .bottom-tab-item.active .bottom-tab-icon {
-    filter: drop-shadow(0 0 6px rgba(0, 212, 255, 0.5));
+    filter: drop-shadow(0 0 4px rgba(91, 143, 185, 0.3));
   }
 
   /* ── Tab label ───────────────────────────────────────────── */

@@ -1,7 +1,7 @@
 /* SmartHelmet/Software/src/styles/EventTimelineCard.css */
 .event-timeline-card {
-  background: rgba(15, 23, 60, 0.55);
-  border: 1px solid rgba(56, 189, 248, 0.15);
+  background: rgba(13, 17, 23, 0.55);
+  border: 1px solid rgba(99, 110, 123, 0.2);
   border-radius: 16px;
   padding: 24px;
   backdrop-filter: blur(14px);
@@ -101,7 +101,7 @@
 .etc-event-tooltip {
   position: absolute;
   top: -45px;
-  background: rgba(15, 23, 60, 0.9);
+  background: rgba(13, 17, 23, 0.9);
   border: 1px solid rgba(255, 255, 255, 0.1);
   padding: 6px 10px;
   border-radius: 6px;

@@ -6,16 +6,16 @@ module.exports = {
     extend: {
       colors: {
         background: '#080c14',
-        surface: '#0f1724',
-        'surface-2': '#1a2540',
-        border: '#1e2d4a',
-        'accent-cyan': '#00d4ff',
+        surface: '#0d1117',
+        'surface-2': '#161b22',
+        border: '#21262d',
+        'accent-cyan': '#5b8fb9',
         'accent-orange': '#f97316',
         warning: '#f59e0b',
         emergency: '#ef4444',
         safe: '#10b981',
-        'text-primary': '#f0f4ff',
-        'text-secondary': '#64748b',
+        'text-primary': '#e6edf3',
+        'text-secondary': '#8b949e',
       },
       animation: {
         'pulse-emergency': 'pulse-emergency 1s ease-in-out infinite',

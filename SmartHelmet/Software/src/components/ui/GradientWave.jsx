@@ -1,5 +1,5 @@
 // SmartHelmet/Software/src/components/ui/GradientWave.jsx
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useMemo } from "react";
 
 function normalizeColor(hexCode) {
   return [
@@ -394,10 +394,17 @@ class Gradient {
     this.minigl = new MiniGl(canvas);
     this.time = 0;
     this.last = 0;
+    this.started = false;
     this.isPlaying = false;
     
     this.animate = (timestamp) => {
       if (!this.isPlaying) return;
+
+      // On the very first frame, seed this.last so the delta isn't huge
+      if (!this.started) {
+        this.last = timestamp;
+        this.started = true;
+      }
 
       this.time += Math.min(timestamp - this.last, 1000 / 15);
       this.last = timestamp;
@@ -638,6 +645,14 @@ export function GradientWave({
   const containerRef = useRef(null);
   const gradientRef = useRef(null);
 
+  // Stabilize object/array props so the effect only re-runs when values actually change
+  const colorsKey = JSON.stringify(colors);
+  const stableColors = useMemo(() => colors, [colorsKey]);
+  const deformKey = JSON.stringify(deform);
+  const stableDeform = useMemo(() => deform, [deformKey]);
+  const freqKey = JSON.stringify(noiseFrequency);
+  const stableFrequency = useMemo(() => noiseFrequency, [freqKey]);
+
   useEffect(() => {
     if (!containerRef.current) return;
 
@@ -653,21 +668,21 @@ export function GradientWave({
     containerRef.current.appendChild(canvas);
 
     try {
-      const gradient = new Gradient(canvas, colors);
+      const gradient = new Gradient(canvas, stableColors);
       gradientRef.current = gradient;
 
       // apply props to uniforms
       gradient.mesh.material.uniforms.u_shadow_power.value = shadowPower;
       gradient.mesh.material.uniforms.u_darken_top.value = darkenTop ? 1 : 0;
       gradient.mesh.material.uniforms.u_global.value.noiseFreq.value =
-        noiseFrequency;
+        stableFrequency;
       gradient.mesh.material.uniforms.u_global.value.noiseSpeed.value =
         noiseSpeed;
 
       // deform settings (only if provided)
       Object.assign(gradient.mesh.material.uniforms.u_vertDeform.value, {
         ...gradient.mesh.material.uniforms.u_vertDeform.value,
-        ...deform,
+        ...stableDeform,
       });
 
       if (isPlaying) gradient.start();
@@ -682,13 +697,13 @@ export function GradientWave({
       }
     };
   }, [
-    colors,
+    stableColors,
     isPlaying,
     shadowPower,
     darkenTop,
     noiseSpeed,
-    noiseFrequency,
-    deform,
+    stableFrequency,
+    stableDeform,
   ]);
 
   return (

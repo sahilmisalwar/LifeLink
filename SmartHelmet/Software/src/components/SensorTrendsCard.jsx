@@ -14,7 +14,7 @@ import '../styles/SensorTrendsCard.css';
 
 const METRICS = [
   { key: 'temperature', label: 'Temperature', unit: '°C', color: '#f97316', gradientId: 'gradTemp' },
-  { key: 'gas_level',   label: 'Gas Level',   unit: 'ppm', color: '#00d4ff', gradientId: 'gradGas' },
+  { key: 'gas_level',   label: 'Gas Level',   unit: 'ppm', color: '#5b8fb9', gradientId: 'gradGas' },
   { key: 'heart_rate',  label: 'Heart Rate',  unit: 'bpm', color: '#01B574', gradientId: 'gradHR' },
 ];
 
