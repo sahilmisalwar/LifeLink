@@ -7,7 +7,7 @@
   position: relative;
   isolation: isolate;
   width: 100%;
-  overflow: hidden;
+  overflow: visible;
   color: #dff6ff;
   background: #020a18;
   border: 1px solid rgba(73, 192, 255, .23);
@@ -287,5 +287,385 @@
   .stm-idle-glow,
   .stm-rescue-route {
     transition: none;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   SIMULATED / FAKE WORKER MARKERS (Phase 2)
+   ──────────────────────────────────────────────────────────────
+   Matches Worker 1 color palette (cyan / blue / glow).
+   ══════════════════════════════════════════════════════════════ */
+
+.stm-sim-worker {
+  transform-box: fill-box;
+  transform-origin: center;
+  pointer-events: auto;
+}
+
+/* ── Pulse rings: cyan/blue matching Worker 1 ── */
+.stm-sim-worker-pulse {
+  fill: none;
+  stroke: #29c9ff;
+  stroke-width: 1.5;
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.stm-sim-pulse-one {
+  animation: stm-sim-pulse 3.1s cubic-bezier(.15, .72, .22, 1) infinite;
+}
+.stm-sim-pulse-two {
+  animation: stm-sim-pulse 3.1s 1.55s cubic-bezier(.15, .72, .22, 1) infinite;
+}
+
+/* ── Halo ring ── */
+.stm-sim-worker-halo {
+  fill: none;
+  stroke: rgba(42, 194, 255, .38);
+  stroke-width: 1.2;
+  filter: url(#stm-tight-glow);
+}
+
+/* ── Ring ── */
+.stm-sim-worker-ring {
+  fill: rgba(5, 55, 151, .34);
+  stroke: #37d8ff;
+  stroke-width: 2.5;
+  filter: url(#stm-tight-glow);
+}
+
+/* ── Inner disc ── */
+.stm-sim-worker-inner {
+  fill: rgba(5, 37, 103, .82);
+  stroke: rgba(127, 237, 255, .75);
+  stroke-width: 1;
+}
+
+/* ── Person icon ── */
+.stm-sim-worker-icon {
+  fill: #c4f7ff;
+  stroke: #c4f7ff;
+  stroke-width: 2.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: url(#stm-tight-glow);
+}
+
+/* ── "SIM" badge above icon ── */
+.stm-sim-badge-bg {
+  fill: rgba(5, 55, 151, .65);
+  stroke: rgba(55, 216, 255, .70);
+  stroke-width: 1;
+}
+.stm-sim-badge-text {
+  fill: #29d4ff;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .12em;
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+
+/* ── Name and zone labels ── */
+.stm-sim-worker-name {
+  fill: #2AD4FF;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-anchor: middle;
+  text-transform: uppercase;
+}
+.stm-sim-worker-zone {
+  fill: #29d4ff;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: .10em;
+  text-anchor: middle;
+  text-transform: uppercase;
+  filter: url(#stm-tight-glow);
+}
+
+/* ── Legend swatch for simulated workers ── */
+.stm-legend-swatch.simulated {
+  width: 10px;
+  height: 10px;
+  border: 2px solid #c5f7ff;
+  border-radius: 50%;
+  background: #128ce8;
+  box-shadow: 0 0 9px #25cdff;
+}
+
+/* ── Simulated worker pulse keyframe ── */
+@keyframes stm-sim-pulse {
+  0%        { transform: scale(.52); opacity: .88; }
+  78%, 100% { transform: scale(1.95); opacity: 0; }
+}
+
+/* ── Accessibility: disable simulated worker animations too ── */
+@media (prefers-reduced-motion: reduce) {
+  .stm-sim-worker-pulse {
+    animation: none;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   WORKER POPUP OVERLAY — clickable worker icons
+   Compact vitals card anchored near the clicked map icon.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Backdrop — transparent click-catcher to dismiss popup */
+.stm-popup-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  cursor: default;
+}
+
+/* Popup card */
+.stm-popup {
+  position: absolute;
+  z-index: 51;
+  width: 280px;
+  padding: 16px;
+  border-radius: 20px;
+  border: 1px solid rgba(55, 216, 255, 0.15);
+  background: linear-gradient(135deg, rgba(13, 17, 23, 0.35) 0%, rgba(6, 11, 40, 0.25) 100%);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.3), 0 0 24px rgba(55, 216, 255, 0.08);
+  font-family: 'Plus Jakarta Sans', Inter, ui-sans-serif, system-ui, sans-serif;
+  transform: translateX(-50%);
+  pointer-events: auto;
+  animation: stm-popup-in 180ms ease-out;
+}
+
+@keyframes stm-popup-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(6px) scale(0.96); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+}
+
+/* ── Popup header ── */
+.stm-popup-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.stm-popup-avatar {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: #c4f7ff;
+}
+
+.stm-popup-avatar.real {
+  background: linear-gradient(135deg, rgba(5, 55, 151, 0.55), rgba(7, 92, 200, 0.35));
+  border: 2px solid rgba(55, 216, 255, 0.50);
+  box-shadow: 0 0 10px rgba(55, 216, 255, 0.15);
+}
+
+.stm-popup-avatar.sim {
+  background: linear-gradient(135deg, rgba(5, 55, 151, 0.40), rgba(7, 92, 200, 0.22));
+  border: 2px solid rgba(55, 216, 255, 0.35);
+}
+
+.stm-popup-info { flex: 1; min-width: 0; }
+
+.stm-popup-name {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #e6edf3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stm-popup-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.stm-popup-id {
+  font-size: 0.56rem;
+  font-weight: 600;
+  color: #8b949e;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.stm-popup-zone {
+  font-size: 0.56rem;
+  font-weight: 700;
+  color: rgba(55, 216, 255, 0.70);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.stm-popup-dot-sep {
+  font-size: 0.50rem;
+  color: rgba(139, 148, 158, 0.4);
+}
+
+/* ── Badges row ── */
+.stm-popup-badges {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.stm-popup-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 7px;
+  border-radius: 10px;
+  font-size: 0.48rem;
+  font-weight: 900;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+}
+
+.stm-popup-badge.live {
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #34d399;
+}
+
+.stm-popup-badge.sim-badge {
+  background: rgba(55, 216, 255, 0.10);
+  border: 1px solid rgba(55, 216, 255, 0.30);
+  color: #7be4ff;
+}
+
+.stm-popup-badge.status-normal {
+  background: rgba(16, 185, 129, 0.10);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  color: #34d399;
+}
+
+.stm-popup-badge.status-warning {
+  background: rgba(245, 158, 11, 0.10);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  color: #fbbf24;
+}
+
+.stm-popup-badge.status-emergency {
+  background: rgba(239, 68, 68, 0.10);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  color: #f87171;
+}
+
+.stm-popup-badge-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* ── Compact vitals grid ── */
+.stm-popup-vitals {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.stm-popup-vital {
+  display: flex;
+  flex-direction: column;
+  padding: 6px 8px;
+  border-radius: 8px;
+  background: rgba(13, 17, 23, 0.55);
+  border: 1px solid rgba(99, 110, 123, 0.12);
+}
+
+.stm-popup-vital-label {
+  font-size: 0.44rem;
+  font-weight: 700;
+  color: #8b949e;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  margin-bottom: 1px;
+}
+
+.stm-popup-vital-value {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #bfeeff;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+}
+
+/* ── View Details button ── */
+.stm-popup-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 7px 0;
+  border: 1px solid rgba(55, 216, 255, 0.30);
+  border-radius: 10px;
+  background: rgba(55, 216, 255, 0.08);
+  color: #2ad4ff;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: background 150ms, border-color 150ms, transform 150ms;
+  font-family: inherit;
+}
+
+.stm-popup-action:hover,
+.stm-popup-action:focus-visible {
+  background: rgba(55, 216, 255, 0.16);
+  border-color: rgba(55, 216, 255, 0.55);
+  transform: translateY(-1px);
+}
+
+/* ── Close button ── */
+.stm-popup-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 22px;
+  height: 22px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(99, 110, 123, 0.15);
+  color: #8b949e;
+  font-size: 0.65rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 120ms, color 120ms;
+}
+
+.stm-popup-close:hover {
+  background: rgba(239, 68, 68, 0.20);
+  color: #f87171;
+}
+
+/* Make SVG worker groups clickable — override canvas pointer-events:none */
+.stm-worker,
+.stm-sim-worker {
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stm-popup {
+    animation: none;
   }
 }

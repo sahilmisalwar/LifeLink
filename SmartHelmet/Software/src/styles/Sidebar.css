@@ -6,7 +6,7 @@
   top: 0;
   left: 0;
   width: 260px;
-  height: 100vh;
+  height: 125vh;
   background: linear-gradient(126.97deg, rgba(13, 17, 23, 0.74) 28%, rgba(22, 27, 34, 0.71) 91%);
   backdrop-filter: blur(40px);
   -webkit-backdrop-filter: blur(40px);
@@ -70,14 +70,14 @@
 .nav-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 14px 16px;
-  border-radius: 14px;
+  gap: 16px;
+  padding: 18px 20px;
+  border-radius: 16px;
   cursor: pointer;
   color: #8b949e;
   background: rgba(255, 255, 255, 0.015);
   border: 1px solid rgba(255, 255, 255, 0.06);
-  font-size: 0.9rem;
+  font-size: 1rem;
   font-weight: 500;
   
   /* Hover and click transitions */
@@ -142,10 +142,10 @@
 
 /* ── Nav icon chip ────────────────────────────────────── */
 .nav-icon-chip {
-  width: 32px;
-  height: 32px;
-  min-width: 32px;
-  border-radius: 12px;
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  border-radius: 14px;
   background: rgba(255, 255, 255, 0.05);
   display: flex;
   align-items: center;

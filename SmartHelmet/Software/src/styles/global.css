@@ -51,9 +51,10 @@ body {
   font-family: var(--font-family);
   background: var(--bg-primary);
   color: var(--text-primary);
-  min-height: 100vh;
+  min-height: 125vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  zoom: 0.8;
 }
 
 /* ===== Scrollbar Styling ===== */
@@ -121,8 +122,8 @@ body {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100vw;
-  height: 100vh;
+  width: 125vw;
+  height: 125vh;
   z-index: 0;
   pointer-events: none;
   overflow: hidden;

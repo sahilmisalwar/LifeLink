@@ -1,6 +1,6 @@
 // SmartHelmet/Software/src/pages/Dashboard.jsx
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import Sidebar from '../components/Sidebar';
 import BottomTabBar from '../components/BottomTabBar';
 import Header from '../components/Header';
@@ -10,12 +10,15 @@ import SensorCard from '../components/SensorCard';
 import AlertsCard from '../components/AlertsCard';
 import LiveDebugPanel from '../components/LiveDebugPanel';
 import ActiveAlarmBanner from '../components/ActiveAlarmBanner';
-import EnvironmentalTrendsPanel from '../components/EnvironmentalTrendsPanel';
 import DemoControlsPanel from '../components/DemoControlsPanel';
+import WorkerSelector from '../components/WorkerSelector';
 import AlertsPage from './AlertsPage';
 import TunnelMapPage from './TunnelMapPage';
 import AnalyticsPage from './AnalyticsPage';
+import WorkersListPage from './WorkersListPage';
+import WorkerDetailPage from './WorkerDetailPage';
 import useLiveData from '../hooks/useLiveData';
+import useFakeWorkers from '../hooks/useFakeWorkers';
 import { getRSSIZone, getWorkerStatus } from '../services/api';
 import { THRESHOLDS, getSensorStatus } from '../utils/constants';
 import { Thermometer, Wind, Zap, HeartPulse, Activity, Wifi } from 'lucide-react';
@@ -25,11 +28,36 @@ const HISTORY_LIMIT = 20;
 
 import { GradientWave } from '../components/ui/GradientWave';
 
+// Real worker ID — must match the constant in constants.js / api.js
+const REAL_WORKER_ID = 'W001';
+
 export default function Dashboard() {
   const { reading, alerts, worker, status, loading } = useLiveData();
 
+  // ── Fake Workers (Phase 3) — separate data source, no coupling to useLiveData ──
+  const { fakeWorkers } = useFakeWorkers();
+
+  // ── Worker Selection State ─────────────────────────────
+  // Defaults to real worker so existing behavior is unchanged on initial load.
+  const [selectedWorkerId, setSelectedWorkerId] = useState(REAL_WORKER_ID);
+
   // ── View switching state ──────────────────────────────
   const [activeView, setActiveView] = useState('overview');
+
+  // ── Worker Detail Navigation State (Phase 5) ─────────
+  const [detailWorkerId, setDetailWorkerId] = useState(null);
+  const [returnView, setReturnView] = useState('overview');
+
+  const navigateToWorkerDetail = (workerId) => {
+    setDetailWorkerId(workerId);
+    setReturnView(activeView);
+    setActiveView('worker-detail');
+  };
+
+  const navigateBackFromDetail = () => {
+    setActiveView(returnView);
+    setDetailWorkerId(null);
+  };
 
   // ── Demo Mode state ───────────────────────────────────
   const [demoMode, setDemoMode] = useState(false);
@@ -114,6 +142,29 @@ export default function Dashboard() {
 
   // ── Derive current zone from RSSI ─────────────────────
   const currentZone = getRSSIZone(effectiveReading?.rssi);
+
+  // ── Active KPI Data: derived from selected worker (Phase 3) ──
+  // When a fake worker is selected, KPI cards show that worker's readings.
+  // When the real worker is selected, they show the live effectiveReading as before.
+  // This is PURELY a display-layer switch — does NOT affect the real data pipeline.
+  const isRealWorkerSelected = selectedWorkerId === REAL_WORKER_ID;
+
+  const kpiReading = useMemo(() => {
+    if (isRealWorkerSelected) {
+      return effectiveReading;
+    }
+    const selectedFake = fakeWorkers.find((fw) => fw.id === selectedWorkerId);
+    if (!selectedFake) return effectiveReading; // fallback to real if ID not found
+    // Normalize fake worker readings to match the shape expected by SensorCard/getSensorStatus
+    return {
+      temperature: selectedFake.readings.temperature,
+      gas_level: selectedFake.readings.gas_level,
+      force: selectedFake.readings.force,
+      heart_rate: selectedFake.readings.heart_rate,
+      spo2: selectedFake.readings.spo2,
+      rssi: selectedFake.rssi,
+    };
+  }, [isRealWorkerSelected, selectedWorkerId, fakeWorkers, effectiveReading]);
 
   // ── Global Emergency Mode state (single source of truth) ──
   const isEmergencyMode = effectiveStatus === 'warning' || effectiveStatus === 'emergency';
@@ -267,11 +318,38 @@ export default function Dashboard() {
             status={effectiveStatus}
             isEmergencyMode={isEmergencyMode}
             emergencyLevel={emergencyLevel}
+            onViewDetails={navigateToWorkerDetail}
           />
         );
 
       case 'analytics':
         return <AnalyticsPage history={history} alerts={alerts} worker={worker} />;
+
+      case 'workers':
+        return (
+          <WorkersListPage
+            worker={worker}
+            reading={effectiveReading}
+            status={effectiveStatus}
+            zone={currentZone}
+            fakeWorkers={fakeWorkers}
+            onViewDetails={navigateToWorkerDetail}
+          />
+        );
+
+      case 'worker-detail':
+        return (
+          <WorkerDetailPage
+            workerId={detailWorkerId}
+            worker={worker}
+            reading={effectiveReading}
+            status={effectiveStatus}
+            zone={currentZone}
+            history={history}
+            fakeWorkers={fakeWorkers}
+            onBack={navigateBackFromDetail}
+          />
+        );
 
       // Future views: just add more cases here
 
@@ -290,42 +368,43 @@ export default function Dashboard() {
             />
 
             {/* ── Row 1: Sensor Cards Grid (KPI at-a-glance) ── */}
+            {/* Data source switches based on selectedWorkerId (Phase 3) */}
             <div className="sensor-cards-grid">
               <SensorCard
                 label="Temperature"
-                value={effectiveReading?.temperature}
+                value={kpiReading?.temperature}
                 unit="°C"
-                status={getSensorStatus(effectiveReading, 'temperature')}
+                status={isRealWorkerSelected ? getSensorStatus(kpiReading, 'temperature') : 'normal'}
                 icon={<Thermometer size={20} strokeWidth={2.5} />}
                 subtitle="Ambient mine temperature"
               />
               <SensorCard
                 label="Gas Level"
-                value={effectiveReading?.gas_level}
+                value={kpiReading?.gas_level}
                 unit="ppm"
-                status={getSensorStatus(effectiveReading, 'gas_level')}
+                status={isRealWorkerSelected ? getSensorStatus(kpiReading, 'gas_level') : 'normal'}
                 icon={<Wind size={20} strokeWidth={2.5} />}
                 subtitle="MQ-series gas concentration"
               />
               <SensorCard
                 label="Force"
-                value={effectiveReading?.force}
+                value={kpiReading?.force}
                 unit="N"
-                status={getSensorStatus(effectiveReading, 'force')}
+                status={isRealWorkerSelected ? getSensorStatus(kpiReading, 'force') : 'normal'}
                 icon={<Zap size={20} strokeWidth={2.5} />}
                 subtitle="Helmet impact force"
               />
               <SensorCard
                 label="Heart Rate"
-                value={effectiveReading?.heart_rate}
+                value={kpiReading?.heart_rate}
                 unit="bpm"
-                status={getSensorStatus(effectiveReading, 'heart_rate')}
+                status={isRealWorkerSelected ? getSensorStatus(kpiReading, 'heart_rate') : 'normal'}
                 icon={<HeartPulse size={20} strokeWidth={2.5} />}
                 subtitle="Worker pulse rate"
               />
               <SensorCard
                 label="SpO2"
-                value={effectiveReading?.spo2}
+                value={kpiReading?.spo2}
                 unit="%"
                 status="normal"
                 icon={<Activity size={20} strokeWidth={2.5} />}
@@ -333,7 +412,7 @@ export default function Dashboard() {
               />
               <SensorCard
                 label="RSSI"
-                value={effectiveReading?.rssi}
+                value={kpiReading?.rssi}
                 unit="dBm"
                 status="normal"
                 icon={<Wifi size={20} strokeWidth={2.5} />}
@@ -353,23 +432,25 @@ export default function Dashboard() {
                     status={effectiveStatus}
                     isEmergencyMode={isEmergencyMode}
                     emergencyLevel={emergencyLevel}
+                    onViewDetails={navigateToWorkerDetail}
                   />
                 </div>
               </section>
               <aside className="worker-status-sidebar">
-                <WorkerStatusCard worker={worker} status={effectiveStatus} reading={effectiveReading} compact zone={currentZone} />
+                <WorkerSelector
+                  realWorker={worker}
+                  realStatus={effectiveStatus}
+                  realZone={currentZone}
+                  fakeWorkers={fakeWorkers}
+                  selectedWorkerId={selectedWorkerId}
+                  onSelect={setSelectedWorkerId}
+                  onViewDetails={navigateToWorkerDetail}
+                  vertical
+                />
               </aside>
             </div>
 
-            {/* ── Row 3: Environmental Trends ───────────── */}
-            <EnvironmentalTrendsPanel
-              history={history}
-              worker={worker}
-              status={effectiveStatus}
-              zone={currentZone}
-            />
-
-            {/* ── Row 4: Alerts ─────────── */}
+            {/* ── Row 3: Alerts ─────────── */}
             <div
               style={{
                 display: 'grid',
@@ -405,8 +486,8 @@ export default function Dashboard() {
           position: 'fixed',
           top: 0,
           left: 0,
-          width: '100vw',
-          height: '100vh',
+          width: '125vw',
+          height: '125vh',
           zIndex: 0,
           pointerEvents: 'none',
           opacity: 0.6,
@@ -431,7 +512,7 @@ export default function Dashboard() {
         style={{
           marginLeft: 'var(--sidebar-width)',
           marginTop: 'var(--header-height)',
-          minHeight: 'calc(100vh - var(--header-height))',
+          minHeight: 'calc(125vh - var(--header-height))',
           padding: '0px 24px 24px 40px',
           position: 'relative',
           zIndex: 1,

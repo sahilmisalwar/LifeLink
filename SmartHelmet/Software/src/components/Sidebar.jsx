@@ -9,6 +9,7 @@ const VIEW_KEY_MAP = {
   'Alerts': 'alerts',
   'Tunnel Map': 'tunnel-map',
   'Analytics': 'analytics',
+  'Workers': 'workers',
 };
 
 const NAV_ITEMS = [
@@ -20,6 +21,17 @@ const NAV_ITEMS = [
         <rect x="9" y="1" width="6" height="6" rx="1.5" />
         <rect x="1" y="9" width="6" height="6" rx="1.5" />
         <rect x="9" y="9" width="6" height="6" rx="1.5" />
+      </svg>
+    ),
+  },
+  {
+    label: 'Workers',
+    icon: (
+      <svg className="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="8" cy="4" r="2.5" />
+        <path d="M3 14c0-2.8 2.2-5 5-5s5 2.2 5 5" />
+        <circle cx="13" cy="5" r="1.5" />
+        <path d="M14.5 12.5c0-1.5-0.7-2.5-1.5-3" />
       </svg>
     ),
   },

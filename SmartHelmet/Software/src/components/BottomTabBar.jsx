@@ -16,6 +16,18 @@ const TAB_ITEMS = [
     ),
   },
   {
+    label: 'Workers',
+    viewKey: 'workers',
+    icon: (
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="8" cy="4" r="2.5" />
+        <path d="M3 14c0-2.8 2.2-5 5-5s5 2.2 5 5" />
+        <circle cx="13" cy="5" r="1.5" />
+        <path d="M14.5 12.5c0-1.5-0.7-2.5-1.5-3" />
+      </svg>
+    ),
+  },
+  {
     label: 'Alerts',
     viewKey: 'alerts',
     icon: (

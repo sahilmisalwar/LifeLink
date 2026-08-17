@@ -1,8 +1,9 @@
 // SmartHelmet/Software/src/components/SurveillanceTunnelMap.jsx
 
-import { useRef, useEffect, useCallback, useState } from 'react';
+import { useRef, useEffect, useCallback, useState, useMemo } from 'react';
 import { THRESHOLDS, RSSI_STRONGEST, RSSI_WEAKEST } from '../utils/constants';
 import tunnelMapBg from '../assets/tunnel-map-background.png';
+import useFakeWorkers from '../hooks/useFakeWorkers';
 import '../styles/SurveillanceTunnelMap.css';
 
 /* ═══════════════════════════════════════════════════════════════
@@ -118,14 +119,31 @@ function getHazardLabel(reading) {
    MAIN COMPONENT
    ═══════════════════════════════════════════════════════════════ */
 
-export default function SurveillanceTunnelMap({ worker, reading, zone, status = 'normal', isEmergencyMode, emergencyLevel }) {
+export default function SurveillanceTunnelMap({ worker, reading, zone, status = 'normal', isEmergencyMode, emergencyLevel, onViewDetails }) {
   const isDanger = status === 'warning' || status === 'emergency';
   const isEmergency = status === 'emergency';
   const activeZone = zone || 'Unknown';
   const rssi = reading?.rssi;
   const workerName = worker?.name || worker?.worker_id || 'Live worker';
   const hazardLabel = getHazardLabel(reading);
+
+  // ── Fake/Simulated Workers (Phase 2) ─────────────────────────
+  // Completely separate data source — no coupling to useLiveData.
+  const { fakeWorkers } = useFakeWorkers();
   const hazardState = isEmergency ? 'emergency' : isDanger ? 'warning' : 'normal';
+
+  // ── Popup state ─────────────────────────────────────────────────
+  const [popupWorkerId, setPopupWorkerId] = useState(null);
+  const [popupPos, setPopupPos] = useState({ left: '50%', top: '50%' });
+  const mapLayersRef = useRef(null);
+  const hoverTimeoutRef = useRef(null);
+
+  // cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    };
+  }, []);
 
   // ── Refs for smooth positioning ────────────────────────────────
   const refPathEl = useRef(null);          // invisible reference <path>
@@ -252,11 +270,121 @@ export default function SurveillanceTunnelMap({ worker, reading, zone, status = 
   // ── Fallback: initialise position if no RSSI yet ───────────────
   const [workerFallback] = useState({ x: NODES.zoneE.x, y: NODES.zoneE.y });
 
+  // ── Popup helpers ───────────────────────────────────
+  const REAL_WORKER_ID = 'W001';
+
+  // Convert SVG coords to CSS percentage position relative to the map container
+  const svgToPercent = useCallback((svgX, svgY) => {
+    let leftPct = (svgX / IMG_W) * 100;
+    let topPct = (svgY / IMG_H) * 100;
+    // Clamp so popup stays within visible bounds
+    leftPct = Math.max(18, Math.min(82, leftPct));
+    
+    // Place popup above the icon if in bottom half, below if in top half
+    const isBottomHalf = topPct > 50;
+    if (isBottomHalf) {
+      return { 
+        left: `${leftPct}%`, 
+        bottom: `${100 - topPct + 8}%`,
+        top: 'auto'
+      };
+    } else {
+      return { 
+        left: `${leftPct}%`, 
+        top: `${topPct + 10}%`,
+        bottom: 'auto'
+      };
+    }
+  }, []);
+
+  const handleWorkerHover = useCallback((workerId, svgX, svgY) => {
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    setPopupPos(svgToPercent(svgX, svgY));
+    setPopupWorkerId(workerId);
+  }, [svgToPercent]);
+
+  const handleWorkerLeave = useCallback(() => {
+    hoverTimeoutRef.current = setTimeout(() => {
+      setPopupWorkerId(null);
+    }, 300);
+  }, []);
+
+  const handleRealWorkerHover = useCallback(() => {
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    // Get real worker's current SVG position from the ref's transform
+    const el = workerGroupRef.current;
+    let cx = workerFallback.x;
+    let cy = workerFallback.y;
+    if (el) {
+      const transformAttr = el.getAttribute('transform');
+      const match = transformAttr?.match(/translate\(([\d.-]+)[,\s]+([\d.-]+)\)/);
+      if (match) {
+        cx = parseFloat(match[1]);
+        cy = parseFloat(match[2]);
+      }
+    }
+    handleWorkerHover(REAL_WORKER_ID, cx, cy);
+  }, [handleWorkerHover, workerFallback]);
+
+  const handlePopupEnter = useCallback(() => {
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+  }, []);
+
+  const handlePopupLeave = useCallback(() => {
+    hoverTimeoutRef.current = setTimeout(() => {
+      setPopupWorkerId(null);
+    }, 300);
+  }, []);
+
+  const closePopup = useCallback(() => {
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    setPopupWorkerId(null);
+  }, []);
+
+  // Resolve the popup worker's data for display
+  const popupWorkerData = useMemo(() => {
+    if (!popupWorkerId) return null;
+    if (popupWorkerId === REAL_WORKER_ID) {
+      return {
+        id: REAL_WORKER_ID,
+        name: workerName,
+        zone: activeZone,
+        status: status,
+        isSimulated: false,
+        vitals: {
+          temperature: reading?.temperature,
+          gas_level: reading?.gas_level,
+          force: reading?.force,
+          heart_rate: reading?.heart_rate,
+          spo2: reading?.spo2,
+          rssi: reading?.rssi,
+        },
+      };
+    }
+    const fw = fakeWorkers.find((w) => w.id === popupWorkerId);
+    if (!fw) return null;
+    return {
+      id: fw.id,
+      name: fw.name,
+      zone: fw.zone,
+      status: fw.status,
+      isSimulated: true,
+      vitals: {
+        temperature: fw.readings.temperature,
+        gas_level: fw.readings.gas_level,
+        force: fw.readings.force,
+        heart_rate: fw.readings.heart_rate,
+        spo2: fw.readings.spo2,
+        rssi: fw.rssi,
+      },
+    };
+  }, [popupWorkerId, workerName, activeZone, status, reading, fakeWorkers]);
+
   return (
     <section className={`surveillance-map-card stm-state-${hazardState}`} data-emergency-level={emergencyLevel || 'none'} aria-label="Tunnel surveillance map">
 
       {/* ── Map Layers (Image + SVG + Overlays) ── */}
-      <div className="stm-map-layers">
+      <div className="stm-map-layers" ref={mapLayersRef}>
         {/* ── Background image layer ── */}
         <div className="stm-bg-image-wrapper" aria-hidden="true">
           <img
@@ -318,6 +446,12 @@ export default function SurveillanceTunnelMap({ worker, reading, zone, status = 
                 <stop offset=".55" stopColor="#075cc8" stopOpacity=".42" />
                 <stop offset="1" stopColor="#06215b" stopOpacity="0" />
               </radialGradient>
+              {/* ── Simulated worker visual defs (Phase 2) ── */}
+              <radialGradient id="stm-sim-worker-fill">
+                <stop offset="0" stopColor="#1dcdfd" stopOpacity=".75" />
+                <stop offset=".55" stopColor="#075cc8" stopOpacity=".42" />
+                <stop offset="1" stopColor="#06215b" stopOpacity="0" />
+              </radialGradient>
               <radialGradient id="stm-hazard-fill">
                 <stop offset="0" stopColor={isEmergency ? '#fa3a37' : '#f39a39'} stopOpacity={isDanger ? '.28' : '.03'} />
                 <stop offset=".64" stopColor={isEmergency ? '#d61f33' : '#e06b20'} stopOpacity={isDanger ? '.13' : '.01'} />
@@ -371,6 +505,13 @@ export default function SurveillanceTunnelMap({ worker, reading, zone, status = 
               className="stm-worker"
               transform={`translate(${workerFallback.x} ${workerFallback.y})`}
               aria-label={`Worker position, ${workerName}`}
+              onMouseEnter={handleRealWorkerHover}
+              onMouseLeave={handleWorkerLeave}
+              onFocus={handleRealWorkerHover}
+              onBlur={handleWorkerLeave}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleRealWorkerHover(); }}
             >
               <circle className="stm-worker-pulse stm-worker-pulse-one" r="50" />
               <circle className="stm-worker-pulse stm-worker-pulse-two" r="50" />
@@ -385,8 +526,130 @@ export default function SurveillanceTunnelMap({ worker, reading, zone, status = 
               <text className="stm-worker-label" x="0" y="84">WORKER</text>
               <text className="stm-worker-name" x="0" y="102">{workerName}</text>
             </g>
+            {/* ── Simulated/Fake Worker Markers (Phase 2) ─────────────
+                 Static icons at fixed coordinates. Visually distinct from
+                 the real worker (teal/muted vs cyan/blue, dashed ring,
+                 "SIM" label). No click handlers — Phase 3 responsibility.
+                 ────────────────────────────────────────────────────────── */}
+            {fakeWorkers.map((fw) => (
+              <g
+                key={fw.id}
+                className="stm-sim-worker"
+                transform={`translate(${fw.position.x} ${fw.position.y})`}
+                aria-label={`Simulated worker, ${fw.name}, ${fw.zone}`}
+                onMouseEnter={() => handleWorkerHover(fw.id, fw.position.x, fw.position.y)}
+                onMouseLeave={handleWorkerLeave}
+                onFocus={() => handleWorkerHover(fw.id, fw.position.x, fw.position.y)}
+                onBlur={handleWorkerLeave}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleWorkerHover(fw.id, fw.position.x, fw.position.y); }}
+              >
+                {/* Subtle pulse rings — slower, muted */}
+                <circle className="stm-sim-worker-pulse stm-sim-pulse-one" r="40" />
+                <circle className="stm-sim-worker-pulse stm-sim-pulse-two" r="40" />
+                {/* Outer halo */}
+                <circle className="stm-sim-worker-halo" r="50" />
+                {/* Radial fill field */}
+                <circle className="stm-sim-worker-field" r="44" fill="url(#stm-sim-worker-fill)" />
+                {/* Dashed ring — key visual differentiator from real worker */}
+                <circle className="stm-sim-worker-ring" r="34" />
+                {/* Inner disc */}
+                <circle className="stm-sim-worker-inner" r="25" />
+                {/* Person icon (same shape, different color via CSS) */}
+                <g className="stm-sim-worker-icon">
+                  <circle cy="-8" r="5.5" />
+                  <path d="M -9 17 V 5 C -9 -1 -5.5 -3 0 -3 C 5.5 -3 9 -1 9 5 V 17 M -9 5.5 L -15 12 M 9 5.5 L 15 12 M -5.5 22 L -5.5 14 M 5.5 22 L 5.5 14" />
+                </g>
+                {/* "SIM" badge — unmistakable simulated indicator */}
+                <rect className="stm-sim-badge-bg" x="-18" y="-52" width="36" height="16" rx="4" />
+                <text className="stm-sim-badge-text" x="0" y="-40">SIM</text>
+                {/* Worker name label */}
+                <text className="stm-sim-worker-name" x="0" y="68">{fw.name}</text>
+              </g>
+            ))}
           </svg>
         </div>
+
+        {/* ── Popup Overlay (HTML, above SVG) ── */}
+        {popupWorkerId && popupWorkerData && (
+          <>
+            {/* Popup card */}
+            <div
+              className="stm-popup"
+              style={{ left: popupPos.left, top: popupPos.top, bottom: popupPos.bottom }}
+              role="dialog"
+              aria-label={`${popupWorkerData.name} vitals popup`}
+              onMouseEnter={handlePopupEnter}
+              onMouseLeave={handlePopupLeave}
+            >
+              <button className="stm-popup-close" onClick={closePopup} aria-label="Close popup" type="button">×</button>
+              {/* Header: avatar + name + meta */}
+              <div className="stm-popup-header">
+                <div className={`stm-popup-avatar ${popupWorkerData.isSimulated ? 'sim' : 'real'}`}>
+                  {popupWorkerData.id}
+                </div>
+                <div className="stm-popup-info">
+                  <div className="stm-popup-name">{popupWorkerData.name}</div>
+                  <div className="stm-popup-meta">
+                    <span className="stm-popup-id">{popupWorkerData.id}</span>
+                    <span className="stm-popup-dot-sep">•</span>
+                    <span className="stm-popup-zone">{popupWorkerData.zone}</span>
+                  </div>
+                </div>
+              </div>
+              {/* Badges: type + status */}
+              <div className="stm-popup-badges">
+                <span className={`stm-popup-badge ${popupWorkerData.isSimulated ? 'sim-badge' : 'live'}`}>
+                  {popupWorkerData.isSimulated ? 'SIMULATED' : 'LIVE'}
+                </span>
+                <span className={`stm-popup-badge status-${popupWorkerData.status}`}>
+                  <span className="stm-popup-badge-dot" />
+                  {popupWorkerData.status === 'normal' ? 'Normal' : popupWorkerData.status === 'warning' ? 'Warning' : 'Emergency'}
+                </span>
+              </div>
+              {/* Compact vitals grid (3x2) */}
+              <div className="stm-popup-vitals">
+                <div className="stm-popup-vital">
+                  <span className="stm-popup-vital-label">TEMP</span>
+                  <span className="stm-popup-vital-value">{popupWorkerData.vitals.temperature != null ? `${Number(popupWorkerData.vitals.temperature).toFixed(1)}°` : '--'}</span>
+                </div>
+                <div className="stm-popup-vital">
+                  <span className="stm-popup-vital-label">GAS</span>
+                  <span className="stm-popup-vital-value">{popupWorkerData.vitals.gas_level != null ? `${Math.round(popupWorkerData.vitals.gas_level)}` : '--'}</span>
+                </div>
+                <div className="stm-popup-vital">
+                  <span className="stm-popup-vital-label">FORCE</span>
+                  <span className="stm-popup-vital-value">{popupWorkerData.vitals.force != null ? `${Math.round(popupWorkerData.vitals.force)}` : '--'}</span>
+                </div>
+                <div className="stm-popup-vital">
+                  <span className="stm-popup-vital-label">PULSE</span>
+                  <span className="stm-popup-vital-value">{popupWorkerData.vitals.heart_rate != null ? `${Math.round(popupWorkerData.vitals.heart_rate)}` : '--'}</span>
+                </div>
+                <div className="stm-popup-vital">
+                  <span className="stm-popup-vital-label">SpO₂</span>
+                  <span className="stm-popup-vital-value">{popupWorkerData.vitals.spo2 != null ? `${Number(popupWorkerData.vitals.spo2).toFixed(0)}%` : '--'}</span>
+                </div>
+                <div className="stm-popup-vital">
+                  <span className="stm-popup-vital-label">RSSI</span>
+                  <span className="stm-popup-vital-value">{popupWorkerData.vitals.rssi != null ? `${popupWorkerData.vitals.rssi}` : '--'}</span>
+                </div>
+              </div>
+              {/* View Details button */}
+              <button
+                className="stm-popup-action"
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  closePopup();
+                  if (onViewDetails) onViewDetails(popupWorkerData.id);
+                }}
+              >
+                View Details →
+              </button>
+            </div>
+          </>
+        )}
       </div>
 
       {/* ── Footer: legend + live readouts ── */}
@@ -396,6 +659,7 @@ export default function SurveillanceTunnelMap({ worker, reading, zone, status = 
           <span className="stm-legend-item"><i className="stm-legend-swatch worker" />Worker Position</span>
           <span className="stm-legend-item"><i className="stm-legend-swatch rescue" />Rescue Path</span>
           <span className="stm-legend-item"><i className="stm-legend-swatch hazard" />Hazard Zone</span>
+          <span className="stm-legend-item"><i className="stm-legend-swatch simulated" />Simulated Worker</span>
         </div>
         <div className="surveillance-map-summary">
           <div className="stm-summary-block"><span>Current zone</span><strong>{activeZone}</strong></div>

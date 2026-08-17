@@ -60,7 +60,8 @@
 .dashboard-root[data-emergency-level="critical"] .env-trends-panel,
 .dashboard-root[data-emergency-level="critical"] .alerts-card,
 .dashboard-root[data-emergency-level="critical"] .sensor-trends-card,
-.dashboard-root[data-emergency-level="critical"] .active-alarm-banner {
+.dashboard-root[data-emergency-level="critical"] .active-alarm-banner,
+.dashboard-root[data-emergency-level="critical"] .ws-block {
   animation: component-pulse-critical var(--emergency-pulse-duration) ease-in-out infinite;
 }
 
