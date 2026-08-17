@@ -406,7 +406,7 @@ class Gradient {
         this.started = true;
       }
 
-      this.time += Math.min(timestamp - this.last, 1000 / 15);
+      this.time += Math.min(timestamp - this.last, 1000 / 60);
       this.last = timestamp;
       this.mesh.material.uniforms.u_time.value = this.time;
       this.minigl.render();
