@@ -5,6 +5,7 @@ import SplashScreen from './components/SplashScreen';
 import Dashboard from './pages/Dashboard';
 import tunnelMapBg from './assets/tunnel-map-background.png';
 import './styles/global.css';
+import { Analytics } from '@vercel/analytics/react';
 
 const SPLASH_EXIT_MS = 900;   // splash fade-out duration (matches CSS)
 const REVEAL_DELAY_MS = 200;  // extra buffer after splash exit before reveal
@@ -59,6 +60,8 @@ function App() {
           exiting={phase === 'exiting'}
         />
       )}
+      
+      <Analytics />
     </>
   );
 }
