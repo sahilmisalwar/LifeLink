@@ -360,6 +360,7 @@ export default function Dashboard() {
             {/* ── Active Alarm Banner (emergency mode only) ── */}
             <ActiveAlarmBanner
               alerts={alerts}
+              reading={effectiveReading}
               status={effectiveStatus}
               isEmergencyMode={isEmergencyMode}
               emergencyLevel={emergencyLevel}

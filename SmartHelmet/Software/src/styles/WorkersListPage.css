@@ -1,0 +1,304 @@
+/* SmartHelmet/Software/src/styles/WorkersListPage.css */
+
+/* ══════════════════════════════════════════════════════════════
+   WORKERS LIST PAGE (Blocks View)
+   Renders workers in a responsive grid of card blocks.
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── Page header ─────────────────────────────────────────────── */
+.wlp-header {
+  margin-bottom: 24px;
+}
+
+.wlp-title {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #e6edf3;
+  letter-spacing: 0.02em;
+}
+
+.wlp-subtitle {
+  font-size: 0.72rem;
+  color: #8b949e;
+  margin-top: 4px;
+  letter-spacing: 0.03em;
+}
+
+/* ── Workers Grid Layout ─────────────────────────────────────── */
+.wlp-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 40px;
+}
+
+/* ── Worker Block Card ───────────────────────────────────────── */
+.wlp-block-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 280px;
+  padding: 40px 32px; /* Huge padding */
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.01) 100%);
+  backdrop-filter: blur(48px) saturate(120%);
+  -webkit-backdrop-filter: blur(48px) saturate(120%);
+  box-shadow: 
+    inset 0 1px 1px rgba(255, 255, 255, 0.15),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.2),
+    0 8px 24px rgba(0, 0, 0, 0.3);
+  transition: border-color 220ms ease, box-shadow 220ms ease, transform 220ms ease, background 220ms ease;
+  cursor: pointer;
+  outline: none;
+}
+
+.wlp-block-card:hover,
+.wlp-block-card:focus-visible {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.02) 100%);
+  border-color: rgba(91, 143, 185, 0.4);
+  box-shadow: 
+    inset 0 1px 1px rgba(255, 255, 255, 0.25),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.2),
+    0 12px 32px rgba(0, 0, 0, 0.5), 
+    0 0 20px rgba(91, 143, 185, 0.12);
+  transform: translateY(-4px);
+}
+
+/* ── Card Top: Avatar, Name, Status ──────────────────────────── */
+.wlp-block-top {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.wlp-avatar {
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: #c4f7ff;
+}
+
+.wlp-avatar.real {
+  background: linear-gradient(135deg, rgba(5, 55, 151, 0.55), rgba(7, 92, 200, 0.35));
+  border: 2px solid rgba(55, 216, 255, 0.50);
+  box-shadow: 0 0 14px rgba(55, 216, 255, 0.15);
+}
+
+.wlp-avatar.simulated {
+  background: linear-gradient(135deg, rgba(5, 55, 151, 0.40), rgba(7, 92, 200, 0.22));
+  border: 2px solid rgba(55, 216, 255, 0.35);
+}
+
+.wlp-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.wlp-name-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.wlp-name {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #e6edf3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wlp-sim-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: rgba(55, 216, 255, 0.10);
+  border: 1px solid rgba(55, 216, 255, 0.30);
+  font-size: 0.46rem;
+  font-weight: 900;
+  color: #7be4ff;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.wlp-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 3px;
+}
+
+.wlp-id {
+  font-size: 0.62rem;
+  font-weight: 600;
+  color: #8b949e;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.wlp-dot-sep {
+  font-size: 0.60rem;
+  color: rgba(139, 148, 158, 0.4);
+}
+
+.wlp-zone {
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: rgba(55, 216, 255, 0.75);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* ── Status badge ────────────────────────────────────────────── */
+.wlp-status {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 9px;
+  border-radius: 16px;
+  font-size: 0.54rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.wlp-status.normal {
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.30);
+  color: #34d399;
+}
+
+.wlp-status.warning {
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.30);
+  color: #fbbf24;
+}
+
+.wlp-status.emergency {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.30);
+  color: #f87171;
+  animation: wlp-status-blink 1s ease-in-out infinite;
+}
+
+@keyframes wlp-status-blink {
+  50% { opacity: 0.5; }
+}
+
+.wlp-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.wlp-status.normal .wlp-status-dot {
+  background: #10b981;
+  box-shadow: 0 0 6px rgba(16, 185, 129, 0.5);
+}
+
+.wlp-status.warning .wlp-status-dot {
+  background: #f59e0b;
+  box-shadow: 0 0 6px rgba(245, 158, 11, 0.5);
+}
+
+.wlp-status.emergency .wlp-status-dot {
+  background: #ef4444;
+  box-shadow: 0 0 6px rgba(239, 68, 68, 0.5);
+}
+
+/* ── 2x2 Vitals Grid ─────────────────────────────────────────── */
+.wlp-vitals-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.wlp-vital-tile {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 9px 12px;
+  border-radius: 12px;
+  background: rgba(6, 11, 40, 0.45);
+  border: 1px solid rgba(99, 110, 123, 0.15);
+  transition: background 150ms ease, border-color 150ms ease;
+}
+
+.wlp-block-card:hover .wlp-vital-tile {
+  background: rgba(6, 11, 40, 0.65);
+  border-color: rgba(55, 216, 255, 0.20);
+}
+
+.wlp-vital-label {
+  font-size: 0.50rem;
+  font-weight: 700;
+  color: #8b949e;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+.wlp-vital-val {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #bfeeff;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+}
+
+/* ── Footer Link ─────────────────────────────────────────────── */
+.wlp-block-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-top: 10px;
+  border-top: 1px solid rgba(99, 110, 123, 0.15);
+}
+
+.wlp-view-link {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: rgba(55, 216, 255, 0.70);
+  letter-spacing: 0.05em;
+  transition: color 150ms ease, transform 150ms ease;
+}
+
+.wlp-block-card:hover .wlp-view-link {
+  color: #2ad4ff;
+  transform: translateX(2px);
+}
+
+/* ── Responsive ──────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .wlp-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .wlp-block-card {
+    padding: 16px;
+  }
+}
+
+/* ── Accessibility ───────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .wlp-status.emergency {
+    animation: none;
+  }
+  .wlp-block-card,
+  .wlp-view-link {
+    transition: none;
+  }
+}

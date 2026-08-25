@@ -199,7 +199,7 @@ export function runDijkstra(graph, start, end) {
 export function getWorkerStatus(reading) {
   if (!reading) return STATUS.NORMAL;
 
-  const { temperature, gas_level, force, fall_detected, heart_rate } = reading;
+  const { temperature, gas_level, force, fall_detected, heart_rate, sos_triggered } = reading;
 
   const hrEmergency = heart_rate > 0 &&
     (heart_rate <= THRESHOLDS.heart_rate.emergencyLow || heart_rate >= THRESHOLDS.heart_rate.emergencyHigh);
@@ -212,6 +212,7 @@ export function getWorkerStatus(reading) {
     gas_level >= THRESHOLDS.gas_level.emergency ||
     force >= THRESHOLDS.force.emergency ||
     fall_detected ||
+    sos_triggered ||
     hrEmergency
   ) {
     return STATUS.EMERGENCY;

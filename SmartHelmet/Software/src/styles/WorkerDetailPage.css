@@ -1,0 +1,336 @@
+/* SmartHelmet/Software/src/styles/WorkerDetailPage.css */
+
+/* ══════════════════════════════════════════════════════════════
+   WORKER DETAIL PAGE — Phase 5
+   Full detail view with charts for any selected worker.
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── Back button ─────────────────────────────────────────────── */
+.wdp-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border: 1px solid rgba(99, 110, 123, 0.30);
+  border-radius: 8px;
+  background: rgba(13, 17, 23, 0.60);
+  color: #8b949e;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: border-color 150ms, color 150ms, background 150ms;
+  margin-bottom: 16px;
+}
+
+.wdp-back:hover {
+  border-color: rgba(55, 216, 255, 0.40);
+  color: #c4f7ff;
+  background: rgba(5, 30, 60, 0.50);
+}
+
+/* ── Page header card ────────────────────────────────────────── */
+.wdp-header-card {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 22px 28px;
+  border-radius: 18px;
+  border: 1px solid rgba(99, 110, 123, 0.25);
+  background: linear-gradient(135deg, rgba(13, 17, 23, 0.78) 28%, rgba(22, 27, 34, 0.74) 91%);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  margin-bottom: 20px;
+}
+
+.wdp-avatar {
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: #c4f7ff;
+}
+
+.wdp-avatar.real {
+  background: linear-gradient(135deg, rgba(5, 55, 151, 0.55), rgba(7, 92, 200, 0.35));
+  border: 2px solid rgba(55, 216, 255, 0.50);
+  box-shadow: 0 0 18px rgba(55, 216, 255, 0.15);
+}
+
+.wdp-avatar.simulated {
+  background: linear-gradient(135deg, rgba(5, 55, 151, 0.40), rgba(7, 92, 200, 0.22));
+  border: 2px solid rgba(55, 216, 255, 0.35);
+}
+
+.wdp-header-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.wdp-name-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.wdp-name {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #e6edf3;
+}
+
+.wdp-type-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-size: 0.52rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.wdp-type-badge.live {
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.40);
+  color: #34d399;
+}
+
+.wdp-type-badge.sim {
+  background: rgba(55, 216, 255, 0.10);
+  border: 1px solid rgba(55, 216, 255, 0.30);
+  color: #7be4ff;
+}
+
+.wdp-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 4px;
+}
+
+.wdp-meta-item {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: #8b949e;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.wdp-meta-item span {
+  color: rgba(55, 216, 255, 0.75);
+  margin-left: 4px;
+}
+
+/* ── Status badge (header) ───────────────────────────────────── */
+.wdp-status {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.wdp-status.normal {
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.30);
+  color: #34d399;
+}
+
+.wdp-status.warning {
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.30);
+  color: #fbbf24;
+}
+
+.wdp-status.emergency {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.30);
+  color: #f87171;
+}
+
+.wdp-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.wdp-status.normal .wdp-status-dot { background: #10b981; box-shadow: 0 0 8px rgba(16,185,129,.5); }
+.wdp-status.warning .wdp-status-dot { background: #f59e0b; box-shadow: 0 0 8px rgba(245,158,11,.5); }
+.wdp-status.emergency .wdp-status-dot { background: #ef4444; box-shadow: 0 0 8px rgba(239,68,68,.5); }
+
+/* ── Mini KPI strip ──────────────────────────────────────────── */
+.wdp-kpi-strip {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.wdp-kpi {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 14px 8px;
+  border-radius: 14px;
+  border: 1px solid rgba(99, 110, 123, 0.20);
+  background: linear-gradient(135deg, rgba(13, 17, 23, 0.65), rgba(22, 27, 34, 0.60));
+}
+
+.wdp-kpi-icon {
+  color: #8b949e;
+}
+
+.wdp-kpi-value {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #bfeeff;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+}
+
+.wdp-kpi-label {
+  font-size: 0.50rem;
+  font-weight: 700;
+  color: #8b949e;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+}
+
+.wdp-kpi-unit {
+  font-size: 0.55rem;
+  color: rgba(139, 148, 158, 0.7);
+  font-weight: 600;
+}
+
+/* ── Charts grid ─────────────────────────────────────────────── */
+.wdp-charts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.wdp-chart-card {
+  padding: 18px 20px;
+  border-radius: 16px;
+  border: 1px solid rgba(99, 110, 123, 0.20);
+  background: linear-gradient(135deg, rgba(13, 17, 23, 0.70), rgba(22, 27, 34, 0.65));
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.wdp-chart-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.wdp-chart-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #e6edf3;
+  letter-spacing: 0.03em;
+}
+
+.wdp-chart-title svg {
+  opacity: 0.7;
+}
+
+.wdp-chart-current {
+  font-size: 0.85rem;
+  font-weight: 800;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+}
+
+.wdp-chart-area {
+  height: 180px;
+}
+
+/* ── ECG waveform card (spans full width) ────────────────────── */
+.wdp-chart-card.ecg {
+  grid-column: 1 / -1;
+}
+
+.wdp-chart-card.ecg .wdp-chart-area {
+  height: 140px;
+}
+
+/* ── Not found state ─────────────────────────────────────────── */
+.wdp-not-found {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 80px 20px;
+  text-align: center;
+}
+
+.wdp-not-found-icon {
+  font-size: 3rem;
+  opacity: 0.4;
+}
+
+.wdp-not-found-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #e6edf3;
+}
+
+.wdp-not-found-text {
+  font-size: 0.78rem;
+  color: #8b949e;
+}
+
+/* ── Responsive ──────────────────────────────────────────────── */
+@media (max-width: 1100px) {
+  .wdp-header-card {
+    flex-wrap: wrap;
+    padding: 16px 18px;
+    gap: 14px;
+  }
+
+  .wdp-kpi-strip {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .wdp-charts-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .wdp-kpi-strip {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .wdp-name {
+    font-size: 1rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wdp-back,
+  .wdp-header-card {
+    transition: none;
+  }
+}

@@ -222,7 +222,8 @@
 /* ── Accessibility: reduced motion ─────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   .active-alarm-banner[data-emergency-level="elevated"],
-  .active-alarm-banner[data-emergency-level="critical"] {
+  .active-alarm-banner[data-emergency-level="critical"],
+  .active-alarm-banner.aab-sos {
     animation: none;
   }
 
@@ -234,5 +235,66 @@
   .active-alarm-banner[data-emergency-level="critical"] {
     border-color: rgba(239, 68, 68, 0.4);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35), 0 0 30px -4px rgba(239, 68, 68, 0.18);
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   SOS ACTIVATED — intense red/orange pulsing banner
+   Overrides all other emergency levels when .aab-sos is present
+   ══════════════════════════════════════════════════════════════ */
+
+.active-alarm-banner.aab-sos {
+  padding: 22px 28px;
+  border-color: rgba(255, 50, 50, 0.5);
+  background: linear-gradient(126.97deg, rgba(60, 10, 10, 0.9) 28%, rgba(40, 5, 5, 0.85) 91%);
+  animation: aab-pulse-sos 1s ease-in-out infinite;
+}
+
+.active-alarm-banner.aab-sos .aab-indicator {
+  width: 6px;
+  background: #ff3232;
+  box-shadow: 0 0 24px rgba(255, 50, 50, 0.8);
+}
+
+.active-alarm-banner.aab-sos .aab-severity {
+  color: #ff5252;
+  font-size: 0.85rem;
+  letter-spacing: 0.18em;
+}
+
+.active-alarm-banner.aab-sos .aab-message {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.active-alarm-banner.aab-sos .aab-icon {
+  color: #ff3232;
+  filter: drop-shadow(0 0 8px rgba(255, 50, 50, 0.6));
+  font-size: 1.8rem;
+}
+
+.active-alarm-banner.aab-sos .aab-acknowledge-btn {
+  padding: 10px 24px;
+  border-color: rgba(255, 50, 50, 0.5);
+  background: rgba(255, 50, 50, 0.12);
+  font-size: 0.8rem;
+}
+
+.active-alarm-banner.aab-sos .aab-acknowledge-btn:hover {
+  border-color: rgba(255, 50, 50, 0.8);
+  background: rgba(255, 50, 50, 0.2);
+}
+
+@keyframes aab-pulse-sos {
+  0%, 100% {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4),
+                0 0 0 0 rgba(255, 50, 50, 0);
+    border-color: rgba(255, 50, 50, 0.35);
+  }
+  50% {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4),
+                0 0 50px -4px rgba(255, 50, 50, 0.35);
+    border-color: rgba(255, 50, 50, 0.7);
   }
 }
