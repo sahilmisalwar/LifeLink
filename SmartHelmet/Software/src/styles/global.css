@@ -46,6 +46,11 @@
   padding: 0;
 }
 
+/* ===== Prevent horizontal scroll/swipe revealing off-screen panels ===== */
+html {
+  overflow-x: hidden;
+}
+
 /* ===== Body ===== */
 body {
   font-family: var(--font-family);
@@ -55,6 +60,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   zoom: 0.8;
+  overflow-x: hidden;
 }
 
 /* ===== Scrollbar Styling ===== */

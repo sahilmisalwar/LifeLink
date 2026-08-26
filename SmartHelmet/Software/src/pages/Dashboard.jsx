@@ -421,7 +421,7 @@ export default function Dashboard() {
               />
             </div>
 
-            {/* ── Row 2: Tunnel Map + Worker Status side-by-side ── */}
+            {/* ── Row 2: Tunnel Map ── */}
             <div className="map-worker-row">
               <section className="map-hero-wrap dashboard-map-viewport" ref={viewportRef}>
                 {showHint && <div className="dashboard-zoom-hint">Double-tap to reset &bull; Pinch to zoom</div>}
@@ -437,18 +437,6 @@ export default function Dashboard() {
                   />
                 </div>
               </section>
-              <aside className="worker-status-sidebar">
-                <WorkerSelector
-                  realWorker={worker}
-                  realStatus={effectiveStatus}
-                  realZone={currentZone}
-                  fakeWorkers={fakeWorkers}
-                  selectedWorkerId={selectedWorkerId}
-                  onSelect={setSelectedWorkerId}
-                  onViewDetails={navigateToWorkerDetail}
-                  vertical
-                />
-              </aside>
             </div>
 
             {/* ── Row 3: Alerts ─────────── */}
@@ -480,18 +468,16 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen dashboard-root" data-emergency-level={emergencyLevel} data-acknowledged={acknowledged} style={{ position: 'relative', background: '#080c14' }}>
+    <div className="min-h-screen dashboard-root" data-emergency-level={emergencyLevel} data-acknowledged={acknowledged} style={{ position: 'relative', background: '#080c14', overflowX: 'hidden' }}>
       {/* ── Custom Animated WebGL Background ───────────── */}
       <div
         style={{
           position: 'fixed',
-          top: 0,
-          left: 0,
-          width: '125vw',
-          height: '125vh',
+          inset: 0,
           zIndex: 0,
           pointerEvents: 'none',
           opacity: 0.6,
+          overflow: 'hidden',
         }}
       >
         <GradientWave
