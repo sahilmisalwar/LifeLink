@@ -421,7 +421,7 @@ export default function Dashboard() {
               />
             </div>
 
-            {/* ── Row 2: Tunnel Map ── */}
+            {/* ── Row 2: Tunnel Map + Worker Status side-by-side ── */}
             <div className="map-worker-row">
               <section className="map-hero-wrap dashboard-map-viewport" ref={viewportRef}>
                 {showHint && <div className="dashboard-zoom-hint">Double-tap to reset &bull; Pinch to zoom</div>}
@@ -437,6 +437,18 @@ export default function Dashboard() {
                   />
                 </div>
               </section>
+              <aside className="worker-status-sidebar">
+                <WorkerSelector
+                  realWorker={worker}
+                  realStatus={effectiveStatus}
+                  realZone={currentZone}
+                  fakeWorkers={fakeWorkers}
+                  selectedWorkerId={selectedWorkerId}
+                  onSelect={setSelectedWorkerId}
+                  onViewDetails={navigateToWorkerDetail}
+                  vertical
+                />
+              </aside>
             </div>
 
             {/* ── Row 3: Alerts ─────────── */}
