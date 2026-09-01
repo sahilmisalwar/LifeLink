@@ -73,6 +73,14 @@ export async function getWorker() {
 }
 
 export async function insertDemoReading(data) {
+  // ── SECURITY: Block database writes in production ──
+  // This function is only for local development/demo purposes.
+  // In production, sensor data should only come from the ESP32 gateway.
+  if (process.env.NODE_ENV === 'production') {
+    console.warn('[Security] insertDemoReading blocked in production.');
+    return null;
+  }
+
   try {
     const { data: insertedData, error } = await supabase
       .from('sensor_readings')

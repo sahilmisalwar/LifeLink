@@ -12,14 +12,17 @@
 #include <ArduinoJson.h>
 
 // ---------------- WiFi credentials ----------------
-const char* WIFI_SSID = ".......";
-const char* WIFI_PASSWORD = "10891089";
+// ⚠️ SECURITY: Replace with your WiFi credentials before flashing.
+//    Do NOT commit real values to Git — use a secrets.h file instead.
+const char* WIFI_SSID = "YOUR_WIFI_SSID";
+const char* WIFI_PASSWORD = "YOUR_WIFI_PASSWORD";
 
 // ---------------- Supabase credentials ----------------
-// NEVER commit real values to GitHub — replace before flashing, and add this
-// file to .gitignore once real keys are in, or use a separate secrets.h file.
-const char* SUPABASE_URL = "https://gcjqwragkfjqasuzevkr.supabase.co";
-const char* SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdjanF3cmFna2ZqcWFzdXpldmtyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUwNzExMDMsImV4cCI6MjEwMDY0NzEwM30.OT9kdU-Sjy86gDb0QmYr78cOn8zNTbn7klhIdM7yQqE";
+// ⚠️ SECURITY: Replace with your Supabase project credentials before flashing.
+//    Get these from: Supabase Dashboard → Settings → API
+//    Do NOT commit real values to Git — use a secrets.h file instead.
+const char* SUPABASE_URL = "YOUR_SUPABASE_URL";
+const char* SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
 
 // ---------------- Worker ----------------
 const char* WORKER_ID = "W001";

@@ -1,7 +1,16 @@
 // SmartHelmet/Software/src/utils/constants.js
 
-export const SUPABASE_URL = 'https://gcjqwragkfjqasuzevkr.supabase.co';
-export const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdjanF3cmFna2ZqcWFzdXpldmtyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUwNzExMDMsImV4cCI6MjEwMDY0NzEwM30.OT9kdU-Sjy86gDb0QmYr78cOn8zNTbn7klhIdM7yQqE';
+// Supabase credentials loaded from environment variables (.env locally, Vercel env vars in production)
+// NEVER hardcode these values — they are in .env (gitignored) and Vercel Dashboard → Settings → Environment Variables
+export const SUPABASE_URL = process.env.REACT_APP_SUPABASE_URL;
+export const SUPABASE_ANON_KEY = process.env.REACT_APP_SUPABASE_ANON_KEY;
+
+if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+  console.error(
+    '⚠️ Missing Supabase environment variables. ' +
+    'Create a .env file in SmartHelmet/Software/ with REACT_APP_SUPABASE_URL and REACT_APP_SUPABASE_ANON_KEY.'
+  );
+}
 
 export const WORKER_ID = 'W001';
 
