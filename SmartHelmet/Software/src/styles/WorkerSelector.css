@@ -61,6 +61,11 @@
   background: linear-gradient(90deg, transparent, #37d8ff, transparent);
 }
 
+/* ── Emergency state ────────────────────────────────────────── */
+.ws-block.emergency:not(.ws-acknowledged-block) {
+  animation: component-pulse-critical var(--emergency-pulse-duration, 1.6s) ease-in-out infinite;
+}
+
 /* ── Header row: name + status dot ───────────────────────────── */
 .ws-header {
   display: flex;
@@ -106,6 +111,11 @@
   background: #ef4444;
   box-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
   animation: ws-dot-blink 0.7s ease-in-out infinite;
+}
+
+.ws-status-dot.ws-acknowledged {
+  animation: none !important;
+  opacity: 0.6;
 }
 
 @keyframes ws-dot-blink {

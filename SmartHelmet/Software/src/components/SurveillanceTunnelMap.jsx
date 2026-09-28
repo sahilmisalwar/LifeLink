@@ -119,7 +119,18 @@ function getHazardLabel(reading) {
    MAIN COMPONENT
    ═══════════════════════════════════════════════════════════════ */
 
-export default function SurveillanceTunnelMap({ worker, reading, zone, status = 'normal', isEmergencyMode, emergencyLevel, onViewDetails }) {
+export default function SurveillanceTunnelMap({
+  worker,
+  reading,
+  zone,
+  status = 'normal',
+  isEmergencyMode,
+  emergencyLevel,
+  onViewDetails,
+  evaluatedWorkers = [],
+  activeEmergency = null,
+  acknowledgedWorkerIds = new Set(),
+}) {
   const isDanger = status === 'warning' || status === 'emergency';
   const isEmergency = status === 'emergency';
   const activeZone = zone || 'Unknown';
@@ -127,10 +138,61 @@ export default function SurveillanceTunnelMap({ worker, reading, zone, status = 
   const workerName = worker?.name || worker?.worker_id || 'Live worker';
   const hazardLabel = getHazardLabel(reading);
 
-  // ── Fake/Simulated Workers (Phase 2) ─────────────────────────
-  // Completely separate data source — no coupling to useLiveData.
-  const { fakeWorkers } = useFakeWorkers();
-  const hazardState = isEmergency ? 'emergency' : isDanger ? 'warning' : 'normal';
+  // Use evaluatedWorkers provided by Dashboard
+  const fakeWorkers = useMemo(() => evaluatedWorkers.filter(w => w.isSimulated), [evaluatedWorkers]);
+  const realWorker = useMemo(() => evaluatedWorkers.find(w => !w.isSimulated) || { emergency: null }, [evaluatedWorkers]);
+  
+  // The global hazard state for environmental hazards
+  const hazardState = activeEmergency?.isEnvironmental ? activeEmergency.severity : 'normal';
+
+  const { ZONE_COORDINATES } = require('../utils/constants');
+  
+  const zoneCoordinates = useMemo(() => {
+    const coords = { ...ZONE_COORDINATES };
+    fakeWorkers.forEach(w => {
+      if (!coords[w.zone] && w.position) {
+        coords[w.zone] = w.position;
+      }
+    });
+    return coords;
+  }, [fakeWorkers, ZONE_COORDINATES]);
+
+  const hazardZoneCoords = activeEmergency?.isEnvironmental ? zoneCoordinates[activeEmergency.zoneId] : null;
+
+  const renderEmergencyPopup = (w) => {
+    if (!w.emergency || (w.status !== 'emergency' && w.status !== 'warning')) return null;
+    // Hide if acknowledged
+    if (acknowledgedWorkerIds.has(w.id)) return null;
+    
+    // Only display gas info if we have the reading (we only have it for the real worker anyway, or we can just omit it)
+    const readingValue = !w.isSimulated && w.emergency.type === 'GAS' ? `${reading?.gas_level} ppm` : null;
+
+    const isWarning = w.status === 'warning';
+    const borderColor = isWarning ? '#f59e0b' : '#ef4444';
+    const shadowColor = isWarning ? 'rgba(245, 158, 11, 0.4)' : 'rgba(239, 68, 68, 0.4)';
+    const textColor = isWarning ? '#fbbf24' : '#ef4444';
+    const icon = isWarning ? '🟡' : '🚨';
+
+    return (
+      <foreignObject x="30" y="-120" width="220" height="120" style={{ pointerEvents: 'none' }}>
+        <div style={{
+          background: 'rgba(15, 20, 25, 0.95)',
+          border: `1px solid ${borderColor}`,
+          borderRadius: '8px',
+          padding: '12px',
+          color: 'white',
+          fontSize: '13px',
+          boxShadow: `0 4px 16px ${shadowColor}`,
+          fontFamily: 'monospace'
+        }}>
+          <div style={{ color: textColor, fontWeight: 'bold', marginBottom: '6px' }}>{icon} {w.emergency.type.replace(/_/g, ' ')} {w.emergency.type === 'WEAK_SIGNAL' ? '' : 'DETECTED'}</div>
+          <div>Worker: {w.id}</div>
+          <div>Location: {w.zone}</div>
+          {readingValue && <div style={{ marginTop: '4px', color: '#fca5a5' }}>Value: {readingValue}</div>}
+        </div>
+      </foreignObject>
+    );
+  };
 
   // ── Popup state ─────────────────────────────────────────────────
   const [popupWorkerId, setPopupWorkerId] = useState(null);
@@ -459,18 +521,20 @@ export default function SurveillanceTunnelMap({ worker, reading, zone, status = 
               </radialGradient>
             </defs>
 
-            {/* ── Hazard zone pulse (positioned near Abandoned Area in the image) ── */}
-            <g className={`stm-hazard-zone ${hazardState}`} aria-label={isDanger ? hazardLabel : 'Dormant hazard zone'}>
-              <circle className="stm-hazard-haze" cx="1380" cy="340" r="140" fill="url(#stm-hazard-fill)" />
-              <circle className="stm-hazard-contour" cx="1380" cy="340" r="120" />
-              {isDanger && (
-                <g className="stm-hazard-copy" transform="translate(1380 340)">
-                  <path d="M 0 -35 L 31 20 L -31 20 Z" />
-                  <path className="stm-hazard-person" d="M 0 -19 a4 4 0 1 0 0 .1 M 0 -12 v17 M -11 -2 L 0 -8 L 11 -2 M -6 15 L 0 5 L 6 15" />
-                  <text x="0" y="56">{hazardLabel}</text>
-                </g>
-              )}
-            </g>
+            {/* ── Hazard zone pulse (positioned dynamically based on emergency zone) ── */}
+            {hazardZoneCoords && (
+              <g className={`stm-hazard-zone ${hazardState}`} aria-label={isDanger ? hazardLabel : 'Dormant hazard zone'}>
+                <circle className="stm-hazard-haze" cx={hazardZoneCoords.x} cy={hazardZoneCoords.y} r="140" fill="url(#stm-hazard-fill)" />
+                <circle className="stm-hazard-contour" cx={hazardZoneCoords.x} cy={hazardZoneCoords.y} r="120" />
+                {isDanger && (
+                  <g className="stm-hazard-copy" transform={`translate(${hazardZoneCoords.x} ${hazardZoneCoords.y})`}>
+                    <path d="M 0 -35 L 31 20 L -31 20 Z" />
+                    <path className="stm-hazard-person" d="M 0 -19 a4 4 0 1 0 0 .1 M 0 -12 v17 M -11 -2 L 0 -8 L 11 -2 M -6 15 L 0 5 L 6 15" />
+                    <text x="0" y="56">{hazardLabel}</text>
+                  </g>
+                )}
+              </g>
+            )}
 
             {/* ── Idle path glow (always visible, fades out during emergency) ── */}
             <g className={`stm-idle-glow ${hazardState}`} strokeLinecap="round" mask="url(#idle-glow-mask)" aria-hidden="true">
@@ -502,7 +566,7 @@ export default function SurveillanceTunnelMap({ worker, reading, zone, status = 
             {/* ── Live Worker Marker (positioned by rAF loop) ── */}
             <g
               ref={workerGroupRef}
-              className="stm-worker"
+              className={`stm-worker ${realWorker.status === 'emergency' ? 'emergency' : realWorker.status === 'warning' ? 'warning' : ''}`}
               transform={`translate(${workerFallback.x} ${workerFallback.y})`}
               aria-label={`Worker position, ${workerName}`}
               onMouseEnter={handleRealWorkerHover}
@@ -525,6 +589,7 @@ export default function SurveillanceTunnelMap({ worker, reading, zone, status = 
               </g>
               <text className="stm-worker-label" x="0" y="84">WORKER</text>
               <text className="stm-worker-name" x="0" y="102">{workerName}</text>
+              {renderEmergencyPopup(realWorker)}
             </g>
             {/* ── Simulated/Fake Worker Markers (Phase 2) ─────────────
                  Static icons at fixed coordinates. Visually distinct from
@@ -534,7 +599,7 @@ export default function SurveillanceTunnelMap({ worker, reading, zone, status = 
             {fakeWorkers.map((fw) => (
               <g
                 key={fw.id}
-                className="stm-sim-worker"
+                className={`stm-sim-worker ${fw.status === 'emergency' ? 'emergency' : fw.status === 'warning' ? 'warning' : ''}`}
                 transform={`translate(${fw.position.x} ${fw.position.y})`}
                 aria-label={`Simulated worker, ${fw.name}, ${fw.zone}`}
                 onMouseEnter={() => handleWorkerHover(fw.id, fw.position.x, fw.position.y)}
@@ -566,6 +631,7 @@ export default function SurveillanceTunnelMap({ worker, reading, zone, status = 
                 <text className="stm-sim-badge-text" x="0" y="-40">SIM</text>
                 {/* Worker name label */}
                 <text className="stm-sim-worker-name" x="0" y="68">{fw.name}</text>
+                {renderEmergencyPopup(fw)}
               </g>
             ))}
           </svg>

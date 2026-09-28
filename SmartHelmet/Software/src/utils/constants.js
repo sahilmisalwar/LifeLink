@@ -41,6 +41,7 @@ export const THRESHOLDS = {
   force:       { warning: 17000, emergency: 20000 },
   heart_rate:  { warningLow: 50, warningHigh: 120, emergencyLow: 40, emergencyHigh: 150 },
   spo2:        { warning: 94, emergency: 90 },
+  rssi:        { warning: -70 },
 };
 
 export const STATUS = {
@@ -78,6 +79,10 @@ export function getSensorStatus(reading, field) {
   if (field === 'heart_rate') {
     if (val > 0 && (val <= THRESHOLDS.heart_rate.emergencyLow || val >= THRESHOLDS.heart_rate.emergencyHigh)) return 'emergency';
     if (val > 0 && (val <= THRESHOLDS.heart_rate.warningLow || val >= THRESHOLDS.heart_rate.warningHigh)) return 'warning';
+    return 'normal';
+  }
+  if (field === 'rssi') {
+    if (val < THRESHOLDS.rssi.warning) return 'warning';
     return 'normal';
   }
   return 'normal';

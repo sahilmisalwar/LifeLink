@@ -63,14 +63,173 @@ export default function Dashboard() {
   const [demoMode, setDemoMode] = useState(false);
   const [demoReading, setDemoReading] = useState(null);
 
-  // ── Alarm Acknowledgement State ─────────────────────────
-  const [acknowledged, setAcknowledged] = useState(false);
+  // ── Alarm Acknowledgement State (Moved below effectiveStatus) ──
+  // Store the acknowledged event ID per worker to reset on NEW emergencies
+  const [acknowledgedEmergencies, setAcknowledgedEmergencies] = useState({});
 
   // ── Effective reading & status (demo overrides live) ──
   const effectiveReading = demoMode && demoReading ? demoReading : reading;
   const effectiveStatus = demoMode && demoReading
     ? getWorkerStatus(demoReading)
     : status;
+
+  // ── Global Emergency Mode state (single source of truth) ──
+  const isEmergencyMode = effectiveStatus === 'warning' || effectiveStatus === 'emergency';
+  const emergencyLevel = effectiveStatus === 'emergency' ? 'critical' : effectiveStatus === 'warning' ? 'elevated' : 'none';
+
+  const currentEmergencyKey = effectiveReading?.id || effectiveReading?.created_at || 'unknown_event';
+  const currentZone = getRSSIZone(effectiveReading?.rssi);
+
+  // ── Determine Active Emergency & Evaluate Workers ──
+  const activeConditions = useMemo(() => {
+    if (effectiveStatus !== 'emergency' && effectiveStatus !== 'warning') return [];
+    
+    const conditions = [];
+
+    // Boolean flags — use truthy check (Supabase may return 1/0, "true"/"false", or actual boolean)
+    const isSOS = !!effectiveReading?.sos_triggered;
+    const isFall = !!effectiveReading?.fall_detected;
+
+    // Numeric threshold checks
+    const isHighGas = effectiveReading?.gas_level >= THRESHOLDS.gas_level.warning;
+    const isHighTemp = effectiveReading?.temperature >= THRESHOLDS.temperature.warning;
+    const isHighForce = effectiveReading?.force >= THRESHOLDS.force.warning;
+    const isHighHR = effectiveReading?.heart_rate >= THRESHOLDS.heart_rate.warningHigh;
+    const isLowHR = effectiveReading?.heart_rate > 0 && effectiveReading?.heart_rate <= THRESHOLDS.heart_rate.warningLow;
+    const isWeakSignal = effectiveReading?.rssi !== undefined && effectiveReading?.rssi !== null && effectiveReading?.rssi < THRESHOLDS.rssi.warning;
+
+    // Priority order: SOS > FALL > GAS > FORCE/IMPACT > HIGH HR > LOW HR > TEMPERATURE > WEAK SIGNAL
+    if (isSOS) conditions.push({ type: 'SOS', isEnvironmental: false, sourceWorkerId: REAL_WORKER_ID, zoneId: currentZone, severity: effectiveStatus });
+    if (isFall) conditions.push({ type: 'FALL', isEnvironmental: false, sourceWorkerId: REAL_WORKER_ID, zoneId: currentZone, severity: effectiveStatus });
+    if (isHighGas) conditions.push({ type: 'GAS', isEnvironmental: true, sourceWorkerId: REAL_WORKER_ID, zoneId: currentZone, severity: effectiveStatus });
+    if (isHighForce && !isFall) conditions.push({ type: 'IMPACT', isEnvironmental: false, sourceWorkerId: REAL_WORKER_ID, zoneId: currentZone, severity: effectiveStatus });
+    if (isHighHR) conditions.push({ type: 'HIGH_HEART_RATE', isEnvironmental: false, sourceWorkerId: REAL_WORKER_ID, zoneId: currentZone, severity: effectiveStatus });
+    if (isLowHR) conditions.push({ type: 'LOW_HEART_RATE', isEnvironmental: false, sourceWorkerId: REAL_WORKER_ID, zoneId: currentZone, severity: effectiveStatus });
+    if (isHighTemp) conditions.push({ type: 'TEMPERATURE', isEnvironmental: true, sourceWorkerId: REAL_WORKER_ID, zoneId: currentZone, severity: effectiveStatus });
+    if (isWeakSignal) conditions.push({ type: 'WEAK_SIGNAL', isEnvironmental: false, sourceWorkerId: REAL_WORKER_ID, zoneId: currentZone, severity: 'warning' });
+    
+    if (conditions.length === 0) {
+      conditions.push({ type: 'GENERIC', isEnvironmental: true, sourceWorkerId: REAL_WORKER_ID, zoneId: currentZone, severity: effectiveStatus });
+    }
+    return conditions;
+  }, [effectiveStatus, effectiveReading, currentZone]);
+
+  const activeEmergency = useMemo(() => {
+    if (activeConditions.length === 0) return null;
+    const ackSet = acknowledgedEmergencies[REAL_WORKER_ID] || new Set();
+    const unacknowledged = activeConditions.filter(c => !ackSet.has(c.type));
+    
+    // Return highest priority unacknowledged, or highest priority overall if all are acknowledged
+    return unacknowledged.length > 0 ? unacknowledged[0] : activeConditions[0];
+  }, [activeConditions, acknowledgedEmergencies]);
+
+  const allWorkersEvaluated = useMemo(() => {
+    const baseWorkers = [
+      {
+        id: REAL_WORKER_ID,
+        name: worker?.name || 'Live Worker',
+        zone: currentZone || 'Unknown',
+        isSimulated: false,
+        rssi: effectiveReading?.rssi,
+      },
+      ...fakeWorkers.map(fw => ({ ...fw }))
+    ];
+
+    return baseWorkers.map(w => {
+      let workerEmergency = null;
+      let status = 'normal';
+
+      if (activeEmergency) {
+        if (activeEmergency.isEnvironmental) {
+          if (w.zone === activeEmergency.zoneId) {
+             workerEmergency = activeEmergency;
+             status = activeEmergency.severity;
+          }
+        } else {
+          if (w.id === activeEmergency.sourceWorkerId) {
+             workerEmergency = activeEmergency;
+             status = activeEmergency.severity;
+          }
+        }
+      }
+
+      if (!workerEmergency || (workerEmergency.severity !== 'emergency' && status !== 'emergency')) {
+        if (w.rssi < THRESHOLDS.rssi.warning) {
+          workerEmergency = { type: 'WEAK_SIGNAL', isEnvironmental: false, sourceWorkerId: w.id, zoneId: w.zone, severity: 'warning' };
+          status = 'warning';
+        }
+      }
+
+      return {
+        ...w,
+        status,
+        emergency: workerEmergency
+      };
+    });
+  }, [worker, currentZone, fakeWorkers, activeEmergency, effectiveReading]);
+
+  // Acknowledgment logic
+  const acknowledgedWorkerIds = useMemo(() => {
+    const set = new Set();
+    allWorkersEvaluated.forEach(w => {
+      const workerAckTypes = acknowledgedEmergencies[w.id] || new Set();
+      if (w.emergency && workerAckTypes.has(w.emergency.type)) {
+        set.add(w.id);
+      }
+    });
+    return set;
+  }, [allWorkersEvaluated, acknowledgedEmergencies]);
+
+  const affectedWorkers = useMemo(() => allWorkersEvaluated.filter(w => w.emergency), [allWorkersEvaluated]);
+  
+  const isGlobalAcknowledged = useMemo(() => {
+    if (affectedWorkers.length === 0) return false;
+    return affectedWorkers.every(w => acknowledgedWorkerIds.has(w.id));
+  }, [affectedWorkers, acknowledgedWorkerIds]);
+
+  const handleSetAcknowledged = (ack) => {
+    if (ack) {
+      setAcknowledgedEmergencies(prev => {
+        const next = { ...prev };
+        affectedWorkers.forEach(w => {
+          if (w.emergency) {
+            const workerAckTypes = new Set(next[w.id] || []);
+            workerAckTypes.add(w.emergency.type);
+            next[w.id] = workerAckTypes;
+          }
+        });
+        return next;
+      });
+    } else {
+      setAcknowledgedEmergencies({});
+    }
+  };
+
+  useEffect(() => {
+    if (effectiveStatus === 'normal') {
+      setAcknowledgedEmergencies({});
+      return;
+    }
+    setAcknowledgedEmergencies(prev => {
+       const next = { ...prev };
+       let changed = false;
+       const activeTypes = new Set(activeConditions.map(c => c.type));
+       
+       if (next[REAL_WORKER_ID]) {
+          const currentAckSet = next[REAL_WORKER_ID];
+          const filteredSet = new Set([...currentAckSet].filter(t => activeTypes.has(t)));
+          if (filteredSet.size !== currentAckSet.size) {
+             if (filteredSet.size === 0) {
+                 delete next[REAL_WORKER_ID];
+             } else {
+                 next[REAL_WORKER_ID] = filteredSet;
+             }
+             changed = true;
+          }
+       }
+       return changed ? next : prev;
+    });
+  }, [effectiveStatus, activeConditions]);
 
   // ── Rolling history of recent readings ────────────────
   const [history, setHistory] = useState([]);
@@ -105,7 +264,7 @@ export default function Dashboard() {
   useEffect(() => {
     if (!sirenAudioRef.current) return;
     
-    if (effectiveStatus === 'emergency' && !acknowledged) {
+    if (effectiveStatus === 'emergency' && !isGlobalAcknowledged) {
       sirenAudioRef.current.play().catch((err) => {
         console.warn('Siren autoplay blocked by browser policy:', err);
       });
@@ -113,7 +272,7 @@ export default function Dashboard() {
       sirenAudioRef.current.pause();
       sirenAudioRef.current.currentTime = 0;
     }
-  }, [effectiveStatus, acknowledged]);
+  }, [effectiveStatus, isGlobalAcknowledged]);
 
   useEffect(() => {
     if (!effectiveReading) return;
@@ -140,9 +299,6 @@ export default function Dashboard() {
     });
   }, [effectiveReading]);
 
-  // ── Derive current zone from RSSI ─────────────────────
-  const currentZone = getRSSIZone(effectiveReading?.rssi);
-
   // ── Active KPI Data: derived from selected worker (Phase 3) ──
   // When a fake worker is selected, KPI cards show that worker's readings.
   // When the real worker is selected, they show the live effectiveReading as before.
@@ -166,18 +322,7 @@ export default function Dashboard() {
     };
   }, [isRealWorkerSelected, selectedWorkerId, fakeWorkers, effectiveReading]);
 
-  // ── Global Emergency Mode state (single source of truth) ──
-  const isEmergencyMode = effectiveStatus === 'warning' || effectiveStatus === 'emergency';
-  const emergencyLevel = effectiveStatus === 'emergency' ? 'critical' : effectiveStatus === 'warning' ? 'elevated' : 'none';
 
-  // ── Alarm Acknowledgement State ─────────────────────────
-  // (State declared at top to avoid ReferenceError)
-
-  useEffect(() => {
-    if (effectiveStatus === 'normal') {
-      setAcknowledged(false);
-    }
-  }, [effectiveStatus]);
 
   // ── Pinch-to-Zoom logic for Dashboard Map ─────────────
   const viewportRef = useRef(null);
@@ -328,11 +473,8 @@ export default function Dashboard() {
       case 'workers':
         return (
           <WorkersListPage
-            worker={worker}
+            evaluatedWorkers={allWorkersEvaluated}
             reading={effectiveReading}
-            status={effectiveStatus}
-            zone={currentZone}
-            fakeWorkers={fakeWorkers}
             onViewDetails={navigateToWorkerDetail}
           />
         );
@@ -364,8 +506,10 @@ export default function Dashboard() {
               status={effectiveStatus}
               isEmergencyMode={isEmergencyMode}
               emergencyLevel={emergencyLevel}
-              acknowledged={acknowledged}
-              setAcknowledged={setAcknowledged}
+              acknowledged={isGlobalAcknowledged}
+              setAcknowledged={handleSetAcknowledged}
+              activeEmergency={activeEmergency}
+              activeConditions={activeConditions}
             />
 
             {/* ── Row 1: Sensor Cards Grid (KPI at-a-glance) ── */}
@@ -434,18 +578,19 @@ export default function Dashboard() {
                     isEmergencyMode={isEmergencyMode}
                     emergencyLevel={emergencyLevel}
                     onViewDetails={navigateToWorkerDetail}
+                    evaluatedWorkers={allWorkersEvaluated}
+                    activeEmergency={activeEmergency}
+                    acknowledgedWorkerIds={acknowledgedWorkerIds}
                   />
                 </div>
               </section>
               <aside className="worker-status-sidebar">
                 <WorkerSelector
-                  realWorker={worker}
-                  realStatus={effectiveStatus}
-                  realZone={currentZone}
-                  fakeWorkers={fakeWorkers}
+                  evaluatedWorkers={allWorkersEvaluated}
                   selectedWorkerId={selectedWorkerId}
                   onSelect={setSelectedWorkerId}
                   onViewDetails={navigateToWorkerDetail}
+                  acknowledgedWorkerIds={acknowledgedWorkerIds}
                   vertical
                 />
               </aside>
@@ -480,7 +625,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen dashboard-root" data-emergency-level={emergencyLevel} data-acknowledged={acknowledged} style={{ position: 'relative', background: '#080c14', overflowX: 'hidden' }}>
+    <div className="min-h-screen dashboard-root" data-emergency-level={emergencyLevel} data-acknowledged={isGlobalAcknowledged} style={{ position: 'relative', background: '#080c14', overflowX: 'hidden' }}>
       {/* ── Custom Animated WebGL Background ───────────── */}
       <div
         style={{
@@ -527,7 +672,7 @@ export default function Dashboard() {
           setDemoReading={setDemoReading}
           liveReading={reading}
           worker={worker}
-          setAcknowledged={setAcknowledged}
+          setAcknowledged={handleSetAcknowledged}
         />
       </main>
 

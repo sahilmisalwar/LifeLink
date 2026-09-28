@@ -3,17 +3,11 @@ import { RadialBarChart, RadialBar, PolarAngleAxis, ResponsiveContainer, AreaCha
 import { THRESHOLDS } from '../utils/constants';
 import '../styles/VitalsRadialCard.css';
 
-const getStatus = (value, thresholds, isHeartRate = false) => {
-  if (!value) return 'normal';
-  if (isHeartRate) {
-    if (value <= thresholds.emergencyLow || value >= thresholds.emergencyHigh) return 'emergency';
-    if (value <= thresholds.warningLow || value >= thresholds.warningHigh) return 'warning';
-    return 'normal';
-  } else {
-    if (value <= thresholds.emergency) return 'emergency';
-    if (value <= thresholds.warning) return 'warning';
-    return 'normal';
-  }
+const getStatus = (value, thresholds) => {
+  if (value == null) return 'normal';
+  if (value >= thresholds.emergency) return 'emergency';
+  if (value >= thresholds.warning) return 'warning';
+  return 'normal';
 };
 
 const getGlowColor = (status) => {
@@ -86,18 +80,18 @@ export default function VitalsRadialCard({ history }) {
     );
   }
 
-  const hrValue = latestEntry.heart_rate;
-  const hrStatus = getStatus(hrValue, THRESHOLDS.heart_rate, true);
+  const tempValue = latestEntry.temperature;
+  const tempStatus = getStatus(tempValue, THRESHOLDS.temperature);
 
-  const spo2Value = latestEntry.spo2;
-  const spo2Status = getStatus(spo2Value, THRESHOLDS.spo2);
+  const gasValue = latestEntry.gas_level;
+  const gasStatus = getStatus(gasValue, THRESHOLDS.gas_level);
 
   return (
     <div className="vitals-radial-card">
       <div className="vrc-header"><h3 className="vrc-title">Vitals Overview</h3></div>
       <div className="vrc-content">
-        <Gauge value={hrValue} label="Heart Rate" unit="bpm" status={hrStatus} max={200} min={0} history={history} dataKey="heart_rate" gradientId="grad-hr" />
-        <Gauge value={spo2Value} label="SpO2" unit="%" status={spo2Status} max={100} min={80} history={history} dataKey="spo2" gradientId="grad-spo2" />
+        <Gauge value={tempValue} label="TEMPERATURE" unit="°C" status={tempStatus} max={50} min={0} history={history} dataKey="temperature" gradientId="grad-temp" />
+        <Gauge value={gasValue} label="GAS LEVEL" unit="ppm" status={gasStatus} max={4000} min={0} history={history} dataKey="gas_level" gradientId="grad-gas" />
       </div>
     </div>
   );

@@ -23,32 +23,14 @@ import '../styles/WorkerSelector.css';
 const REAL_WORKER_ID = 'W001';
 
 export default function WorkerSelector({
-  realWorker,
-  realStatus,
-  realZone,
-  fakeWorkers,
+  evaluatedWorkers = [],
   selectedWorkerId,
   onSelect,
   onViewDetails,
+  acknowledgedWorkerIds = new Set(),
   vertical = false,
 }) {
-  // Build a unified list: real worker first, then fake workers
-  const allWorkers = [
-    {
-      id: REAL_WORKER_ID,
-      name: realWorker?.name || 'Live Worker',
-      zone: realZone || 'Unknown',
-      status: realStatus || 'normal',
-      isSimulated: false,
-    },
-    ...fakeWorkers.map((fw) => ({
-      id: fw.id,
-      name: fw.name,
-      zone: fw.zone,
-      status: fw.status, // Always 'normal' by Phase 1 design
-      isSimulated: true,
-    })),
-  ];
+  const allWorkers = evaluatedWorkers;
 
   return (
     <div className={vertical ? 'ws-container-vertical' : ''}>
@@ -60,10 +42,11 @@ export default function WorkerSelector({
       >
         {allWorkers.map((w) => {
           const isSelected = w.id === selectedWorkerId;
+          const isAck = acknowledgedWorkerIds.has ? acknowledgedWorkerIds.has(w.id) : false;
           return (
             <div
               key={w.id}
-              className={`ws-block ${isSelected ? 'ws-selected' : ''}`}
+              className={`ws-block ${w.status} ${isSelected ? 'ws-selected' : ''} ${isAck ? 'ws-acknowledged-block' : ''}`}
               role="tab"
               aria-selected={isSelected}
               tabIndex={0}
@@ -79,8 +62,8 @@ export default function WorkerSelector({
               <div className="ws-header">
                 <span className="ws-name">{w.name}</span>
                 <span
-                  className={`ws-status-dot ${w.status}`}
-                  title={`Status: ${w.status}`}
+                  className={`ws-status-dot ${w.status} ${isAck && w.status !== 'normal' ? 'ws-acknowledged' : ''}`}
+                  title={`Status: ${w.status}${isAck ? ' (Acknowledged)' : ''}`}
                 />
               </div>
 

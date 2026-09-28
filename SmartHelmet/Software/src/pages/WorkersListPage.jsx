@@ -12,42 +12,34 @@
 import '../styles/WorkersListPage.css';
 
 export default function WorkersListPage({
-  worker,          // Real worker object from useLiveData
-  reading,         // Real worker's current reading (effectiveReading)
-  status,          // Real worker's computed status
-  zone,            // Real worker's current zone
-  fakeWorkers,     // Array of 4 fake worker objects from useFakeWorkers()
+  evaluatedWorkers, // Array of all workers (real + simulated) with computed status and emergency
+  reading,         // Real worker's current reading (for vitals)
   onViewDetails,   // Callback (workerId) => void — Phase 5 navigation
 }) {
-  // Build unified list: real worker first, then fake workers
-  const allWorkers = [
-    {
-      id: 'W001',
-      name: worker?.name || 'Live Worker',
-      zone: zone || 'Unknown',
-      status: status || 'normal',
-      isSimulated: false,
-      vitals: {
-        temp: reading?.temperature,
-        hr: reading?.heart_rate,
-        spo2: reading?.spo2,
-        gas: reading?.gas_level,
-      },
-    },
-    ...fakeWorkers.map((fw) => ({
-      id: fw.id,
-      name: fw.name,
-      zone: fw.zone,
-      status: fw.status, // Always 'normal'
-      isSimulated: true,
-      vitals: {
-        temp: fw.readings.temperature,
-        hr: fw.readings.heart_rate,
-        spo2: fw.readings.spo2,
-        gas: fw.readings.gas_level,
-      },
-    })),
-  ];
+  // Map evaluated workers to include vitals for display
+  const allWorkers = evaluatedWorkers.map(w => {
+    if (w.isSimulated) {
+      return {
+        ...w,
+        vitals: {
+          temp: w.readings?.temperature,
+          hr: w.readings?.heart_rate,
+          spo2: w.readings?.spo2,
+          gas: w.readings?.gas_level,
+        }
+      };
+    } else {
+      return {
+        ...w,
+        vitals: {
+          temp: reading?.temperature,
+          hr: reading?.heart_rate,
+          spo2: reading?.spo2,
+          gas: reading?.gas_level,
+        }
+      };
+    }
+  });
 
   return (
     <div className="wlp-page">
@@ -94,7 +86,9 @@ export default function WorkersListPage({
               <div className={`wlp-status ${w.status}`} title={`Status: ${w.status}`}>
                 <span className="wlp-status-dot" />
                 <span className="wlp-status-text">
-                  {w.status === 'normal' ? 'Normal' : w.status === 'warning' ? 'Warning' : 'Emergency'}
+                  {w.emergency 
+                    ? w.emergency.type.replace(/_/g, ' ') 
+                    : (w.status === 'normal' ? 'Normal' : w.status === 'warning' ? 'Warning' : 'Emergency')}
                 </span>
               </div>
             </div>

@@ -1,300 +1,309 @@
 /* SmartHelmet/Software/src/styles/ActiveAlarmBanner.css */
 
-/* ══════════════════════════════════════════════════════════════
-   ActiveAlarmBanner — emergency/warning alert banner
-   Synchronized with global --emergency-pulse-duration
-   ══════════════════════════════════════════════════════════════ */
-
 .active-alarm-banner {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 20px;
   padding: 16px 24px;
-  margin-bottom: 20px;
-  border-radius: 14px;
+  margin-bottom: 24px;
+  border-radius: 12px;
   position: relative;
   overflow: hidden;
-  background: linear-gradient(126.97deg, rgba(13, 17, 23, 0.82) 28%, rgba(22, 27, 34, 0.78) 91%);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(99, 110, 123, 0.3);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+  background: linear-gradient(135deg, #07111F 0%, #081522 50%, #0B1726 100%);
+  border: 1px solid rgba(255, 51, 71, 0.4);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 15px rgba(255, 51, 71, 0.15) inset;
   font-family: 'Plus Jakarta Sans', Inter, sans-serif;
   color: #fff;
-  transition: padding 300ms ease, box-shadow 300ms ease;
+  transition: all 300ms ease;
 }
 
-/* ── Left colored indicator strip ────────────────────────── */
-.aab-indicator {
+.aab-bg-elements {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.aab-grid-pattern {
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 20px 20px;
+  opacity: 0.5;
+}
+
+.aab-glow-overlay {
   position: absolute;
   left: 0;
-  top: 0;
   bottom: 0;
-  width: 4px;
-  border-radius: 14px 0 0 14px;
-  transition: background 300ms ease, box-shadow 300ms ease;
+  width: 100%;
+  height: 2px;
+  background: #FF3347;
+  box-shadow: 0 0 15px 2px #FF3347;
+  animation: aab-edge-pulse 2s ease-in-out infinite;
 }
 
-/* ── Icon ────────────────────────────────────────────────── */
-.aab-icon {
-  font-size: 1.5rem;
+/* ── Left Section ────────────────────────── */
+.aab-left-section {
+  position: relative;
+  z-index: 1;
   flex: 0 0 auto;
-  line-height: 1;
 }
 
-/* ── Content ─────────────────────────────────────────────── */
-.aab-content {
+.aab-icon-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  background: rgba(255, 51, 71, 0.15);
+  border: 1px solid rgba(255, 51, 71, 0.4);
+  border-radius: 12px;
+  color: #fff;
+  box-shadow: 0 0 20px rgba(255, 51, 71, 0.3) inset, 0 0 15px rgba(255, 51, 71, 0.2);
+  animation: aab-icon-breath 2s ease-in-out infinite;
+  transform: skewX(-5deg); /* Slight industrial angled look */
+}
+
+.aab-icon-container > svg {
+  transform: skewX(5deg); /* Unskew icon */
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.8));
+}
+
+/* ── Middle Section ────────────────────────── */
+.aab-middle-section {
+  position: relative;
+  z-index: 1;
   flex: 1 1 0;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+}
+
+.aab-header-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.aab-label-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .aab-severity {
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   font-weight: 800;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.15em;
   text-transform: uppercase;
-  margin-bottom: 2px;
+  color: #FF4757;
+}
+
+.aab-severity-line {
+  height: 2px;
+  width: 24px;
+  background: #FF3347;
+  box-shadow: 0 0 5px #FF3347;
+  opacity: 0.8;
+}
+
+.aab-worker-info {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #A0AEC0;
+  letter-spacing: 0.05em;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 2px 8px;
+  border-radius: 4px;
 }
 
 .aab-message {
-  font-size: 0.88rem;
-  font-weight: 500;
-  line-height: 1.35;
-  color: rgba(240, 244, 255, 0.9);
-}
-
-.aab-timestamp {
-  font-size: 0.65rem;
-  color: rgba(160, 174, 192, 0.7);
-  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
-  margin-top: 4px;
-}
-
-/* ── Acknowledge button ──────────────────────────────────── */
-.aab-acknowledge-btn {
-  flex: 0 0 auto;
-  padding: 8px 20px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.06);
-  color: #fff;
-  font-size: 0.75rem;
+  font-size: 1.15rem;
   font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: background 200ms ease, border-color 200ms ease, transform 150ms ease;
+  letter-spacing: 0.02em;
+  color: #FFFFFF;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+}
+
+/* ── Telemetry Row ────────────────────────── */
+.aab-telemetry-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+
+.aab-metric {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: #CBD5E1;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
   white-space: nowrap;
 }
 
+.aab-metric-icon {
+  font-size: 0.9rem;
+}
+
+.aab-lucide-icon {
+  color: #94A3B8;
+}
+
+.aab-separator {
+  width: 1px;
+  height: 12px;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* ── Right Section ────────────────────────── */
+.aab-right-section {
+  position: relative;
+  z-index: 1;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+}
+
+.aab-acknowledge-btn {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  padding: 10px 20px;
+  color: #FFF;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
 .aab-acknowledge-btn:hover {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.35);
+  background: rgba(255, 51, 71, 0.15);
+  border-color: rgba(255, 51, 71, 0.6);
+  box-shadow: 0 0 15px rgba(255, 51, 71, 0.3);
   transform: translateY(-1px);
 }
 
 .aab-acknowledge-btn:active {
-  transform: translateY(0);
+  transform: translateY(1px);
 }
 
-/* ── Acknowledged label ──────────────────────────────────── */
 .aab-ack-label {
-  flex: 0 0 auto;
-  font-size: 0.65rem;
-  font-weight: 700;
+  font-size: 0.75rem;
+  font-weight: 800;
   letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: rgba(160, 174, 192, 0.6);
-  padding: 6px 14px;
-  border: 1px solid rgba(99, 110, 123, 0.2);
-  border-radius: 8px;
-  white-space: nowrap;
+  color: #94A3B8;
+  padding: 8px 16px;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.2);
 }
 
-/* ── Acknowledged state: banner slightly muted ───────────── */
+/* ── Acknowledged State ────────────────────────── */
 .active-alarm-banner.aab-acknowledged {
-  opacity: 0.75;
+  border-color: rgba(148, 163, 184, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
-/* ══════════════════════════════════════════════════════════════
-   ELEVATED (warning) — gentle amber synchronized pulse
-   ══════════════════════════════════════════════════════════════ */
-
-.active-alarm-banner[data-emergency-level="elevated"] {
-  border-color: rgba(249, 115, 22, 0.25);
+.active-alarm-banner.aab-acknowledged .aab-glow-overlay {
+  display: none;
 }
 
-.active-alarm-banner[data-emergency-level="elevated"] .aab-indicator {
-  background: #f97316;
-  box-shadow: 0 0 12px rgba(249, 115, 22, 0.5);
+.active-alarm-banner.aab-acknowledged .aab-icon-container {
+  background: rgba(148, 163, 184, 0.1);
+  border-color: rgba(148, 163, 184, 0.3);
+  box-shadow: none;
+  animation: none;
+  color: #94A3B8;
+}
+.active-alarm-banner.aab-acknowledged .aab-icon-container > svg {
+  filter: none;
 }
 
-.active-alarm-banner[data-emergency-level="elevated"] .aab-severity {
-  color: #ffb25b;
+.active-alarm-banner.aab-acknowledged .aab-severity {
+  color: #94A3B8;
+}
+.active-alarm-banner.aab-acknowledged .aab-severity-line {
+  background: #94A3B8;
+  box-shadow: none;
 }
 
-.active-alarm-banner[data-emergency-level="elevated"] .aab-acknowledge-btn {
-  border-color: rgba(249, 115, 22, 0.35);
+/* ── Specific Warning (Amber) Overrides ────────────────────────── */
+.active-alarm-banner[data-emergency-level="elevated"]:not(.aab-sos):not(.aab-acknowledged) {
+  border-color: rgba(245, 158, 11, 0.4);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 15px rgba(245, 158, 11, 0.15) inset;
+}
+.active-alarm-banner[data-emergency-level="elevated"]:not(.aab-sos):not(.aab-acknowledged) .aab-glow-overlay {
+  background: #F59E0B;
+  box-shadow: 0 0 15px 2px #F59E0B;
+}
+.active-alarm-banner[data-emergency-level="elevated"]:not(.aab-sos):not(.aab-acknowledged) .aab-icon-container {
+  background: rgba(245, 158, 11, 0.15);
+  border-color: rgba(245, 158, 11, 0.4);
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.3) inset, 0 0 15px rgba(245, 158, 11, 0.2);
+}
+.active-alarm-banner[data-emergency-level="elevated"]:not(.aab-sos):not(.aab-acknowledged) .aab-severity {
+  color: #F59E0B;
+}
+.active-alarm-banner[data-emergency-level="elevated"]:not(.aab-sos):not(.aab-acknowledged) .aab-severity-line {
+  background: #F59E0B;
+  box-shadow: 0 0 5px #F59E0B;
 }
 
-.active-alarm-banner[data-emergency-level="elevated"] .aab-acknowledge-btn:hover {
-  border-color: rgba(249, 115, 22, 0.6);
-  background: rgba(249, 115, 22, 0.1);
-}
-
-/* Synchronized gentle amber pulse */
-.active-alarm-banner[data-emergency-level="elevated"] {
-  animation: aab-pulse-elevated var(--emergency-pulse-duration, 2.4s) ease-in-out infinite;
-}
-
-/* ══════════════════════════════════════════════════════════════
-   CRITICAL (emergency) — stronger red pulse, enlarged
-   ══════════════════════════════════════════════════════════════ */
-
-.active-alarm-banner[data-emergency-level="critical"] {
-  padding: 20px 28px;
-  border-color: rgba(239, 68, 68, 0.35);
-}
-
-.active-alarm-banner[data-emergency-level="critical"] .aab-indicator {
-  width: 5px;
-  background: #ef4444;
-  box-shadow: 0 0 18px rgba(239, 68, 68, 0.6);
-}
-
-.active-alarm-banner[data-emergency-level="critical"] .aab-severity {
-  color: #ff716b;
-  font-size: 0.78rem;
-}
-
-.active-alarm-banner[data-emergency-level="critical"] .aab-message {
-  font-size: 0.92rem;
-  font-weight: 600;
-}
-
-.active-alarm-banner[data-emergency-level="critical"] .aab-icon {
-  font-size: 1.7rem;
-}
-
-.active-alarm-banner[data-emergency-level="critical"] .aab-acknowledge-btn {
-  padding: 10px 24px;
-  border-color: rgba(239, 68, 68, 0.4);
-  font-size: 0.78rem;
-}
-
-.active-alarm-banner[data-emergency-level="critical"] .aab-acknowledge-btn:hover {
-  border-color: rgba(239, 68, 68, 0.7);
-  background: rgba(239, 68, 68, 0.1);
-}
-
-/* Synchronized strong red pulse */
-.active-alarm-banner[data-emergency-level="critical"] {
-  animation: aab-pulse-critical var(--emergency-pulse-duration, 1.6s) ease-in-out infinite;
-}
-
-/* ── Keyframes ─────────────────────────────────────────────── */
-@keyframes aab-pulse-elevated {
+/* ── Animations ────────────────────────── */
+@keyframes aab-icon-breath {
   0%, 100% {
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35),
-                0 0 0 0 rgba(249, 115, 22, 0);
-    border-color: rgba(249, 115, 22, 0.18);
+    box-shadow: 0 0 20px rgba(255, 51, 71, 0.3) inset, 0 0 10px rgba(255, 51, 71, 0.2);
   }
   50% {
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35),
-                0 0 28px -4px rgba(249, 115, 22, 0.18);
-    border-color: rgba(249, 115, 22, 0.38);
+    box-shadow: 0 0 30px rgba(255, 51, 71, 0.5) inset, 0 0 25px rgba(255, 51, 71, 0.4);
   }
 }
 
-@keyframes aab-pulse-critical {
-  0%, 100% {
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35),
-                0 0 0 0 rgba(239, 68, 68, 0);
-    border-color: rgba(239, 68, 68, 0.25);
+@keyframes aab-edge-pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+/* ── Responsive ────────────────────────── */
+@media (max-width: 768px) {
+  .active-alarm-banner {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+    gap: 16px;
   }
-  50% {
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35),
-                0 0 40px -4px rgba(239, 68, 68, 0.25);
-    border-color: rgba(239, 68, 68, 0.55);
+  
+  .aab-left-section {
+    align-self: center;
+  }
+  
+  .aab-header-row {
+    justify-content: center;
+  }
+
+  .aab-telemetry-row {
+    justify-content: center;
+  }
+  
+  .aab-right-section {
+    justify-content: center;
+    margin-top: 8px;
   }
 }
 
-/* ── Accessibility: reduced motion ─────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
-  .active-alarm-banner[data-emergency-level="elevated"],
-  .active-alarm-banner[data-emergency-level="critical"],
-  .active-alarm-banner.aab-sos {
+  .aab-icon-container,
+  .aab-glow-overlay {
     animation: none;
-  }
-
-  .active-alarm-banner[data-emergency-level="elevated"] {
-    border-color: rgba(249, 115, 22, 0.3);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35), 0 0 20px -4px rgba(249, 115, 22, 0.12);
-  }
-
-  .active-alarm-banner[data-emergency-level="critical"] {
-    border-color: rgba(239, 68, 68, 0.4);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35), 0 0 30px -4px rgba(239, 68, 68, 0.18);
-  }
-}
-
-/* ══════════════════════════════════════════════════════════════
-   SOS ACTIVATED — intense red/orange pulsing banner
-   Overrides all other emergency levels when .aab-sos is present
-   ══════════════════════════════════════════════════════════════ */
-
-.active-alarm-banner.aab-sos {
-  padding: 22px 28px;
-  border-color: rgba(255, 50, 50, 0.5);
-  background: linear-gradient(126.97deg, rgba(60, 10, 10, 0.9) 28%, rgba(40, 5, 5, 0.85) 91%);
-  animation: aab-pulse-sos 1s ease-in-out infinite;
-}
-
-.active-alarm-banner.aab-sos .aab-indicator {
-  width: 6px;
-  background: #ff3232;
-  box-shadow: 0 0 24px rgba(255, 50, 50, 0.8);
-}
-
-.active-alarm-banner.aab-sos .aab-severity {
-  color: #ff5252;
-  font-size: 0.85rem;
-  letter-spacing: 0.18em;
-}
-
-.active-alarm-banner.aab-sos .aab-message {
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: #fff;
-}
-
-.active-alarm-banner.aab-sos .aab-icon {
-  color: #ff3232;
-  filter: drop-shadow(0 0 8px rgba(255, 50, 50, 0.6));
-  font-size: 1.8rem;
-}
-
-.active-alarm-banner.aab-sos .aab-acknowledge-btn {
-  padding: 10px 24px;
-  border-color: rgba(255, 50, 50, 0.5);
-  background: rgba(255, 50, 50, 0.12);
-  font-size: 0.8rem;
-}
-
-.active-alarm-banner.aab-sos .aab-acknowledge-btn:hover {
-  border-color: rgba(255, 50, 50, 0.8);
-  background: rgba(255, 50, 50, 0.2);
-}
-
-@keyframes aab-pulse-sos {
-  0%, 100% {
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4),
-                0 0 0 0 rgba(255, 50, 50, 0);
-    border-color: rgba(255, 50, 50, 0.35);
-  }
-  50% {
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4),
-                0 0 50px -4px rgba(255, 50, 50, 0.35);
-    border-color: rgba(255, 50, 50, 0.7);
   }
 }
