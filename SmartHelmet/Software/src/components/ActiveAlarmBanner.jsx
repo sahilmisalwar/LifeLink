@@ -49,11 +49,10 @@ export default function ActiveAlarmBanner({ alerts, reading, status, isEmergency
     const realConditions = conditions.filter(c => c.type !== 'GENERIC');
     const displayConditions = realConditions.length > 0 ? realConditions : conditions;
 
-    // Build combined label from all active conditions
-    const labels = displayConditions.map(c => ALERT_TYPE_LABELS[c.type] || c.type.replace(/_/g, ' '));
-    // Deduplicate (in case of duplicates) while preserving order
-    const uniqueLabels = [...new Set(labels)];
-    message = `${uniqueLabels.join(' + ')}${workerSuffix}`;
+    // Build label from the highest priority active condition (first in the array)
+    const primaryCondition = displayConditions[0];
+    const label = ALERT_TYPE_LABELS[primaryCondition.type] || primaryCondition.type.replace(/_/g, ' ');
+    message = `${label}${workerSuffix}`;
   } else if (activeEmergency) {
     // Fallback to single activeEmergency if activeConditions not provided
     message = `${ALERT_TYPE_LABELS[emergencyType] || 'Abnormal Condition Detection'}${workerSuffix}`;

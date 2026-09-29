@@ -94,19 +94,13 @@ export default function Dashboard() {
     const isHighGas = effectiveReading?.gas_level >= THRESHOLDS.gas_level.warning;
     const isHighTemp = effectiveReading?.temperature >= THRESHOLDS.temperature.warning;
     const isHighForce = effectiveReading?.force >= THRESHOLDS.force.warning;
-    const isHighHR = effectiveReading?.heart_rate >= THRESHOLDS.heart_rate.warningHigh;
-    const isLowHR = effectiveReading?.heart_rate > 0 && effectiveReading?.heart_rate <= THRESHOLDS.heart_rate.warningLow;
-    const isWeakSignal = effectiveReading?.rssi !== undefined && effectiveReading?.rssi !== null && effectiveReading?.rssi < THRESHOLDS.rssi.warning;
 
-    // Priority order: SOS > FALL > GAS > FORCE/IMPACT > HIGH HR > LOW HR > TEMPERATURE > WEAK SIGNAL
+    // Priority order: SOS > FALL > GAS > FORCE/IMPACT > TEMPERATURE
     if (isSOS) conditions.push({ type: 'SOS', isEnvironmental: false, sourceWorkerId: REAL_WORKER_ID, zoneId: currentZone, severity: effectiveStatus });
     if (isFall) conditions.push({ type: 'FALL', isEnvironmental: false, sourceWorkerId: REAL_WORKER_ID, zoneId: currentZone, severity: effectiveStatus });
     if (isHighGas) conditions.push({ type: 'GAS', isEnvironmental: true, sourceWorkerId: REAL_WORKER_ID, zoneId: currentZone, severity: effectiveStatus });
     if (isHighForce && !isFall) conditions.push({ type: 'IMPACT', isEnvironmental: false, sourceWorkerId: REAL_WORKER_ID, zoneId: currentZone, severity: effectiveStatus });
-    if (isHighHR) conditions.push({ type: 'HIGH_HEART_RATE', isEnvironmental: false, sourceWorkerId: REAL_WORKER_ID, zoneId: currentZone, severity: effectiveStatus });
-    if (isLowHR) conditions.push({ type: 'LOW_HEART_RATE', isEnvironmental: false, sourceWorkerId: REAL_WORKER_ID, zoneId: currentZone, severity: effectiveStatus });
     if (isHighTemp) conditions.push({ type: 'TEMPERATURE', isEnvironmental: true, sourceWorkerId: REAL_WORKER_ID, zoneId: currentZone, severity: effectiveStatus });
-    if (isWeakSignal) conditions.push({ type: 'WEAK_SIGNAL', isEnvironmental: false, sourceWorkerId: REAL_WORKER_ID, zoneId: currentZone, severity: 'warning' });
     
     if (conditions.length === 0) {
       conditions.push({ type: 'GENERIC', isEnvironmental: true, sourceWorkerId: REAL_WORKER_ID, zoneId: currentZone, severity: effectiveStatus });

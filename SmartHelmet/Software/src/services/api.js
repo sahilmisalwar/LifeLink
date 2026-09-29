@@ -220,8 +220,7 @@ export function getWorkerStatus(reading) {
     gas_level >= THRESHOLDS.gas_level.emergency ||
     force >= THRESHOLDS.force.emergency ||
     !!fall_detected ||
-    !!sos_triggered ||
-    hrEmergency
+    !!sos_triggered
   ) {
     return STATUS.EMERGENCY;
   }
@@ -229,9 +228,7 @@ export function getWorkerStatus(reading) {
   if (
     temperature >= THRESHOLDS.temperature.warning ||
     gas_level >= THRESHOLDS.gas_level.warning ||
-    force >= THRESHOLDS.force.warning ||
-    hrWarning ||
-    (rssi !== undefined && rssi !== null && rssi < THRESHOLDS.rssi.warning)
+    force >= THRESHOLDS.force.warning
   ) {
     return STATUS.WARNING;
   }

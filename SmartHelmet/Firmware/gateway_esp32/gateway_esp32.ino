@@ -220,6 +220,7 @@ void handlePacket(String payload, int rssi) {
   int force = sForce.toInt();
   int heart_rate = sHR.toInt();
   int spo2 = sSpO2.toInt();
+
   bool finger_detected = (sFinger.toInt() != 0);
   long ir_raw = sIrRaw.toInt();
   bool sos_triggered = (sSos.toInt() != 0);

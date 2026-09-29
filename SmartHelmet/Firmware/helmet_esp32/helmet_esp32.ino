@@ -4,33 +4,34 @@
 // Payload format (13 fields):
 // temperature,gas_level,accel_x,accel_y,accel_z,fall_detected,status,force,heart_rate,spo2,finger_detected,ir_raw,sos_triggered
 //
-// Hardware: Buzzer removed (D25 unused). SOS = 4-second hold to toggle on/off (1-min cooldown).
-// LED: 3 blinks on boot, 1 blink per LoRa TX, continuous blink on emergency.
-// Libraries: MPU6050.h (Jeff Rowberg), MAX30105.h (SparkFun)
+// Hardware: Buzzer removed (D25 unused). SOS = 4-second hold to toggle on/off
+// (1-min cooldown). LED: 3 blinks on boot, 1 blink per LoRa TX, continuous
+// blink on emergency. Libraries: MPU6050.h (Jeff Rowberg), MAX30105.h
+// (SparkFun)
 
-#include <Wire.h>
-#include <OneWire.h>
-#include <DallasTemperature.h>
 #include "MAX30105.h"
 #include "heartRate.h"
-#include <MPU6050.h>
-#include <SPI.h>
+#include <DallasTemperature.h>
 #include <LoRa.h>
+#include <MPU6050.h>
+#include <OneWire.h>
+#include <SPI.h>
+#include <Wire.h>
 
 // ---------------- Pin mapping ----------------
-#define LED_PIN         2
-#define DS18B20_PIN     4
-#define LORA_NSS        5
-#define SOS_BUTTON      13
-#define LORA_RST        14
-#define LORA_SCK        18
-#define LORA_MISO       19
-#define SDA_PIN         21
-#define SCL_PIN         22
-#define LORA_MOSI       23
+#define LED_PIN 2
+#define DS18B20_PIN 4
+#define LORA_NSS 5
+#define SOS_BUTTON 13
+#define LORA_RST 14
+#define LORA_SCK 18
+#define LORA_MISO 19
+#define SDA_PIN 21
+#define SCL_PIN 22
+#define LORA_MOSI 23
 // D25 — UNUSED (buzzer removed)
-#define LORA_DIO0       26
-#define MQ135_PIN       35
+#define LORA_DIO0 26
+#define MQ135_PIN 35
 
 // ---------------- Thresholds ----------------
 const float TEMP_WARNING = 30.0;
@@ -40,7 +41,7 @@ const int GAS_WARNING = 1000;
 const int GAS_EMERGENCY = 2000;
 
 const int FORCE_WARNING = 17000;
-const int FORCE_EMERGENCY = 20000;
+const int FORCE_EMERGENCY = 25000;
 const int FORCE_FREEFALL = 10000;
 
 const int HR_WARNING_LOW = 50;
@@ -53,13 +54,13 @@ const long IR_THRESHOLD = 10000;
 // ---------------- Timing ----------------
 const unsigned long SEND_INTERVAL = 4000;
 const unsigned long SOS_HOLD_TIME = 4000;
-const unsigned long SOS_COOLDOWN  = 60000;  // 1-minute cooldown after SOS toggle
+const unsigned long SOS_COOLDOWN = 60000; // 1-minute cooldown after SOS toggle
 const unsigned long FALL_LOCK_TIME = 10000;
 
 unsigned long lastSend = 0;
 unsigned long lastLed = 0;
 unsigned long sosStart = 0;
-unsigned long sosToggleTime = 0;   // When SOS was last toggled (for cooldown)
+unsigned long sosToggleTime = 0; // When SOS was last toggled (for cooldown)
 unsigned long fallUntil = 0;
 unsigned long lastTempRequest = 0; // Non-blocking DS18B20 timing
 bool tempRequested = false;        // Whether a temp conversion is in progress
@@ -83,17 +84,18 @@ bool mpuOK = false;
 bool maxOK = false;
 
 // ---------------- Heart-rate variables ----------------
-byte rates[4] = {0};
+byte rates[8] = {0};
 byte rateIndex = 0;
+int consecutiveAbnormal = 0;
 long lastBeat = 0;
 int heartRate = 0;
 int spo2 = 0;
 
 // ---------------- SpO2 estimation ----------------
-double dcIR = 0, dcRed = 0;          // DC (baseline) via exponential moving average
+double dcIR = 0, dcRed = 0; // DC (baseline) via exponential moving average
 double acSqSumIR = 0, acSqSumRed = 0; // Accumulated AC² for RMS calculation
 int spo2SampleCount = 0;
-const int SPO2_CALC_WINDOW = 100;     // Recalculate SpO2 every 100 samples (~1 sec)
+const int SPO2_CALC_WINDOW = 100; // Recalculate SpO2 every 100 samples (~1 sec)
 
 // ---------------- Diagnostics ----------------
 long irValue = 0;
@@ -118,7 +120,7 @@ void setup() {
 
   // ---------- DS18B20 (non-blocking mode) ----------
   ds18b20.begin();
-  ds18b20.setWaitForConversion(false);  // Critical: don't block 750ms per read
+  ds18b20.setWaitForConversion(false); // Critical: don't block 750ms per read
   Serial.println("[DS18B20] Initialized (non-blocking).");
 
   // ---------- MPU6050 (Jeff Rowberg library) ----------
@@ -131,7 +133,8 @@ void setup() {
     // Some MPU6050 clones fail testConnection but still work.
     // Force-enable and try reading anyway.
     mpuOK = true;
-    Serial.println("  WARNING: testConnection failed, will try reading anyway.");
+    Serial.println(
+        "  WARNING: testConnection failed, will try reading anyway.");
   }
 
   // ---------- MAX30102 ----------
@@ -139,13 +142,12 @@ void setup() {
   if (max30102.begin(Wire, I2C_SPEED_FAST)) {
     maxOK = true;
 
-    max30102.setup(
-      60,     // LED brightness
-      4,      // sample average
-      2,      // LED mode (Red + IR)
-      100,    // sample rate
-      411,    // pulse width
-      4096    // ADC range
+    max30102.setup(60,  // LED brightness
+                   4,   // sample average
+                   2,   // LED mode (Red + IR)
+                   100, // sample rate
+                   411, // pulse width
+                   4096 // ADC range
     );
 
     max30102.setPulseAmplitudeRed(0x24);
@@ -178,7 +180,9 @@ void setup() {
 
   if (!LoRa.begin(433E6)) {
     Serial.println("  FAIL - Check wiring/antenna.\n");
-    while (true) { delay(1000); }
+    while (true) {
+      delay(1000);
+    }
   }
 
   LoRa.setSpreadingFactor(12);
@@ -219,7 +223,8 @@ void handleSOS() {
   // ── Check cooldown: ignore button during cooldown period ──
   if (sosToggleTime > 0 && (millis() - sosToggleTime < SOS_COOLDOWN)) {
     // Still in cooldown — reset hold state if pressing
-    if (!pressed) sosHeld = false;
+    if (!pressed)
+      sosHeld = false;
     return;
   }
 
@@ -238,8 +243,8 @@ void handleSOS() {
     if (millis() - sosStart >= SOS_HOLD_TIME) {
       // Toggle SOS state
       sosEmergency = !sosEmergency;
-      sosToggleTime = millis();  // Start cooldown
-      sosHeld = false;           // Reset hold so it doesn't re-trigger
+      sosToggleTime = millis(); // Start cooldown
+      sosHeld = false;          // Reset hold so it doesn't re-trigger
 
       if (sosEmergency) {
         Serial.println(">>> !!! SOS EMERGENCY ACTIVATED !!! (cooldown 60s)");
@@ -287,7 +292,7 @@ void readHeartRate() {
 
   // Process ALL available samples (keeps FIFO from overflowing)
   while (max30102.available()) {
-    irValue  = max30102.getFIFOIR();
+    irValue = max30102.getFIFOIR();
     long redValue = max30102.getFIFORed();
     max30102.nextSample();
 
@@ -295,8 +300,10 @@ void readHeartRate() {
     if (irValue < IR_THRESHOLD) {
       finger = false;
       // Reset SpO2 tracking when finger removed
-      dcIR = 0; dcRed = 0;
-      acSqSumIR = 0; acSqSumRed = 0;
+      dcIR = 0;
+      dcRed = 0;
+      acSqSumIR = 0;
+      acSqSumRed = 0;
       spo2SampleCount = 0;
       continue;
     }
@@ -312,39 +319,60 @@ void readHeartRate() {
       if (delta > 250 && delta < 3000) {
         float bpm = 60000.0 / (float)delta;
 
-        rates[rateIndex++] = (byte)bpm;
-        rateIndex %= 4;
+        // Outlier rejection: if reading jumps by > 25 BPM, ignore it
+        // temporarily
+        bool accept = true;
+        if (heartRate > 0 && abs((int)bpm - heartRate) > 25) {
+          consecutiveAbnormal++;
+          if (consecutiveAbnormal < 4) {
+            accept = false;
+          }
+        }
 
-        int total = 0;
-        for (int i = 0; i < 4; i++) total += rates[i];
-        heartRate = total / 4;
+        if (accept) {
+          consecutiveAbnormal = 0;
+          rates[rateIndex++] = (byte)bpm;
+          rateIndex %= 8;
+
+          int total = 0;
+          int count = 0;
+          for (int i = 0; i < 8; i++) {
+            if (rates[i] > 0) {
+              total += rates[i];
+              count++;
+            }
+          }
+          if (count > 0) {
+            heartRate = total / count;
+          }
+        }
       }
     }
 
     // ── SpO2 estimation (ratio-of-ratios, RMS method) ──
     if (dcIR == 0) {
       // First sample — initialize DC baselines
-      dcIR  = irValue;
+      dcIR = irValue;
       dcRed = redValue;
       continue;
     }
 
     // Update DC baseline with slow EMA (α = 0.05)
-    dcIR  = dcIR  * 0.95 + (double)irValue  * 0.05;
+    dcIR = dcIR * 0.95 + (double)irValue * 0.05;
     dcRed = dcRed * 0.95 + (double)redValue * 0.05;
 
     // AC = deviation from DC baseline
-    double acIR  = (double)irValue  - dcIR;
+    double acIR = (double)irValue - dcIR;
     double acRed = (double)redValue - dcRed;
 
     // Accumulate squared AC for RMS
-    acSqSumIR  += acIR  * acIR;
+    acSqSumIR += acIR * acIR;
     acSqSumRed += acRed * acRed;
     spo2SampleCount++;
 
     // Calculate SpO2 every SPO2_CALC_WINDOW samples (~1 second at 100 SPS)
     if (spo2SampleCount >= SPO2_CALC_WINDOW) {
-      double rmsIR  = sqrt(acSqSumIR  / spo2SampleCount);
+      double rmsIR = sqrt(acSqSumIR / spo2SampleCount);
       double rmsRed = sqrt(acSqSumRed / spo2SampleCount);
 
       if (dcIR > 0 && dcRed > 0 && rmsIR > 0) {
@@ -357,7 +385,7 @@ void readHeartRate() {
       }
 
       // Reset accumulators for next window
-      acSqSumIR  = 0;
+      acSqSumIR = 0;
       acSqSumRed = 0;
       spo2SampleCount = 0;
     }
@@ -378,7 +406,7 @@ void readAndSend() {
       lastTemperature = t;
     }
   }
-  ds18b20.requestTemperatures();  // Non-blocking: returns immediately
+  ds18b20.requestTemperatures(); // Non-blocking: returns immediately
   tempRequested = true;
   float temperature = lastTemperature;
 
@@ -414,16 +442,14 @@ void readAndSend() {
   }
 
   // ---------- STATUS ----------
-  bool hrEmergency = heartRate > 0 &&
-    (heartRate <= HR_EMERGENCY_LOW || heartRate >= HR_EMERGENCY_HIGH);
-  bool hrWarning = heartRate > 0 &&
-    (heartRate <= HR_WARNING_LOW || heartRate >= HR_WARNING_HIGH);
+  // Heart rate is specifically disabled from triggering emergencies in this
+  // prototype to avoid false alarms from noisy MAX30102 readings.
 
   if (temperature >= TEMP_EMERGENCY || gas >= GAS_EMERGENCY ||
-      force >= FORCE_EMERGENCY || fallLocked || sosEmergency || hrEmergency) {
+      force >= FORCE_EMERGENCY || fallLocked || sosEmergency) {
     status = "emergency";
   } else if (temperature >= TEMP_WARNING || gas >= GAS_WARNING ||
-             force >= FORCE_WARNING || hrWarning) {
+             force >= FORCE_WARNING) {
     status = "warning";
   } else {
     status = "normal";
@@ -432,43 +458,48 @@ void readAndSend() {
   // ---------- READABLE STATUS BLOCK ----------
   Serial.println();
   Serial.println("-------- SENSOR STATUS --------");
-  Serial.print("Temp        : "); Serial.print(temperature, 1); Serial.println(" C");
-  Serial.print("Gas         : "); Serial.println(gas);
-  Serial.print("Accel X/Y/Z : "); Serial.print(ax); Serial.print(" / ");
-                                   Serial.print(ay); Serial.print(" / ");
-                                   Serial.println(az);
-  Serial.print("Force       : "); Serial.println(force);
-  Serial.print("Fall locked : "); Serial.println(fallLocked ? "YES" : "no");
-  Serial.print("SOS         : "); Serial.println(sosEmergency ? "YES (LOCKED)" : "no");
-  Serial.print("HR - IR raw : "); Serial.println(irValue);
-  Serial.print("HR - Finger : "); Serial.println(finger ? "detected" : "NOT detected");
-  Serial.print("HR - BPM    : "); Serial.println(heartRate);
-  Serial.print("Status      : "); Serial.println(status);
+  Serial.print("Temp        : ");
+  Serial.print(temperature, 1);
+  Serial.println(" C");
+  Serial.print("Gas         : ");
+  Serial.println(gas);
+  Serial.print("Accel X/Y/Z : ");
+  Serial.print(ax);
+  Serial.print(" / ");
+  Serial.print(ay);
+  Serial.print(" / ");
+  Serial.println(az);
+  Serial.print("Force       : ");
+  Serial.println(force);
+  Serial.print("Fall locked : ");
+  Serial.println(fallLocked ? "YES" : "no");
+  Serial.print("SOS         : ");
+  Serial.println(sosEmergency ? "YES (LOCKED)" : "no");
+  Serial.print("HR - IR raw : ");
+  Serial.println(irValue);
+  Serial.print("HR - Finger : ");
+  Serial.println(finger ? "detected" : "NOT detected");
+  Serial.print("HR - BPM    : ");
+  Serial.println(heartRate);
+  Serial.print("Status      : ");
+  Serial.println(status);
   Serial.println("--------------------------------");
 
   // ---------- BUILD PAYLOAD (13 fields) ----------
   // Gateway ESP32#2 expects exactly 13 comma-separated fields
-  String payload =
-    String(temperature, 1) + "," +
-    String(gas) + "," +
-    String(ax) + "," +
-    String(ay) + "," +
-    String(az) + "," +
-    String(fallLocked ? 1 : 0) + "," +
-    status + "," +
-    String(force) + "," +
-    String(heartRate) + "," +
-    String(spo2) + "," +
-    String(finger ? 1 : 0) + "," +
-    String(irValue) + "," +
-    String(sosEmergency ? 1 : 0);
+  String payload = String(temperature, 1) + "," + String(gas) + "," +
+                   String(ax) + "," + String(ay) + "," + String(az) + "," +
+                   String(fallLocked ? 1 : 0) + "," + status + "," +
+                   String(force) + "," + String(heartRate) + "," +
+                   String(spo2) + "," + String(finger ? 1 : 0) + "," +
+                   String(irValue) + "," + String(sosEmergency ? 1 : 0);
 
   // ---------- SEND (non-blocking) ----------
   // Async TX: returns immediately, transmission happens in background.
   // This is CRITICAL — blocking endPacket() was killing beat detection.
   LoRa.beginPacket();
   LoRa.print(payload);
-  LoRa.endPacket(true);  // true = async, non-blocking
+  LoRa.endPacket(true); // true = async, non-blocking
 
   Serial.print(">>> LoRa: ");
   Serial.println(payload);
